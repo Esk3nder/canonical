@@ -15,12 +15,38 @@ Institutional staking portfolio dashboard built with Next.js 14, PostgreSQL, and
 ## Prerequisites
 
 - Node.js 18+
-- PostgreSQL 14+
-- npm or yarn
+- Docker (recommended) or PostgreSQL 14+
 
-## Local Setup
+## Quick Start (Docker)
 
-### 1. Clone and install dependencies
+```bash
+# Clone and install
+git clone https://github.com/Esk3nder/canonical.git
+cd canonical
+npm install
+
+# Start PostgreSQL
+docker compose up -d
+
+# Configure environment
+cp .env.example .env.local
+
+# Run migrations
+npm run db:generate
+npm run db:migrate
+
+# Start dev server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000)
+
+## Local Setup (Manual PostgreSQL)
+
+<details>
+<summary>Click to expand</summary>
+
+### 1. Install dependencies
 
 ```bash
 git clone https://github.com/Esk3nder/canonical.git
@@ -28,23 +54,13 @@ cd canonical
 npm install
 ```
 
-### 2. Set up PostgreSQL
-
-Create a database:
+### 2. Create database
 
 ```bash
 createdb canonical_staking
 ```
 
-Or using psql:
-
-```sql
-CREATE DATABASE canonical_staking;
-```
-
 ### 3. Configure environment
-
-Copy the example environment file and update with your database credentials:
 
 ```bash
 cp .env.example .env.local
@@ -56,22 +72,20 @@ Edit `.env.local`:
 DATABASE_URL=postgresql://username:password@localhost:5432/canonical_staking
 ```
 
-### 4. Run database migrations
-
-Generate and apply migrations:
+### 4. Run migrations
 
 ```bash
 npm run db:generate
 npm run db:migrate
 ```
 
-### 5. Start the development server
+### 5. Start server
 
 ```bash
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser.
+</details>
 
 ## Scripts
 
@@ -87,36 +101,27 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 | `npm run db:migrate` | Apply migrations |
 | `npm run db:studio` | Open Drizzle Studio |
 
+## Docker Commands
+
+```bash
+docker compose up -d      # Start PostgreSQL
+docker compose down       # Stop PostgreSQL
+docker compose logs -f    # View logs
+```
+
 ## Project Structure
 
 ```
 src/
 ├── app/                    # Next.js App Router
 │   ├── api/               # API routes
-│   │   ├── portfolio/     # Portfolio overview
-│   │   ├── custodians/    # Custodian endpoints
-│   │   ├── validators/    # Validator endpoints
-│   │   ├── exceptions/    # Exception management
-│   │   └── reports/       # Report generation
 │   ├── custodians/        # Custodian detail pages
 │   ├── validators/        # Validator detail pages
 │   ├── exceptions/        # Exception queue
 │   └── reports/           # Report generation UI
-├── components/
-│   └── dashboard/         # Dashboard components
-│       ├── KPIBands.tsx
-│       ├── StateBuckets.tsx
-│       ├── CustodianDistribution.tsx
-│       ├── ValidatorTable.tsx
-│       └── ExceptionSummary.tsx
-├── db/
-│   ├── schema.ts          # Drizzle schema definitions
-│   └── client.ts          # Database client
-├── services/
-│   ├── rollup.ts          # Aggregation logic
-│   ├── reconciliation.ts  # Variance detection
-│   ├── exceptions.ts      # Exception detection
-│   └── export/            # CSV/PDF export
+├── components/dashboard/  # Dashboard components
+├── db/                    # Schema and client
+├── services/              # Business logic
 └── lib/                   # Utilities
 tests/
 ├── api/                   # API tests
