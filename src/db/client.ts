@@ -1,38 +1,32 @@
-import Database from 'better-sqlite3'
-import { drizzle } from 'drizzle-orm/better-sqlite3'
+import { drizzle } from 'drizzle-orm/postgres-js'
+import postgres from 'postgres'
 import * as schema from './schema'
-import path from 'path'
-import fs from 'fs'
 
-// Database file path
-const DB_PATH = process.env.DATABASE_URL || path.join(process.cwd(), 'data', 'staking.db')
+// Database connection string from environment
+const connectionString = process.env.DATABASE_URL
 
-// Ensure data directory exists
-const dataDir = path.dirname(DB_PATH)
-if (!fs.existsSync(dataDir)) {
-  fs.mkdirSync(dataDir, { recursive: true })
+if (!connectionString) {
+  throw new Error('DATABASE_URL environment variable is required')
 }
 
-// Create SQLite database connection
-const sqlite = new Database(DB_PATH)
-
-// Enable foreign keys
-sqlite.pragma('foreign_keys = ON')
+// Create postgres client for queries
+const queryClient = postgres(connectionString)
 
 // Create Drizzle ORM instance with schema
-export const db = drizzle(sqlite, { schema })
+export const db = drizzle(queryClient, { schema })
 
-// Export raw sqlite connection for migrations
-export const rawDb = sqlite
-
-// Helper to close connection (useful for tests)
-export function closeDb() {
-  sqlite.close()
+// Export postgres client for migrations (uses single connection)
+export function createMigrationClient() {
+  return postgres(connectionString!, { max: 1 })
 }
 
-// Helper to get a fresh in-memory database for tests
-export function createTestDb() {
-  const testSqlite = new Database(':memory:')
-  testSqlite.pragma('foreign_keys = ON')
-  return drizzle(testSqlite, { schema })
+// Helper to create a test database connection
+export function createTestDb(testConnectionString: string) {
+  const client = postgres(testConnectionString)
+  return drizzle(client, { schema })
+}
+
+// Helper to close all connections (useful for tests/cleanup)
+export async function closeDb() {
+  await queryClient.end()
 }

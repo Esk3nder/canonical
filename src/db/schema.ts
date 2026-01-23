@@ -1,48 +1,48 @@
-import { sqliteTable, text, integer, real, blob } from 'drizzle-orm/sqlite-core'
+import { pgTable, text, integer, real, timestamp, boolean, jsonb } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 
 // ============================================================================
 // Entities (Institutional clients / funds / products)
 // ============================================================================
 
-export const entities = sqliteTable('entities', {
+export const entities = pgTable('entities', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   type: text('type', { enum: ['fund', 'product', 'portfolio'] }).notNull(),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
 // ============================================================================
 // Custodians (Coinbase, Anchorage, etc.)
 // ============================================================================
 
-export const custodians = sqliteTable('custodians', {
+export const custodians = pgTable('custodians', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
 // ============================================================================
 // Operators (Staking operators under custodians)
 // ============================================================================
 
-export const operators = sqliteTable('operators', {
+export const operators = pgTable('operators', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   custodianId: text('custodian_id').notNull().references(() => custodians.id),
   description: text('description'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
 // ============================================================================
 // Validators
 // ============================================================================
 
-export const validators = sqliteTable('validators', {
+export const validators = pgTable('validators', {
   id: text('id').primaryKey(),
   pubkey: text('pubkey').notNull().unique(),
   operatorId: text('operator_id').notNull().references(() => operators.id),
@@ -54,15 +54,15 @@ export const validators = sqliteTable('validators', {
   exitEpoch: integer('exit_epoch'),
   balance: text('balance').notNull().default('0'), // Store as string for bigint
   effectiveBalance: text('effective_balance').notNull().default('0'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
 // ============================================================================
 // Stake Events (deposits, rewards, withdrawals, etc.)
 // ============================================================================
 
-export const stakeEvents = sqliteTable('stake_events', {
+export const stakeEvents = pgTable('stake_events', {
   id: text('id').primaryKey(),
   validatorId: text('validator_id').notNull().references(() => validators.id),
   eventType: text('event_type', {
@@ -73,16 +73,16 @@ export const stakeEvents = sqliteTable('stake_events', {
   slot: integer('slot'),
   blockNumber: integer('block_number'),
   txHash: text('tx_hash'),
-  timestamp: integer('timestamp', { mode: 'timestamp' }).notNull(),
-  finalized: integer('finalized', { mode: 'boolean' }).notNull().default(false),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  timestamp: timestamp('timestamp').notNull(),
+  finalized: boolean('finalized').notNull().default(false),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
 // ============================================================================
 // Exceptions
 // ============================================================================
 
-export const exceptions = sqliteTable('exceptions', {
+export const exceptions = pgTable('exceptions', {
   id: text('id').primaryKey(),
   type: text('type', {
     enum: ['portfolio_value_change', 'validator_count_change', 'in_transit_stuck', 'rewards_anomaly', 'performance_divergence']
@@ -91,32 +91,32 @@ export const exceptions = sqliteTable('exceptions', {
   title: text('title').notNull(),
   description: text('description').notNull(),
   severity: text('severity', { enum: ['low', 'medium', 'high', 'critical'] }).notNull(),
-  evidenceLinks: text('evidence_links', { mode: 'json' }).$type<Array<{
+  evidenceLinks: jsonb('evidence_links').$type<Array<{
     type: 'validator' | 'custodian' | 'event' | 'external'
     id: string
     label: string
     url?: string
   }>>().notNull().default([]),
-  detectedAt: integer('detected_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  resolvedAt: integer('resolved_at', { mode: 'timestamp' }),
+  detectedAt: timestamp('detected_at').notNull().defaultNow(),
+  resolvedAt: timestamp('resolved_at'),
   resolvedBy: text('resolved_by'),
   resolution: text('resolution'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  updatedAt: timestamp('updated_at').notNull().defaultNow(),
 })
 
 // ============================================================================
 // Config History (track mapping changes over time)
 // ============================================================================
 
-export const configHistory = sqliteTable('config_history', {
+export const configHistory = pgTable('config_history', {
   id: text('id').primaryKey(),
   entityType: text('entity_type', { enum: ['validator', 'operator', 'custodian', 'entity'] }).notNull(),
   entityId: text('entity_id').notNull(),
   fieldName: text('field_name').notNull(),
   oldValue: text('old_value'),
   newValue: text('new_value'),
-  changedAt: integer('changed_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  changedAt: timestamp('changed_at').notNull().defaultNow(),
   changedBy: text('changed_by'),
   reason: text('reason'),
 })
@@ -125,7 +125,7 @@ export const configHistory = sqliteTable('config_history', {
 // Daily Snapshots (for historical rollups)
 // ============================================================================
 
-export const dailySnapshots = sqliteTable('daily_snapshots', {
+export const dailySnapshots = pgTable('daily_snapshots', {
   id: text('id').primaryKey(),
   date: text('date').notNull(), // YYYY-MM-DD format
   entityId: text('entity_id').references(() => entities.id),
@@ -136,25 +136,25 @@ export const dailySnapshots = sqliteTable('daily_snapshots', {
   exitingStake: text('exiting_stake').notNull(),
   validatorCount: integer('validator_count').notNull(),
   trailingApy30d: real('trailing_apy_30d'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
 // ============================================================================
 // Reports (generated statement packs)
 // ============================================================================
 
-export const reports = sqliteTable('reports', {
+export const reports = pgTable('reports', {
   id: text('id').primaryKey(),
   entityId: text('entity_id').references(() => entities.id),
-  periodStart: integer('period_start', { mode: 'timestamp' }).notNull(),
-  periodEnd: integer('period_end', { mode: 'timestamp' }).notNull(),
+  periodStart: timestamp('period_start').notNull(),
+  periodEnd: timestamp('period_end').notNull(),
   methodologyVersion: text('methodology_version').notNull(),
   format: text('format', { enum: ['json', 'csv', 'pdf'] }).notNull(),
   status: text('status', { enum: ['pending', 'generating', 'complete', 'failed'] }).notNull().default('pending'),
-  data: text('data', { mode: 'json' }), // Full report data as JSON
+  data: jsonb('data'), // Full report data as JSON
   filePath: text('file_path'),
-  generatedAt: integer('generated_at', { mode: 'timestamp' }),
-  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().$defaultFn(() => new Date()),
+  generatedAt: timestamp('generated_at'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
 })
 
 // ============================================================================
