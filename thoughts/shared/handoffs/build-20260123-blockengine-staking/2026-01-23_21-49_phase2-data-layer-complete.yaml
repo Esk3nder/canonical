@@ -1,0 +1,87 @@
+---
+session: build-20260123-blockengine-staking
+date: 2026-01-23
+status: partial
+outcome: SUCCEEDED
+---
+
+goal: Build Blockengine Institutional Staking Portfolio MVP - Phase 1-2 complete
+now: Run npm install locally, then continue Phase 3 (API routes)
+test: npm run test -- tests/services/
+
+done_this_session:
+  - task: Set up RepoPrompt MCP integration with Conductor
+    files: [~/.claude.json]
+  - task: Create GitHub repo canonical
+    files: []
+  - task: Initialize Next.js 14 + TypeScript + Tailwind project
+    files: [package.json, tsconfig.json, next.config.js, tailwind.config.ts, vitest.config.ts, playwright.config.ts]
+  - task: Create SQLite database schema with Drizzle ORM
+    files: [src/db/schema.ts, src/db/client.ts, drizzle.config.ts]
+  - task: Define core domain types for staking
+    files: [src/domain/types.ts]
+  - task: Build Rollup Service (TDD)
+    files: [src/services/rollup.ts, tests/services/rollup.test.ts]
+  - task: Build Reconciliation Service (TDD)
+    files: [src/services/reconciliation.ts, tests/services/reconciliation.test.ts]
+  - task: Build Exception Detection Service (TDD)
+    files: [src/services/exceptions.ts, tests/services/exceptions.test.ts]
+  - task: Create placeholder dashboard page
+    files: [src/app/page.tsx, src/app/layout.tsx, src/app/globals.css]
+
+blockers:
+  - npm install blocked by sandbox permissions in VPS environment
+  - Tests cannot run until user installs dependencies locally
+
+questions:
+  - Should we use React Query for data fetching in Phase 4?
+  - What external data sources will feed the staking sub-ledger?
+
+decisions:
+  - sqlite_over_postgres: SQLite chosen for simplicity, can migrate later
+  - bigint_for_amounts: All monetary values stored as bigint (gwei precision)
+  - tdd_approach: Write tests first for all services
+
+findings:
+  - repoprompt_mcp_config: RepoPrompt MCP uses stdio command at /Users/esk3nder/RepoPrompt/repoprompt_cli
+  - conductor_inherits_mcp: Conductor workspaces inherit ~/.claude.json MCP config
+
+worked:
+  - TDD approach for services - clear contracts before implementation
+  - Drizzle ORM with SQLite - type-safe schema definition
+
+failed:
+  - npm install in VPS sandbox - permission denied on /tmp/claude
+
+next:
+  - Run npm install locally and verify tests pass
+  - Create Phase 3 API routes (GET /api/portfolio, GET /api/validators/:id, etc.)
+  - Create Phase 4 UI components (KPIBands, StateBuckets, CustodianDistribution)
+  - Wire up APIs to dashboard page
+
+files:
+  created:
+    - package.json
+    - tsconfig.json
+    - next.config.js
+    - tailwind.config.ts
+    - vitest.config.ts
+    - playwright.config.ts
+    - drizzle.config.ts
+    - src/domain/types.ts
+    - src/db/schema.ts
+    - src/db/client.ts
+    - src/services/rollup.ts
+    - src/services/reconciliation.ts
+    - src/services/exceptions.ts
+    - src/app/page.tsx
+    - src/app/layout.tsx
+    - src/app/globals.css
+    - tests/setup.ts
+    - tests/db/schema.test.ts
+    - tests/services/rollup.test.ts
+    - tests/services/reconciliation.test.ts
+    - tests/services/exceptions.test.ts
+    - thoughts/shared/specs/blockengine-staking-portfolio-spec.md
+    - thoughts/shared/plans/PLAN-blockengine-staking.md
+  modified: []
