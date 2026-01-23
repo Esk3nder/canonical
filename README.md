@@ -31,9 +31,11 @@ docker compose up -d
 # Configure environment
 cp .env.example .env.local
 
-# Run migrations
-npm run db:generate
-npm run db:migrate
+# Push schema to database
+npm run db:push
+
+# Seed demo data (optional)
+npm run db:seed
 
 # Start dev server
 npm run dev
@@ -72,11 +74,11 @@ Edit `.env.local`:
 DATABASE_URL=postgresql://username:password@localhost:5432/canonical_staking
 ```
 
-### 4. Run migrations
+### 4. Push schema and seed data
 
 ```bash
-npm run db:generate
-npm run db:migrate
+npm run db:push
+npm run db:seed
 ```
 
 ### 5. Start server
@@ -91,7 +93,7 @@ npm run dev
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server with Turbopack |
+| `npm run dev` | Start development server |
 | `npm run build` | Build for production |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
@@ -99,14 +101,49 @@ npm run dev
 | `npm run test:e2e` | Run E2E tests (Playwright) |
 | `npm run db:generate` | Generate Drizzle migrations |
 | `npm run db:migrate` | Apply migrations |
+| `npm run db:push` | Push schema to database |
+| `npm run db:seed` | Seed demo data |
 | `npm run db:studio` | Open Drizzle Studio |
 
-## Docker Commands
+## Docker Deployment (Full Stack)
+
+Run the entire application with a single command:
 
 ```bash
-docker compose up -d      # Start PostgreSQL
-docker compose down       # Stop PostgreSQL
-docker compose logs -f    # View logs
+# Clone the repository
+git clone https://github.com/Esk3nder/canonical.git
+cd canonical
+
+# Start everything (PostgreSQL + App + Migrations)
+docker compose up -d
+
+# Seed demo data (optional)
+docker compose exec app npx tsx scripts/seed.ts
+```
+
+Open [http://localhost:3000](http://localhost:3000)
+
+### Docker Commands
+
+```bash
+docker compose up -d        # Start all services
+docker compose down         # Stop all services
+docker compose logs -f app  # View app logs
+docker compose ps           # Check service status
+docker compose build        # Rebuild after code changes
+```
+
+### Development with Docker
+
+For local development with hot reload:
+
+```bash
+# Start only PostgreSQL
+docker compose up -d postgres
+
+# Run app locally
+npm install
+npm run dev
 ```
 
 ## Project Structure

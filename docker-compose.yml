@@ -16,5 +16,28 @@ services:
       timeout: 5s
       retries: 5
 
+  app:
+    build: .
+    container_name: canonical-app
+    ports:
+      - "3000:3000"
+    environment:
+      DATABASE_URL: postgresql://canonical:canonical_dev@postgres:5432/canonical_staking
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # One-time migration runner
+  migrate:
+    build: .
+    container_name: canonical-migrate
+    environment:
+      DATABASE_URL: postgresql://canonical:canonical_dev@postgres:5432/canonical_staking
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: npx drizzle-kit push
+    restart: "no"
+
 volumes:
   postgres_data:
