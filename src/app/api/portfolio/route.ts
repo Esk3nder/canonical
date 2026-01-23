@@ -1,0 +1,112 @@
+/**
+ * Portfolio API
+ * GET /api/portfolio - Returns portfolio summary
+ */
+import { NextResponse } from 'next/server'
+import { db } from '@/db/client'
+import { validators, operators, custodians, stakeEvents } from '@/db/schema'
+import { eq } from 'drizzle-orm'
+import {
+  createPortfolioSummary,
+  type ValidatorWithContext,
+  type RewardEvent,
+} from '@/services/rollup'
+import type { StakeState } from '@/domain/types'
+
+/**
+ * Serializes bigint values to strings for JSON transport
+ */
+function serializePortfolioSummary(summary: ReturnType<typeof createPortfolioSummary>) {
+  return {
+    totalValue: summary.totalValue.toString(),
+    trailingApy30d: summary.trailingApy30d,
+    validatorCount: summary.validatorCount,
+    stateBuckets: {
+      active: summary.stateBuckets.active.toString(),
+      inTransit: summary.stateBuckets.inTransit.toString(),
+      rewards: summary.stateBuckets.rewards.toString(),
+      exiting: summary.stateBuckets.exiting.toString(),
+    },
+    custodianBreakdown: summary.custodianBreakdown.map((c) => ({
+      custodianId: c.custodianId,
+      custodianName: c.custodianName,
+      value: c.value.toString(),
+      percentage: c.percentage,
+      trailingApy30d: c.trailingApy30d,
+      validatorCount: c.validatorCount,
+      change7d: c.change7d,
+      change30d: c.change30d,
+    })),
+    asOfTimestamp: summary.asOfTimestamp.toISOString(),
+  }
+}
+
+export async function GET() {
+  try {
+    // Fetch all validators with their operator and custodian context
+    const validatorRows = await db
+      .select({
+        id: validators.id,
+        pubkey: validators.pubkey,
+        operatorId: validators.operatorId,
+        operatorName: operators.name,
+        custodianId: custodians.id,
+        custodianName: custodians.name,
+        status: validators.status,
+        stakeState: validators.stakeState,
+        balance: validators.balance,
+        effectiveBalance: validators.effectiveBalance,
+      })
+      .from(validators)
+      .innerJoin(operators, eq(validators.operatorId, operators.id))
+      .innerJoin(custodians, eq(operators.custodianId, custodians.id))
+
+    // Transform to ValidatorWithContext
+    const validatorsWithContext: ValidatorWithContext[] = validatorRows.map((v) => ({
+      id: v.id,
+      pubkey: v.pubkey,
+      operatorId: v.operatorId,
+      operatorName: v.operatorName,
+      custodianId: v.custodianId,
+      custodianName: v.custodianName,
+      status: v.status,
+      stakeState: v.stakeState as StakeState,
+      balance: BigInt(v.balance),
+      effectiveBalance: BigInt(v.effectiveBalance),
+    }))
+
+    // Fetch reward events from the last 30 days
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    const rewardRows = await db
+      .select({
+        validatorId: stakeEvents.validatorId,
+        amount: stakeEvents.amount,
+        timestamp: stakeEvents.timestamp,
+      })
+      .from(stakeEvents)
+      .where(eq(stakeEvents.eventType, 'reward'))
+
+    // Transform to RewardEvent and filter by date
+    const rewardEvents: RewardEvent[] = rewardRows
+      .filter((r) => r.timestamp >= thirtyDaysAgo)
+      .map((r) => ({
+        validatorId: r.validatorId,
+        amount: BigInt(r.amount),
+        timestamp: r.timestamp,
+      }))
+
+    // Create portfolio summary
+    const summary = createPortfolioSummary(validatorsWithContext, rewardEvents)
+
+    return NextResponse.json({
+      data: serializePortfolioSummary(summary),
+      timestamp: new Date().toISOString(),
+    })
+  } catch (error) {
+    console.error('Portfolio API error:', error)
+    return NextResponse.json(
+      { error: 'Failed to fetch portfolio data' },
+      { status: 500 }
+    )
+  }
+}

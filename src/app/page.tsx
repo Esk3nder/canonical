@@ -1,154 +1,280 @@
-import { Suspense } from 'react'
+'use client'
 
-// Placeholder components - will be implemented in Phase 4
-function KPIBands() {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-      <div className="kpi-band" data-testid="portfolio-value">
-        <div className="kpi-label">Total Portfolio Value</div>
-        <div className="kpi-value">$—</div>
-      </div>
-      <div className="kpi-band" data-testid="trailing-apy">
-        <div className="kpi-label">Trailing APY (30d)</div>
-        <div className="kpi-value">—%</div>
-      </div>
-      <div className="kpi-band" data-testid="validator-count">
-        <div className="kpi-label">Validators</div>
-        <div className="kpi-value">—</div>
-      </div>
-    </div>
-  )
+import { useEffect, useState } from 'react'
+import { useRouter } from 'next/navigation'
+import {
+  KPIBands,
+  StateBuckets,
+  CustodianDistribution,
+  ValidatorTable,
+  ExceptionSummary,
+} from '@/components/dashboard'
+
+// API response types
+interface PortfolioData {
+  totalValue: string
+  trailingApy30d: number
+  validatorCount: number
+  stateBuckets: {
+    active: string
+    inTransit: string
+    rewards: string
+    exiting: string
+  }
+  custodianBreakdown: Array<{
+    custodianId: string
+    custodianName: string
+    value: string
+    percentage: number
+    trailingApy30d: number
+    validatorCount: number
+    change7d?: number
+    change30d?: number
+  }>
+  asOfTimestamp: string
 }
 
-function StateBuckets() {
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <div className="state-bucket" data-testid="active-stake">
-        <div className="text-sm font-medium text-slate-500">Active</div>
-        <div className="text-xl font-semibold text-slate-900">$—</div>
-        <div className="text-xs text-slate-400">— validators</div>
-      </div>
-      <div className="state-bucket" data-testid="in-transit-stake">
-        <div className="text-sm font-medium text-slate-500">In Transit</div>
-        <div className="text-xl font-semibold text-slate-900">$—</div>
-        <div className="text-xs text-slate-400">— validators</div>
-      </div>
-      <div className="state-bucket" data-testid="rewards">
-        <div className="text-sm font-medium text-slate-500">Rewards</div>
-        <div className="text-xl font-semibold text-slate-900">$—</div>
-        <div className="text-xs text-slate-400">unclaimed</div>
-      </div>
-      <div className="state-bucket" data-testid="exiting-stake">
-        <div className="text-sm font-medium text-slate-500">Exiting</div>
-        <div className="text-xl font-semibold text-slate-900">$—</div>
-        <div className="text-xs text-slate-400">— validators</div>
-      </div>
-    </div>
-  )
+interface ExceptionData {
+  id: string
+  type: string
+  status: string
+  title: string
+  severity: string
+  detectedAt: string
 }
 
-function CustodianDistribution() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-8">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Custodian Distribution</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Chart placeholder */}
-        <div className="h-64 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400">
-          Allocation Chart
-        </div>
-        {/* Comparison table */}
-        <div className="overflow-x-auto">
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Custodian</th>
-                <th>Value</th>
-                <th>APY</th>
-                <th>7d Change</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td colSpan={4} className="text-center text-slate-400 py-8">
-                  No data available
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-function ValidatorPerformance() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6 mb-8">
-      <h2 className="text-lg font-semibold text-slate-900 mb-4">Validator Performance</h2>
-      <div className="overflow-x-auto">
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Validator</th>
-              <th>Operator</th>
-              <th>Status</th>
-              <th>Balance</th>
-              <th>APY</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td colSpan={5} className="text-center text-slate-400 py-8">
-                No validators found
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}
-
-function ExceptionSummary() {
-  return (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-200 p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-slate-900">Exceptions</h2>
-        <a href="/exceptions" className="text-sm text-primary-600 hover:text-primary-800">
-          View all →
-        </a>
-      </div>
-      <div className="text-center text-slate-400 py-8">
-        No exceptions detected
-      </div>
-    </div>
-  )
+interface ValidatorData {
+  id: string
+  pubkey: string
+  operatorName: string
+  custodianName: string
+  status: string
+  stakeState: string
+  balance: string
+  effectiveBalance: string
+  trailingApy30d?: number
 }
 
 export default function PortfolioOverview() {
+  const router = useRouter()
+
+  // Portfolio data state
+  const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
+  const [portfolioLoading, setPortfolioLoading] = useState(true)
+  const [portfolioError, setPortfolioError] = useState<string | undefined>()
+
+  // Validators state
+  const [validators, setValidators] = useState<ValidatorData[]>([])
+  const [validatorsTotal, setValidatorsTotal] = useState(0)
+  const [validatorsLoading, setValidatorsLoading] = useState(true)
+  const [validatorsPage, setValidatorsPage] = useState(1)
+
+  // Exceptions state
+  const [exceptionsData, setExceptionsData] = useState<{
+    total: number
+    bySeverity: { critical: number; high: number; medium: number; low: number }
+    recent: Array<{
+      id: string
+      type: string
+      title: string
+      severity: string
+      detectedAt: string
+      isNew?: boolean
+    }>
+  } | null>(null)
+  const [exceptionsLoading, setExceptionsLoading] = useState(true)
+
+  // Fetch portfolio data
+  useEffect(() => {
+    async function fetchPortfolio() {
+      try {
+        setPortfolioLoading(true)
+        const res = await fetch('/api/portfolio')
+        if (!res.ok) throw new Error('Failed to fetch portfolio')
+        const json = await res.json()
+        setPortfolioData(json.data)
+        setPortfolioError(undefined)
+      } catch (err) {
+        setPortfolioError(err instanceof Error ? err.message : 'Unknown error')
+      } finally {
+        setPortfolioLoading(false)
+      }
+    }
+
+    fetchPortfolio()
+  }, [])
+
+  // Fetch validators (would normally be a separate API call with pagination)
+  useEffect(() => {
+    async function fetchValidators() {
+      try {
+        setValidatorsLoading(true)
+        // For now, derive from portfolio data
+        // In production, this would be a separate paginated API
+        if (portfolioData) {
+          // Mock validators from custodian breakdown for demo
+          const mockValidators: ValidatorData[] = portfolioData.custodianBreakdown.flatMap(
+            (c, idx) =>
+              Array.from({ length: Math.min(c.validatorCount, 5) }, (_, i) => ({
+                id: `validator-${idx}-${i}`,
+                pubkey: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 10)}`,
+                operatorName: `${c.custodianName} Operator`,
+                custodianName: c.custodianName,
+                status: 'active',
+                stakeState: 'active',
+                balance: (BigInt(c.value) / BigInt(c.validatorCount || 1)).toString(),
+                effectiveBalance: '32000000000',
+                trailingApy30d: c.trailingApy30d,
+              }))
+          )
+          setValidators(mockValidators)
+          setValidatorsTotal(portfolioData.validatorCount)
+        }
+      } finally {
+        setValidatorsLoading(false)
+      }
+    }
+
+    fetchValidators()
+  }, [portfolioData])
+
+  // Fetch exceptions
+  useEffect(() => {
+    async function fetchExceptions() {
+      try {
+        setExceptionsLoading(true)
+        const res = await fetch('/api/exceptions?pageSize=5')
+        if (!res.ok) throw new Error('Failed to fetch exceptions')
+        const json = await res.json()
+
+        // Transform to summary format
+        const exceptions = json.data as ExceptionData[]
+        const bySeverity = {
+          critical: exceptions.filter((e) => e.severity === 'critical').length,
+          high: exceptions.filter((e) => e.severity === 'high').length,
+          medium: exceptions.filter((e) => e.severity === 'medium').length,
+          low: exceptions.filter((e) => e.severity === 'low').length,
+        }
+
+        setExceptionsData({
+          total: json.total,
+          bySeverity,
+          recent: exceptions.slice(0, 3).map((e, idx) => ({
+            id: e.id,
+            type: e.type,
+            title: e.title,
+            severity: e.severity,
+            detectedAt: e.detectedAt,
+            isNew: idx === 0 && e.status === 'new',
+          })),
+        })
+      } catch (err) {
+        // Set empty data on error
+        setExceptionsData({
+          total: 0,
+          bySeverity: { critical: 0, high: 0, medium: 0, low: 0 },
+          recent: [],
+        })
+      } finally {
+        setExceptionsLoading(false)
+      }
+    }
+
+    fetchExceptions()
+  }, [])
+
+  // Navigation handlers
+  const handleCustodianClick = (custodianId: string) => {
+    router.push(`/custodians/${custodianId}`)
+  }
+
+  const handleValidatorClick = (validatorId: string) => {
+    router.push(`/validators/${validatorId}`)
+  }
+
+  const handleExceptionClick = (exceptionId: string) => {
+    router.push(`/exceptions/${exceptionId}`)
+  }
+
+  const handleBucketClick = (bucket: string) => {
+    router.push(`/validators?state=${bucket}`)
+  }
+
   return (
-    <div>
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-slate-900">Portfolio Overview</h1>
-        <p className="text-slate-500">Institutional staking dashboard</p>
-      </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900">Portfolio Overview</h1>
+          <p className="text-gray-500">Institutional staking dashboard</p>
+        </div>
 
-      <Suspense fallback={<div>Loading...</div>}>
-        {/* Above the fold: KPIs + State Buckets + Custodian Distribution */}
-        <KPIBands />
-        <StateBuckets />
-        <CustodianDistribution />
+        {/* KPI Bands */}
+        <div className="mb-6">
+          <KPIBands
+            data={
+              portfolioData
+                ? {
+                    totalValue: portfolioData.totalValue,
+                    trailingApy30d: portfolioData.trailingApy30d,
+                    validatorCount: portfolioData.validatorCount,
+                  }
+                : null
+            }
+            isLoading={portfolioLoading}
+            error={portfolioError}
+          />
+        </div>
 
-        {/* Below the fold: Validators + Exceptions */}
+        {/* State Buckets */}
+        <div className="mb-6">
+          <StateBuckets
+            data={portfolioData?.stateBuckets ?? null}
+            totalValue={portfolioData?.totalValue ?? '0'}
+            isLoading={portfolioLoading}
+            onBucketClick={handleBucketClick}
+          />
+        </div>
+
+        {/* Custodian Distribution */}
+        <div className="mb-6">
+          <CustodianDistribution
+            data={portfolioData?.custodianBreakdown ?? null}
+            isLoading={portfolioLoading}
+            onCustodianClick={handleCustodianClick}
+          />
+        </div>
+
+        {/* Validators + Exceptions */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
-            <ValidatorPerformance />
+            <ValidatorTable
+              data={validators.length > 0 ? validators : null}
+              total={validatorsTotal}
+              page={validatorsPage}
+              pageSize={10}
+              isLoading={validatorsLoading}
+              onPageChange={setValidatorsPage}
+              onRowClick={handleValidatorClick}
+            />
           </div>
           <div>
-            <ExceptionSummary />
+            <ExceptionSummary
+              data={exceptionsData}
+              isLoading={exceptionsLoading}
+              onViewAll={() => router.push('/exceptions')}
+              onExceptionClick={handleExceptionClick}
+            />
           </div>
         </div>
-      </Suspense>
+
+        {/* Footer with timestamp */}
+        {portfolioData && (
+          <div className="mt-8 text-center text-sm text-gray-400">
+            Data as of {new Date(portfolioData.asOfTimestamp).toLocaleString()}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
