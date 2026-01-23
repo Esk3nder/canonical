@@ -129,7 +129,7 @@ describe('Exceptions API', () => {
           id: 'exception-1',
           status: 'resolved',
           resolution: 'Expected rebalancing operation',
-          resolvedBy: 'john.doe@blockengine.io',
+          resolvedBy: 'john.doe@canonical.io',
           resolvedAt: '2024-01-16T12:00:00Z',
         },
       }

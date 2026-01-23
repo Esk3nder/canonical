@@ -5,7 +5,7 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Blockengine Staking Portfolio',
+  title: 'Canonical Staking Portfolio',
   description: 'Institutional staking portfolio overview and reporting',
 }
 
@@ -23,7 +23,7 @@ export default function RootLayout({
               <div className="flex justify-between h-16">
                 <div className="flex items-center">
                   <span className="text-xl font-bold text-slate-900">
-                    Blockengine
+                    Canonical
                   </span>
                   <span className="ml-2 text-sm text-slate-500">
                     Staking Portfolio

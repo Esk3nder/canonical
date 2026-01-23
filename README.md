@@ -1,4 +1,4 @@
-# Blockengine Staking Portfolio
+# Canonical Staking Portfolio
 
 Institutional staking portfolio dashboard built with Next.js 14, PostgreSQL, and Drizzle ORM.
 
@@ -33,13 +33,13 @@ npm install
 Create a database:
 
 ```bash
-createdb blockengine_staking
+createdb canonical_staking
 ```
 
 Or using psql:
 
 ```sql
-CREATE DATABASE blockengine_staking;
+CREATE DATABASE canonical_staking;
 ```
 
 ### 3. Configure environment
@@ -53,7 +53,7 @@ cp .env.example .env.local
 Edit `.env.local`:
 
 ```env
-DATABASE_URL=postgresql://username:password@localhost:5432/blockengine_staking
+DATABASE_URL=postgresql://username:password@localhost:5432/canonical_staking
 ```
 
 ### 4. Run database migrations

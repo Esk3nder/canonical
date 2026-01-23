@@ -1,5 +1,5 @@
 /**
- * Core domain types for Blockengine Staking Portfolio
+ * Core domain types for Canonical Staking Portfolio
  *
  * These types define the staking-specific concepts that power the dashboard,
  * sub-ledger, and reporting functionality.
