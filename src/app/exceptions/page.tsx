@@ -187,16 +187,10 @@ export default function ExceptionsPage() {
   const totalPages = Math.ceil(total / pageSize)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div>
+      <div className="max-w-6xl">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.push('/')}
-            className="text-blue-600 hover:text-blue-800 text-sm mb-2"
-          >
-            &larr; Back to Dashboard
-          </button>
           <h1 className="text-2xl font-bold text-gray-900">Exception Queue</h1>
           <p className="text-gray-600">Monitor and resolve portfolio anomalies</p>
         </div>
