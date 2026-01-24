@@ -6,7 +6,6 @@ import {
   KPIBands,
   StateBuckets,
   CustodianDistribution,
-  ValidatorTable,
   ExceptionSummary,
 } from '@/components/dashboard'
 
@@ -43,18 +42,6 @@ interface ExceptionData {
   detectedAt: string
 }
 
-interface ValidatorData {
-  id: string
-  pubkey: string
-  operatorName: string
-  custodianName: string
-  status: string
-  stakeState: string
-  balance: string
-  effectiveBalance: string
-  trailingApy30d?: number
-}
-
 export default function PortfolioOverview() {
   const router = useRouter()
 
@@ -62,12 +49,6 @@ export default function PortfolioOverview() {
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
   const [portfolioLoading, setPortfolioLoading] = useState(true)
   const [portfolioError, setPortfolioError] = useState<string | undefined>()
-
-  // Validators state
-  const [validators, setValidators] = useState<ValidatorData[]>([])
-  const [validatorsTotal, setValidatorsTotal] = useState(0)
-  const [validatorsLoading, setValidatorsLoading] = useState(true)
-  const [validatorsPage, setValidatorsPage] = useState(1)
 
   // Exceptions state
   const [exceptionsData, setExceptionsData] = useState<{
@@ -103,40 +84,6 @@ export default function PortfolioOverview() {
 
     fetchPortfolio()
   }, [])
-
-  // Fetch validators (would normally be a separate API call with pagination)
-  useEffect(() => {
-    async function fetchValidators() {
-      try {
-        setValidatorsLoading(true)
-        // For now, derive from portfolio data
-        // In production, this would be a separate paginated API
-        if (portfolioData) {
-          // Mock validators from custodian breakdown for demo
-          const mockValidators: ValidatorData[] = portfolioData.custodianBreakdown.flatMap(
-            (c, idx) =>
-              Array.from({ length: Math.min(c.validatorCount, 5) }, (_, i) => ({
-                id: `validator-${idx}-${i}`,
-                pubkey: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 10)}`,
-                operatorName: `${c.custodianName} Operator`,
-                custodianName: c.custodianName,
-                status: 'active',
-                stakeState: 'active',
-                balance: (BigInt(c.value) / BigInt(c.validatorCount || 1)).toString(),
-                effectiveBalance: '32000000000',
-                trailingApy30d: c.trailingApy30d,
-              }))
-          )
-          setValidators(mockValidators)
-          setValidatorsTotal(portfolioData.validatorCount)
-        }
-      } finally {
-        setValidatorsLoading(false)
-      }
-    }
-
-    fetchValidators()
-  }, [portfolioData])
 
   // Fetch exceptions
   useEffect(() => {
@@ -188,10 +135,6 @@ export default function PortfolioOverview() {
     router.push(`/custodians/${custodianId}`)
   }
 
-  const handleValidatorClick = (validatorId: string) => {
-    router.push(`/validators/${validatorId}`)
-  }
-
   const handleExceptionClick = (exceptionId: string) => {
     router.push(`/exceptions/${exceptionId}`)
   }
@@ -201,80 +144,65 @@ export default function PortfolioOverview() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Portfolio Overview</h1>
-          <p className="text-gray-500">Institutional staking dashboard</p>
-        </div>
-
-        {/* KPI Bands */}
-        <div className="mb-6">
-          <KPIBands
-            data={
-              portfolioData
-                ? {
-                    totalValue: portfolioData.totalValue,
-                    trailingApy30d: portfolioData.trailingApy30d,
-                    validatorCount: portfolioData.validatorCount,
-                  }
-                : null
-            }
-            isLoading={portfolioLoading}
-            error={portfolioError}
-          />
-        </div>
-
-        {/* State Buckets */}
-        <div className="mb-6">
-          <StateBuckets
-            data={portfolioData?.stateBuckets ?? null}
-            totalValue={portfolioData?.totalValue ?? '0'}
-            isLoading={portfolioLoading}
-            onBucketClick={handleBucketClick}
-          />
-        </div>
-
-        {/* Custodian Distribution */}
-        <div className="mb-6">
-          <CustodianDistribution
-            data={portfolioData?.custodianBreakdown ?? null}
-            isLoading={portfolioLoading}
-            onCustodianClick={handleCustodianClick}
-          />
-        </div>
-
-        {/* Validators + Exceptions */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <ValidatorTable
-              data={validators.length > 0 ? validators : null}
-              total={validatorsTotal}
-              page={validatorsPage}
-              pageSize={10}
-              isLoading={validatorsLoading}
-              onPageChange={setValidatorsPage}
-              onRowClick={handleValidatorClick}
-            />
-          </div>
-          <div>
-            <ExceptionSummary
-              data={exceptionsData}
-              isLoading={exceptionsLoading}
-              onViewAll={() => router.push('/exceptions')}
-              onExceptionClick={handleExceptionClick}
-            />
-          </div>
-        </div>
-
-        {/* Footer with timestamp */}
-        {portfolioData && (
-          <div className="mt-8 text-center text-sm text-gray-400">
-            Data as of {new Date(portfolioData.asOfTimestamp).toLocaleString()}
-          </div>
-        )}
+    <div>
+      {/* Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-bold text-gray-900">Portfolio Overview</h1>
+        <p className="text-gray-500">Institutional staking dashboard</p>
       </div>
+
+      {/* KPI Bands */}
+      <div className="mb-6">
+        <KPIBands
+          data={
+            portfolioData
+              ? {
+                  totalValue: portfolioData.totalValue,
+                  trailingApy30d: portfolioData.trailingApy30d,
+                  validatorCount: portfolioData.validatorCount,
+                }
+              : null
+          }
+          isLoading={portfolioLoading}
+          error={portfolioError}
+        />
+      </div>
+
+      {/* State Buckets */}
+      <div className="mb-6">
+        <StateBuckets
+          data={portfolioData?.stateBuckets ?? null}
+          totalValue={portfolioData?.totalValue ?? '0'}
+          isLoading={portfolioLoading}
+          onBucketClick={handleBucketClick}
+        />
+      </div>
+
+      {/* Custodian Distribution */}
+      <div className="mb-6">
+        <CustodianDistribution
+          data={portfolioData?.custodianBreakdown ?? null}
+          isLoading={portfolioLoading}
+          onCustodianClick={handleCustodianClick}
+        />
+      </div>
+
+      {/* Exceptions Summary */}
+      <div className="mb-6">
+        <ExceptionSummary
+          data={exceptionsData}
+          isLoading={exceptionsLoading}
+          onViewAll={() => router.push('/exceptions')}
+          onExceptionClick={handleExceptionClick}
+        />
+      </div>
+
+      {/* Footer with timestamp */}
+      {portfolioData && (
+        <div className="mt-8 text-center text-sm text-gray-400">
+          Data as of {new Date(portfolioData.asOfTimestamp).toLocaleString()}
+        </div>
+      )}
     </div>
   )
 }

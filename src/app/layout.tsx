@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
+import { Sidebar } from '@/components/Sidebar'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -18,8 +19,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <div className="min-h-screen bg-slate-50">
-          <nav className="bg-white border-b border-slate-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Top Navigation */}
+          <nav className="fixed top-0 left-0 right-0 z-10 bg-white border-b border-slate-200">
+            <div className="px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between h-16">
                 <div className="flex items-center">
                   <span className="text-xl font-bold text-slate-900">
@@ -30,21 +32,28 @@ export default function RootLayout({
                   </span>
                 </div>
                 <div className="flex items-center space-x-4">
-                  <a href="/" className="text-sm text-slate-600 hover:text-slate-900">
-                    Overview
+                  <a href="/about" className="text-sm text-slate-600 hover:text-slate-900">
+                    About Us
                   </a>
-                  <a href="/reports" className="text-sm text-slate-600 hover:text-slate-900">
-                    Reports
-                  </a>
-                  <a href="/exceptions" className="text-sm text-slate-600 hover:text-slate-900">
-                    Exceptions
+                  <a
+                    href="/signin"
+                    className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition-colors"
+                  >
+                    Sign In
                   </a>
                 </div>
               </div>
             </div>
           </nav>
-          <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            {children}
+
+          {/* Left Sidebar */}
+          <Sidebar />
+
+          {/* Main Content */}
+          <main className="pl-56 pt-16">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+              {children}
+            </div>
           </main>
         </div>
       </body>

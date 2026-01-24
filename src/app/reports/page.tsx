@@ -163,17 +163,11 @@ export default function ReportsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div>
+      <div className="max-w-6xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <button
-              onClick={() => router.push('/')}
-              className="text-blue-600 hover:text-blue-800 text-sm mb-2"
-            >
-              &larr; Back to Dashboard
-            </button>
             <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
             <p className="text-gray-600">Generate and download monthly statements</p>
           </div>
