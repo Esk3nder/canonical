@@ -137,10 +137,22 @@ export default function ReportsPage() {
 
   function formatPeriod(start: string, end: string): string {
     const startDate = new Date(start)
-    return startDate.toLocaleDateString('en-US', {
+    const endDate = new Date(end)
+    const startLabel = startDate.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
     })
+    const sameMonth =
+      startDate.getFullYear() === endDate.getFullYear() &&
+      startDate.getMonth() === endDate.getMonth()
+
+    if (sameMonth) return startLabel
+
+    const endLabel = endDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+    })
+    return `${startLabel} - ${endLabel}`
   }
 
   async function handleDownload(report: ReportData) {
@@ -157,7 +169,8 @@ export default function ReportsPage() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to download report:', error)
       alert('Failed to download report')
     }
   }

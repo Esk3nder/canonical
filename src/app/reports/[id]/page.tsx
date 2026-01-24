@@ -105,7 +105,8 @@ export default function ReportDetailPage() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to download report:', error)
       alert('Failed to download report')
     }
   }
@@ -119,10 +120,23 @@ export default function ReportDetailPage() {
   }
 
   function formatPeriod(start: string, end: string): string {
-    return new Date(start).toLocaleDateString('en-US', {
+    const startDate = new Date(start)
+    const endDate = new Date(end)
+    const startLabel = startDate.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
     })
+    const sameMonth =
+      startDate.getFullYear() === endDate.getFullYear() &&
+      startDate.getMonth() === endDate.getMonth()
+
+    if (sameMonth) return startLabel
+
+    const endLabel = endDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+    })
+    return `${startLabel} - ${endLabel}`
   }
 
   if (loading) {

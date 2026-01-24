@@ -6,8 +6,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { randomUUID } from 'crypto'
 import { db } from '@/db/client'
-import { reports, validators, operators, custodians, stakeEvents, dailySnapshots } from '@/db/schema'
-import { eq, desc, count, and, gte, lte } from 'drizzle-orm'
+import { reports, validators, operators, custodians, stakeEvents } from '@/db/schema'
+import { eq, desc, count } from 'drizzle-orm'
 import {
   createPortfolioSummary,
   rollupValidatorsToCustodian,
