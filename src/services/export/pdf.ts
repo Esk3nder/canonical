@@ -8,7 +8,6 @@
 import type {
   PortfolioSummary,
   ValidatorPerformance,
-  CustodianAllocation,
   MonthlyStatement,
 } from '@/domain/types'
 

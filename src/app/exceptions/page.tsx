@@ -10,7 +10,7 @@
  * - Severity indicators
  */
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
@@ -99,17 +99,7 @@ export default function ExceptionsPage() {
     bySeverity: { critical: 0, high: 0, medium: 0, low: 0 },
   })
 
-  // Fetch exceptions
-  useEffect(() => {
-    fetchExceptions()
-  }, [page, statusFilter, severityFilter])
-
-  // Fetch stats on mount
-  useEffect(() => {
-    fetchStats()
-  }, [])
-
-  async function fetchExceptions() {
+  const fetchExceptions = useCallback(async () => {
     try {
       setLoading(true)
       const params = new URLSearchParams({
@@ -129,9 +119,9 @@ export default function ExceptionsPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, pageSize, severityFilter, statusFilter])
 
-  async function fetchStats() {
+  const fetchStats = useCallback(async () => {
     try {
       // Fetch counts for each status
       const [newRes, invRes, resRes] = await Promise.all([
@@ -156,7 +146,17 @@ export default function ExceptionsPage() {
     } catch (err) {
       console.error('Failed to fetch stats:', err)
     }
-  }
+  }, [])
+
+  // Fetch exceptions
+  useEffect(() => {
+    fetchExceptions()
+  }, [fetchExceptions])
+
+  // Fetch stats on mount
+  useEffect(() => {
+    fetchStats()
+  }, [fetchStats])
 
   async function handleStatusUpdate(exceptionId: string, newStatus: ExceptionStatus) {
     try {
@@ -170,7 +170,8 @@ export default function ExceptionsPage() {
 
       // Refresh data
       await Promise.all([fetchExceptions(), fetchStats()])
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to update exception status:', error)
       alert('Failed to update exception status')
     }
   }
@@ -187,16 +188,10 @@ export default function ExceptionsPage() {
   const totalPages = Math.ceil(total / pageSize)
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div>
+      <div className="max-w-6xl">
         {/* Header */}
         <div className="mb-8">
-          <button
-            onClick={() => router.push('/')}
-            className="text-blue-600 hover:text-blue-800 text-sm mb-2"
-          >
-            &larr; Back to Dashboard
-          </button>
           <h1 className="text-2xl font-bold text-gray-900">Exception Queue</h1>
           <p className="text-gray-600">Monitor and resolve portfolio anomalies</p>
         </div>

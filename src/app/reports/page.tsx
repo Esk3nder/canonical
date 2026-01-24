@@ -137,10 +137,22 @@ export default function ReportsPage() {
 
   function formatPeriod(start: string, end: string): string {
     const startDate = new Date(start)
-    return startDate.toLocaleDateString('en-US', {
+    const endDate = new Date(end)
+    const startLabel = startDate.toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
     })
+    const sameMonth =
+      startDate.getFullYear() === endDate.getFullYear() &&
+      startDate.getMonth() === endDate.getMonth()
+
+    if (sameMonth) return startLabel
+
+    const endLabel = endDate.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+    })
+    return `${startLabel} - ${endLabel}`
   }
 
   async function handleDownload(report: ReportData) {
@@ -157,23 +169,18 @@ export default function ReportsPage() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to download report:', error)
       alert('Failed to download report')
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-6xl mx-auto">
+    <div>
+      <div className="max-w-6xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <button
-              onClick={() => router.push('/')}
-              className="text-blue-600 hover:text-blue-800 text-sm mb-2"
-            >
-              &larr; Back to Dashboard
-            </button>
             <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
             <p className="text-gray-600">Generate and download monthly statements</p>
           </div>
