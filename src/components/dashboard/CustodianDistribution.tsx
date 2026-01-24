@@ -10,7 +10,8 @@
  */
 
 import { useState } from 'react'
-import { formatEther, formatPercent } from '@/lib/format'
+import { formatCurrency, formatPercent } from '@/lib/format'
+import { useCurrency } from '@/contexts/CurrencyContext'
 import { cn } from '@/lib/utils'
 
 interface CustodianData {
@@ -48,6 +49,7 @@ export function CustodianDistribution({
   isLoading,
   onCustodianClick,
 }: CustodianDistributionProps) {
+  const { currency, ethPrice } = useCurrency()
   const [sortField, setSortField] = useState<SortField>('value')
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc')
 
@@ -205,7 +207,10 @@ export function CustodianDistribution({
                   </span>
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap text-gray-900">
-                  {formatEther(custodian.value)} ETH
+                  {(() => {
+                    const { value: formatted, suffix } = formatCurrency(custodian.value, currency, ethPrice)
+                    return `${formatted}${suffix ? ` ${suffix}` : ''}`
+                  })()}
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap text-gray-500">
                   {formatPercent(custodian.percentage)}

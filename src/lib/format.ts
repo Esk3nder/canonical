@@ -2,6 +2,8 @@
  * Formatting utilities for the staking dashboard
  */
 
+import type { Currency } from '@/contexts/CurrencyContext'
+
 /**
  * Formats a wei/gwei string to ETH with appropriate decimal places
  */
@@ -34,6 +36,54 @@ export function formatNumber(value: number, decimals = 2): string {
     minimumFractionDigits: decimals,
     maximumFractionDigits: decimals,
   })
+}
+
+/**
+ * Formats a wei/gwei string to USD with appropriate decimal places
+ */
+export function formatUSD(weiString: string, ethPrice: number, decimals = 0): string {
+  try {
+    const wei = BigInt(weiString)
+    const isWei = weiString.length > 15
+
+    let eth: number
+    if (isWei) {
+      eth = Number(wei) / 1e18
+    } else {
+      eth = Number(wei) / 1e9
+    }
+
+    const usd = eth * ethPrice
+    return usd.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    })
+  } catch {
+    return '$0'
+  }
+}
+
+/**
+ * Formats a wei/gwei string to the specified currency
+ */
+export function formatCurrency(
+  weiString: string,
+  currency: Currency,
+  ethPrice: number,
+  decimals?: number
+): { value: string; suffix: string } {
+  if (currency === 'USD') {
+    return {
+      value: formatUSD(weiString, ethPrice, decimals ?? 0),
+      suffix: '',
+    }
+  }
+  return {
+    value: formatEther(weiString, decimals ?? 2),
+    suffix: 'ETH',
+  }
 }
 
 /**
