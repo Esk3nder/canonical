@@ -12,11 +12,10 @@ import {
 } from '@/services/export'
 import {
   createPortfolioSummary,
-  rollupValidatorsToCustodian,
   type ValidatorWithContext,
   type RewardEvent,
 } from '@/services/rollup'
-import type { StakeState, MonthlyStatement, ValidatorPerformance, CustodianAllocation } from '@/domain/types'
+import type { StakeState, MonthlyStatement, ValidatorPerformance } from '@/domain/types'
 
 const METHODOLOGY_VERSION = '1.0.0'
 

@@ -168,7 +168,8 @@ export default function PortfolioOverview() {
             isNew: idx === 0 && e.status === 'new',
           })),
         })
-      } catch (err) {
+      } catch (error) {
+        console.error('Failed to fetch exceptions:', error)
         // Set empty data on error
         setExceptionsData({
           total: 0,

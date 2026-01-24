@@ -10,7 +10,7 @@
  * - Resolution form
  */
 
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
 
@@ -82,11 +82,8 @@ export default function ExceptionDetailPage() {
   const [showResolveForm, setShowResolveForm] = useState(false)
   const [resolution, setResolution] = useState('')
 
-  useEffect(() => {
-    fetchException()
-  }, [exceptionId])
-
-  async function fetchException() {
+  const fetchException = useCallback(async () => {
+    if (!exceptionId) return
     try {
       setLoading(true)
       const res = await fetch(`/api/exceptions/${exceptionId}`)
@@ -105,7 +102,11 @@ export default function ExceptionDetailPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [exceptionId])
+
+  useEffect(() => {
+    fetchException()
+  }, [fetchException])
 
   async function handleStatusUpdate(newStatus: ExceptionStatus, resolutionText?: string) {
     try {
@@ -126,7 +127,8 @@ export default function ExceptionDetailPage() {
       await fetchException()
       setShowResolveForm(false)
       setResolution('')
-    } catch (err) {
+    } catch (error) {
+      console.error('Failed to update exception status:', error)
       alert('Failed to update exception')
     } finally {
       setUpdating(false)
