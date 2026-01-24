@@ -9,7 +9,8 @@
  * - Validator Count
  */
 
-import { formatEther } from '@/lib/format'
+import { formatCurrency } from '@/lib/format'
+import { useCurrency } from '@/contexts/CurrencyContext'
 
 interface KPIData {
   totalValue: string
@@ -24,6 +25,8 @@ interface KPIBandsProps {
 }
 
 export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
+  const { currency, ethPrice } = useCurrency()
+
   if (isLoading) {
     return (
       <div data-testid="kpi-loading" className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -56,7 +59,7 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
     return null
   }
 
-  const formattedValue = formatEther(data.totalValue)
+  const { value: formattedValue, suffix } = formatCurrency(data.totalValue, currency, ethPrice)
   const formattedApy = (data.trailingApy30d * 100).toFixed(2)
   const formattedCount = data.validatorCount.toLocaleString()
 
@@ -71,7 +74,7 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
           data-testid="portfolio-value"
           className="mt-2 text-3xl font-bold text-gray-900"
         >
-          {formattedValue} ETH
+          {formattedValue}{suffix && ` ${suffix}`}
         </p>
       </div>
 

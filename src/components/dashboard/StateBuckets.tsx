@@ -10,7 +10,8 @@
  * - Exiting (withdrawal in progress)
  */
 
-import { formatEther, formatPercent } from '@/lib/format'
+import { formatCurrency, formatPercent } from '@/lib/format'
+import { useCurrency } from '@/contexts/CurrencyContext'
 import { cn } from '@/lib/utils'
 
 interface StateBucketsData {
@@ -71,6 +72,8 @@ export function StateBuckets({
   anomalyThreshold = 0.15,
   onBucketClick,
 }: StateBucketsProps) {
+  const { currency, ethPrice } = useCurrency()
+
   if (isLoading) {
     return (
       <div data-testid="buckets-loading" className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -125,7 +128,10 @@ export function StateBuckets({
             </div>
 
             <p className="text-2xl font-bold text-gray-900">
-              {formatEther(value)} ETH
+              {(() => {
+                const { value: formatted, suffix } = formatCurrency(value, currency, ethPrice)
+                return `${formatted}${suffix ? ` ${suffix}` : ''}`
+              })()}
             </p>
 
             <p className="text-sm text-gray-500">
