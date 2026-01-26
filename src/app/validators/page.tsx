@@ -9,7 +9,7 @@
  * - Click to navigate to detail view
  */
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { formatEther, shortenHex } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -42,7 +42,7 @@ const STATE_OPTIONS = [
   { value: 'exited', label: 'Exited' },
 ]
 
-export default function ValidatorsPage() {
+function ValidatorsContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
@@ -295,5 +295,33 @@ export default function ValidatorsPage() {
         )}
       </div>
     </div>
+  )
+}
+
+// Loading fallback for Suspense
+function ValidatorsLoading() {
+  return (
+    <div className="max-w-6xl">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold text-gray-900">Validators</h1>
+        <p className="text-gray-600">Monitor all validators in your portfolio</p>
+      </div>
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-10 bg-gray-200 rounded w-full" />
+          {[1, 2, 3, 4, 5].map((i) => (
+            <div key={i} className="h-12 bg-gray-200 rounded w-full" />
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export default function ValidatorsPage() {
+  return (
+    <Suspense fallback={<ValidatorsLoading />}>
+      <ValidatorsContent />
+    </Suspense>
   )
 }
