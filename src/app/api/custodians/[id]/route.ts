@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { custodians, operators, validators, stakeEvents } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { eq, inArray, gte, and } from 'drizzle-orm'
 import { calculateTrailingApy, type RewardEvent } from '@/services/rollup'
 
 interface RouteParams {
@@ -38,23 +38,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       .from(operators)
       .where(eq(operators.custodianId, id))
 
-    // Fetch validators for this custodian (via operators)
+    // Fetch validators for this custodian (via operators) - batch query
     const operatorIds = operatorRows.map((o) => o.id)
 
-    let validatorRows: Array<{
-      id: string
-      pubkey: string
-      operatorId: string
-      status: string
-      stakeState: string
-      balance: string
-      effectiveBalance: string
-    }> = []
-
-    if (operatorIds.length > 0) {
-      // Query validators for each operator
-      for (const opId of operatorIds) {
-        const vRows = await db
+    const validatorRows = operatorIds.length > 0
+      ? await db
           .select({
             id: validators.id,
             pubkey: validators.pubkey,
@@ -65,11 +53,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             effectiveBalance: validators.effectiveBalance,
           })
           .from(validators)
-          .where(eq(validators.operatorId, opId))
-
-        validatorRows.push(...vRows)
-      }
-    }
+          .where(inArray(validators.operatorId, operatorIds))
+      : []
 
     // Calculate total value
     const totalValue = validatorRows.reduce(
@@ -77,37 +62,32 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       0n
     )
 
-    // Calculate APY from rewards
+    // Calculate APY from rewards - batch query
     const validatorIds = validatorRows.map((v) => v.id)
-    let rewardEvents: RewardEvent[] = []
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
 
-    if (validatorIds.length > 0) {
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
-
-      for (const vId of validatorIds) {
-        const events = await db
+    const rewardEvents: RewardEvent[] = validatorIds.length > 0
+      ? (await db
           .select({
             validatorId: stakeEvents.validatorId,
             amount: stakeEvents.amount,
             timestamp: stakeEvents.timestamp,
           })
           .from(stakeEvents)
-          .where(eq(stakeEvents.validatorId, vId))
-
-        rewardEvents.push(
-          ...events
-            .filter((e) => e.timestamp >= thirtyDaysAgo)
-            .map((e) => ({
-              validatorId: e.validatorId,
-              amount: BigInt(e.amount),
-              timestamp: e.timestamp,
-            }))
-        )
-      }
-    }
+          .where(
+            and(
+              inArray(stakeEvents.validatorId, validatorIds),
+              gte(stakeEvents.timestamp, thirtyDaysAgo)
+            )
+          )
+        ).map((e) => ({
+          validatorId: e.validatorId,
+          amount: BigInt(e.amount),
+          timestamp: e.timestamp,
+        }))
+      : []
 
     const now = new Date()
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
     const trailingApy30d = calculateTrailingApy(
       rewardEvents,
       totalValue,
