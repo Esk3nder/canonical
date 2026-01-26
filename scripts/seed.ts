@@ -1,5 +1,6 @@
 import postgres from 'postgres'
 import { drizzle } from 'drizzle-orm/postgres-js'
+import { eq } from 'drizzle-orm'
 import * as schema from '../src/db/schema'
 
 const connectionString = process.env.DATABASE_URL || 'postgresql://canonical:canonical_dev@localhost:5432/canonical_staking'
@@ -8,6 +9,14 @@ const db = drizzle(client, { schema })
 
 async function seed() {
   console.log('Seeding database...')
+
+  // Check if already seeded
+  const existingEntity = await db.select().from(schema.entities).limit(1)
+  if (existingEntity.length > 0) {
+    console.log('Database already seeded, skipping...')
+    await client.end()
+    return
+  }
 
   // Create entity (fund)
   const [entity] = await db.insert(schema.entities).values({

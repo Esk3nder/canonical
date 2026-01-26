@@ -24,10 +24,9 @@ services:
     environment:
       DATABASE_URL: postgresql://canonical:canonical_dev@postgres:5432/canonical_staking
     depends_on:
-      postgres:
-        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
 
-  # One-time migration runner
   migrate:
     build: .
     container_name: canonical-migrate
@@ -36,7 +35,7 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: npx drizzle-kit push
+    command: sh -c "npx drizzle-kit push && npx tsx scripts/seed.ts"
     restart: "no"
 
 volumes:

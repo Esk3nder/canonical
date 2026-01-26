@@ -104,7 +104,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     // Build update object
     const updateData: {
-      status?: string
+      status?: 'new' | 'investigating' | 'resolved'
       resolution?: string
       resolvedBy?: string
       resolvedAt?: Date

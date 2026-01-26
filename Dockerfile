@@ -23,13 +23,17 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
+# Copy public if it exists (may be empty)
 COPY --from=builder /app/public ./public
+
+# Copy standalone build
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Copy drizzle for migrations
+# Copy files needed for migrations and seeding
 COPY --from=deps /app/node_modules ./node_modules
 COPY --from=builder /app/src/db ./src/db
+COPY --from=builder /app/scripts ./scripts
 COPY --from=builder /app/drizzle.config.ts ./
 COPY --from=builder /app/package.json ./
 
