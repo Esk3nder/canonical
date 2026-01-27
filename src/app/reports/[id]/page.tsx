@@ -242,7 +242,7 @@ export default function ReportDetailPage() {
                     </div>
                   </div>
                   <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="text-sm text-gray-500">Trailing 30d APY</div>
+                    <div className="text-sm text-gray-500">Blended Staking APY</div>
                     <div className="text-2xl font-bold text-green-600">
                       {formatPercent(report.summary.trailingApy30d)}
                     </div>

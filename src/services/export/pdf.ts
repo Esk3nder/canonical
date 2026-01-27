@@ -122,7 +122,7 @@ export function generatePortfolioPDFContent(
       <div class="kpi-value">${formatGweiToEth(summary.totalValue)} ETH</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Trailing 30d APY</div>
+      <div class="kpi-label">Blended Staking APY</div>
       <div class="kpi-value">${formatPercent(summary.trailingApy30d)}</div>
     </div>
     <div class="kpi-card">
@@ -254,7 +254,7 @@ export function generateMonthlyStatementPDFContent(statement: MonthlyStatement):
       <div class="kpi-value">${formatGweiToEth(statement.summary.totalValue)} ETH</div>
     </div>
     <div class="kpi-card">
-      <div class="kpi-label">Trailing 30d APY</div>
+      <div class="kpi-label">Blended Staking APY</div>
       <div class="kpi-value">${formatPercent(statement.summary.trailingApy30d)}</div>
     </div>
     <div class="kpi-card">

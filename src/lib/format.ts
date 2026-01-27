@@ -144,3 +144,32 @@ export function formatCompact(value: string | number): string {
   }
   return num.toLocaleString()
 }
+
+/**
+ * Formats a wei/gwei change value to ETH with +/- sign
+ * e.g., "+1.5 ETH" or "-0.8 ETH"
+ */
+export function formatEthChange(weiString: string, decimals = 2): string {
+  try {
+    const wei = BigInt(weiString)
+    const isWei = weiString.length > 15 || (weiString.startsWith('-') && weiString.length > 16)
+
+    // Handle negative values
+    const isNegative = wei < 0n
+    const absWei = isNegative ? -wei : wei
+    const absWeiStr = absWei.toString()
+
+    let eth: number
+    if (isWei || absWeiStr.length > 15) {
+      eth = Number(absWei) / 1e18
+    } else {
+      eth = Number(absWei) / 1e9
+    }
+
+    const sign = isNegative ? '-' : '+'
+    const formatted = formatNumber(eth, decimals)
+    return `${sign}${formatted} ETH`
+  } catch {
+    return '+0.00 ETH'
+  }
+}

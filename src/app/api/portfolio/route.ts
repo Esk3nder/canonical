@@ -4,8 +4,8 @@
  */
 import { NextResponse } from 'next/server'
 import { db } from '@/db/client'
-import { validators, operators, custodians, stakeEvents } from '@/db/schema'
-import { eq } from 'drizzle-orm'
+import { validators, operators, custodians, stakeEvents, dailySnapshots } from '@/db/schema'
+import { eq, desc } from 'drizzle-orm'
 import {
   createPortfolioSummary,
   type ValidatorWithContext,
@@ -16,9 +16,13 @@ import type { StakeState } from '@/domain/types'
 /**
  * Serializes bigint values to strings for JSON transport
  */
-function serializePortfolioSummary(summary: ReturnType<typeof createPortfolioSummary>) {
+function serializePortfolioSummary(
+  summary: ReturnType<typeof createPortfolioSummary>,
+  change24h?: bigint
+) {
   return {
     totalValue: summary.totalValue.toString(),
+    change24h: change24h?.toString() ?? '0',
     trailingApy30d: summary.trailingApy30d,
     validatorCount: summary.validatorCount,
     stateBuckets: {
@@ -98,8 +102,21 @@ export async function GET() {
     // Create portfolio summary
     const summary = createPortfolioSummary(validatorsWithContext, rewardEvents)
 
+    // Get the most recent snapshot for 24h change calculation
+    const previousSnapshots = await db
+      .select({ totalValue: dailySnapshots.totalValue })
+      .from(dailySnapshots)
+      .orderBy(desc(dailySnapshots.date))
+      .limit(1)
+
+    let change24h: bigint | undefined
+    if (previousSnapshots.length > 0) {
+      const previousValue = BigInt(previousSnapshots[0].totalValue)
+      change24h = summary.totalValue - previousValue
+    }
+
     return NextResponse.json({
-      data: serializePortfolioSummary(summary),
+      data: serializePortfolioSummary(summary, change24h),
       timestamp: new Date().toISOString(),
     })
   } catch (error) {
