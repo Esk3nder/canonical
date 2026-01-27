@@ -4,16 +4,17 @@
  * KPIBands Component
  *
  * Displays key portfolio metrics in a prominent band layout:
- * - Total Portfolio Value
+ * - Total Portfolio Value (with dual currency display and 24h change)
  * - Trailing 30-day APY
  * - Validator Count
  */
 
-import { formatCurrency } from '@/lib/format'
+import { formatCurrency, formatEthChange } from '@/lib/format'
 import { useCurrency } from '@/contexts/CurrencyContext'
 
 interface KPIData {
   totalValue: string
+  change24h?: string
   trailingApy30d: number
   validatorCount: number
 }
@@ -59,29 +60,60 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
     return null
   }
 
-  const { value: formattedValue, suffix } = formatCurrency(data.totalValue, currency, ethPrice)
+  // Format values for both currencies
+  const usdFormatted = formatCurrency(data.totalValue, 'USD', ethPrice)
+  const ethFormatted = formatCurrency(data.totalValue, 'ETH', ethPrice)
+
+  // Determine primary and secondary based on current currency
+  const isPrimaryUSD = currency === 'USD'
+  const primaryValue = isPrimaryUSD ? usdFormatted : ethFormatted
+  const secondaryValue = isPrimaryUSD ? ethFormatted : usdFormatted
+
+  // Format 24h change (always in ETH)
+  const change24hFormatted = data.change24h ? formatEthChange(data.change24h) : null
+  const isPositiveChange = data.change24h ? BigInt(data.change24h) >= 0n : true
+
   const formattedApy = (data.trailingApy30d * 100).toFixed(2)
   const formattedCount = data.validatorCount.toLocaleString()
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {/* Portfolio Value */}
+      {/* Portfolio Value - Enhanced with dual currency display */}
       <div className="bg-white rounded-lg shadow p-6">
         <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
           Portfolio Value
         </p>
+
+        {/* Primary value */}
         <p
           data-testid="portfolio-value"
-          className="mt-2 text-3xl font-bold text-gray-900"
+          className="mt-2 text-3xl font-bold text-gray-900 transition-all duration-200"
         >
-          {formattedValue}{suffix && ` ${suffix}`}
+          {primaryValue.value}{primaryValue.suffix && ` ${primaryValue.suffix}`}
         </p>
+
+        {/* Secondary value with 24h change on same row */}
+        <div className="mt-1 flex items-center gap-2 transition-all duration-200">
+          <span className="text-lg text-gray-500">
+            {secondaryValue.value}{secondaryValue.suffix && ` ${secondaryValue.suffix}`}
+          </span>
+          {change24hFormatted && (
+            <span
+              data-testid="portfolio-change-24h"
+              className={`text-sm font-medium ${
+                isPositiveChange ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
+              {change24hFormatted} (24h)
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Trailing APY */}
       <div className="bg-white rounded-lg shadow p-6">
         <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-          Trailing 30d APY
+          Blended Staking APY
         </p>
         <p
           data-testid="trailing-apy"

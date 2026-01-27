@@ -12,6 +12,7 @@ import {
 // API response types
 interface PortfolioData {
   totalValue: string
+  change24h: string
   trailingApy30d: number
   validatorCount: number
   stateBuckets: {
@@ -159,6 +160,7 @@ export default function PortfolioOverview() {
             portfolioData
               ? {
                   totalValue: portfolioData.totalValue,
+                  change24h: portfolioData.change24h,
                   trailingApy30d: portfolioData.trailingApy30d,
                   validatorCount: portfolioData.validatorCount,
                 }

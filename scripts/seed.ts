@@ -91,7 +91,7 @@ async function seed() {
     if (eventType === 'deposit') {
       amount = '32000000000' // 32 ETH
     } else if (eventType === 'reward') {
-      amount = Math.floor(Math.random() * 10000000).toString() // Small rewards
+      amount = (30000000 + Math.floor(Math.random() * 30000000)).toString() // ~0.03-0.06 ETH per reward → realistic 3-4% APY
     } else {
       amount = '0'
     }
