@@ -14,6 +14,7 @@ import { Info } from 'lucide-react'
 import { formatCurrency, formatEthChange } from '@/lib/format'
 import { useCurrency } from '@/contexts/CurrencyContext'
 import { PortfolioExpandedModal } from './PortfolioExpandedModal'
+import { APYExpandedModal } from './APYExpandedModal'
 
 interface StateBuckets {
   active: string
@@ -54,6 +55,7 @@ interface KPIBandsProps {
 export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
   const { currency, ethPrice } = useCurrency()
   const [isExpanded, setIsExpanded] = useState(false)
+  const [isApyExpanded, setIsApyExpanded] = useState(false)
 
   if (isLoading) {
     return (
@@ -160,16 +162,13 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
         </div>
       </button>
 
-      {/* Global Blended APY */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1">
+      {/* Global Blended APY - CLICKABLE */}
+      <button
+        onClick={() => setIsApyExpanded(true)}
+        className="bg-white rounded-lg shadow p-6 text-left transition-all duration-200 hover:shadow-lg hover:scale-[1.02] cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+      >
+        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
           Global Blended APY
-          <span
-            className="cursor-help"
-            title="30-day trailing, net of operator fees, consensus + execution"
-          >
-            <Info className="w-3.5 h-3.5 text-gray-400" />
-          </span>
         </p>
         <div className="mt-3 flex items-baseline gap-3">
           <p
@@ -190,14 +189,11 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
           )}
         </div>
         {formattedBenchmark && (
-          <p
-            className="mt-2 text-sm text-gray-500 cursor-help"
-            title="30-day trailing APY, net of operator fees"
-          >
+          <p className="mt-2 text-sm text-gray-500">
             CESR Rate: {formattedBenchmark}%
           </p>
         )}
-      </div>
+      </button>
 
       {/* Validator Count */}
       <div className="bg-white rounded-lg shadow p-6">
@@ -221,6 +217,19 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
         totalValue: data.totalValue,
         change24h: data.change24h,
         stateBuckets: defaultStateBuckets,
+        custodianBreakdown: data.custodianBreakdown ?? [],
+        asOfTimestamp: data.asOfTimestamp ?? new Date().toISOString(),
+      }}
+    />
+
+    {/* Expanded APY Modal */}
+    <APYExpandedModal
+      isOpen={isApyExpanded}
+      onClose={() => setIsApyExpanded(false)}
+      data={{
+        trailingApy30d: data.trailingApy30d,
+        previousMonthApy: data.previousMonthApy,
+        networkBenchmarkApy: data.networkBenchmarkApy,
         custodianBreakdown: data.custodianBreakdown ?? [],
         asOfTimestamp: data.asOfTimestamp ?? new Date().toISOString(),
       }}

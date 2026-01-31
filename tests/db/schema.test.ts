@@ -350,6 +350,7 @@ describe('Database Schema', () => {
         amount: '32000000000', // 32 ETH in gwei
         timestamp: new Date(now),
         createdAt: new Date(now),
+        finalized: 0 as unknown as boolean,
       }).run()
 
       expect(result.changes).toBe(1)
@@ -379,6 +380,7 @@ describe('Database Schema', () => {
           amount: '32000000000',
           timestamp: new Date(now),
           createdAt: new Date(now),
+          finalized: 0 as unknown as boolean,
         }).run()
       }).toThrow()
     })
