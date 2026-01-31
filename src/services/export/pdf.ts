@@ -70,12 +70,13 @@ const PDF_STYLES = `
   .kpi-card { background: #f8f9fa; border-radius: 8px; padding: 16px; text-align: center; }
   .kpi-label { font-size: 12px; color: #666; text-transform: uppercase; }
   .kpi-value { font-size: 24px; font-weight: 600; color: #111; margin-top: 4px; }
-  .bucket-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .bucket-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 24px; }
   .bucket-card { padding: 12px; border-radius: 6px; }
+  .bucket-deposited { background: #f1f5f9; color: #475569; }
+  .bucket-entry { background: #fef3c7; color: #92400e; }
   .bucket-active { background: #dcfce7; color: #166534; }
-  .bucket-transit { background: #dbeafe; color: #1e40af; }
-  .bucket-rewards { background: #f3e8ff; color: #6b21a8; }
   .bucket-exiting { background: #ffedd5; color: #c2410c; }
+  .bucket-withdrawable { background: #dbeafe; color: #1e40af; }
   .bucket-label { font-size: 11px; text-transform: uppercase; }
   .bucket-value { font-size: 16px; font-weight: 600; margin-top: 4px; }
   .bucket-pct { font-size: 11px; opacity: 0.8; }
@@ -135,25 +136,30 @@ export function generatePortfolioPDFContent(
 
   <h2>State Buckets</h2>
   <div class="bucket-grid">
+    <div class="bucket-card bucket-deposited">
+      <div class="bucket-label">Deposited</div>
+      <div class="bucket-value">${formatGweiToEth(summary.stateBuckets.deposited)} ETH</div>
+      <div class="bucket-pct">${formatPercent(Number(summary.stateBuckets.deposited) / Number(total))}</div>
+    </div>
+    <div class="bucket-card bucket-entry">
+      <div class="bucket-label">Entry Queue</div>
+      <div class="bucket-value">${formatGweiToEth(summary.stateBuckets.entryQueue)} ETH</div>
+      <div class="bucket-pct">${formatPercent(Number(summary.stateBuckets.entryQueue) / Number(total))}</div>
+    </div>
     <div class="bucket-card bucket-active">
       <div class="bucket-label">Active</div>
       <div class="bucket-value">${formatGweiToEth(summary.stateBuckets.active)} ETH</div>
       <div class="bucket-pct">${formatPercent(Number(summary.stateBuckets.active) / Number(total))}</div>
     </div>
-    <div class="bucket-card bucket-transit">
-      <div class="bucket-label">In Transit</div>
-      <div class="bucket-value">${formatGweiToEth(summary.stateBuckets.inTransit)} ETH</div>
-      <div class="bucket-pct">${formatPercent(Number(summary.stateBuckets.inTransit) / Number(total))}</div>
-    </div>
-    <div class="bucket-card bucket-rewards">
-      <div class="bucket-label">Rewards</div>
-      <div class="bucket-value">${formatGweiToEth(summary.stateBuckets.rewards)} ETH</div>
-      <div class="bucket-pct">${formatPercent(Number(summary.stateBuckets.rewards) / Number(total))}</div>
-    </div>
     <div class="bucket-card bucket-exiting">
       <div class="bucket-label">Exiting</div>
       <div class="bucket-value">${formatGweiToEth(summary.stateBuckets.exiting)} ETH</div>
       <div class="bucket-pct">${formatPercent(Number(summary.stateBuckets.exiting) / Number(total))}</div>
+    </div>
+    <div class="bucket-card bucket-withdrawable">
+      <div class="bucket-label">Withdrawable</div>
+      <div class="bucket-value">${formatGweiToEth(summary.stateBuckets.withdrawable)} ETH</div>
+      <div class="bucket-pct">${formatPercent(Number(summary.stateBuckets.withdrawable) / Number(total))}</div>
     </div>
   </div>
 
@@ -267,26 +273,31 @@ export function generateMonthlyStatementPDFContent(statement: MonthlyStatement):
 
   <h2>State Buckets</h2>
   <div class="bucket-grid">
-    <div class="bucket-card bucket-active">
-      <div class="bucket-label">Active</div>
-      <div class="bucket-value">${formatGweiToEth(statement.summary.stateBuckets.active)} ETH</div>
-      <div class="bucket-pct">${formatPercent(Number(statement.summary.stateBuckets.active) / Number(total))}</div>
-    </div>
-    <div class="bucket-card bucket-transit">
-      <div class="bucket-label">In Transit</div>
-      <div class="bucket-value">${formatGweiToEth(statement.summary.stateBuckets.inTransit)} ETH</div>
-      <div class="bucket-pct">${formatPercent(Number(statement.summary.stateBuckets.inTransit) / Number(total))}</div>
-    </div>
-    <div class="bucket-card bucket-rewards">
-      <div class="bucket-label">Rewards</div>
-      <div class="bucket-value">${formatGweiToEth(statement.summary.stateBuckets.rewards)} ETH</div>
-      <div class="bucket-pct">${formatPercent(Number(statement.summary.stateBuckets.rewards) / Number(total))}</div>
-    </div>
-    <div class="bucket-card bucket-exiting">
-      <div class="bucket-label">Exiting</div>
-      <div class="bucket-value">${formatGweiToEth(statement.summary.stateBuckets.exiting)} ETH</div>
-      <div class="bucket-pct">${formatPercent(Number(statement.summary.stateBuckets.exiting) / Number(total))}</div>
-    </div>
+      <div class="bucket-card bucket-deposited">
+        <div class="bucket-label">Deposited</div>
+        <div class="bucket-value">${formatGweiToEth(statement.summary.stateBuckets.deposited)} ETH</div>
+        <div class="bucket-pct">${formatPercent(Number(statement.summary.stateBuckets.deposited) / Number(total))}</div>
+      </div>
+      <div class="bucket-card bucket-entry">
+        <div class="bucket-label">Entry Queue</div>
+        <div class="bucket-value">${formatGweiToEth(statement.summary.stateBuckets.entryQueue)} ETH</div>
+        <div class="bucket-pct">${formatPercent(Number(statement.summary.stateBuckets.entryQueue) / Number(total))}</div>
+      </div>
+      <div class="bucket-card bucket-active">
+        <div class="bucket-label">Active</div>
+        <div class="bucket-value">${formatGweiToEth(statement.summary.stateBuckets.active)} ETH</div>
+        <div class="bucket-pct">${formatPercent(Number(statement.summary.stateBuckets.active) / Number(total))}</div>
+      </div>
+      <div class="bucket-card bucket-exiting">
+        <div class="bucket-label">Exiting</div>
+        <div class="bucket-value">${formatGweiToEth(statement.summary.stateBuckets.exiting)} ETH</div>
+        <div class="bucket-pct">${formatPercent(Number(statement.summary.stateBuckets.exiting) / Number(total))}</div>
+      </div>
+      <div class="bucket-card bucket-withdrawable">
+        <div class="bucket-label">Withdrawable</div>
+        <div class="bucket-value">${formatGweiToEth(statement.summary.stateBuckets.withdrawable)} ETH</div>
+        <div class="bucket-pct">${formatPercent(Number(statement.summary.stateBuckets.withdrawable) / Number(total))}</div>
+      </div>
   </div>
 
   ${statement.custodianBreakdown.length > 0 ? `

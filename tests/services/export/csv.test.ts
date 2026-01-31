@@ -16,10 +16,11 @@ describe('CSV Export Service', () => {
       trailingApy30d: 0.045,
       validatorCount: 156,
       stateBuckets: {
+        deposited: 100000000000000000n,
+        entryQueue: 200000000000000000n,
         active: 4500000000000000000n,
-        inTransit: 200000000000000000n,
-        rewards: 150000000000000000n,
         exiting: 150000000000000000n,
+        withdrawable: 150000000000000000n,
       },
       custodianBreakdown: [],
       asOfTimestamp: new Date('2026-01-23T12:00:00Z'),
@@ -45,10 +46,11 @@ describe('CSV Export Service', () => {
     it('includes state bucket breakdown', () => {
       const csv = generatePortfolioCSV(mockSummary)
 
+      expect(csv).toContain('Deposited')
+      expect(csv).toContain('Entry Queue')
       expect(csv).toContain('Active')
-      expect(csv).toContain('In Transit')
-      expect(csv).toContain('Rewards')
       expect(csv).toContain('Exiting')
+      expect(csv).toContain('Withdrawable')
     })
 
     it('includes methodology version', () => {

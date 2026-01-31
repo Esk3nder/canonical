@@ -14,10 +14,11 @@ import { formatEther, formatUSD, formatNumber } from '@/lib/format'
 import { useCurrency } from '@/contexts/CurrencyContext'
 
 interface StateBuckets {
+  deposited: string
+  entryQueue: string
   active: string
-  inTransit: string
-  rewards: string
   exiting: string
+  withdrawable: string
 }
 
 interface CustodianAllocation {
@@ -79,16 +80,18 @@ export function PortfolioExpandedModal({
   if (!isOpen) return null
 
   // Calculate values
+  const depositedBigInt = BigInt(data.stateBuckets.deposited)
+  const entryQueueBigInt = BigInt(data.stateBuckets.entryQueue)
   const activeBigInt = BigInt(data.stateBuckets.active)
-  const inTransitBigInt = BigInt(data.stateBuckets.inTransit)
   const exitingBigInt = BigInt(data.stateBuckets.exiting)
+  const withdrawableBigInt = BigInt(data.stateBuckets.withdrawable)
 
-  // Total staked (excluding rewards which are separate)
-  const totalStaked = activeBigInt + inTransitBigInt + exitingBigInt
-  const earningRatio = totalStaked > 0n
-    ? Number((activeBigInt * 10000n) / totalStaked) / 100
+  // Total lifecycle value (excluding rewards which are separate)
+  const totalLifecycle = depositedBigInt + entryQueueBigInt + activeBigInt + exitingBigInt + withdrawableBigInt
+  const earningRatio = totalLifecycle > 0n
+    ? Number((activeBigInt * 10000n) / totalLifecycle) / 100
     : 0
-  const nonEarningBigInt = totalStaked - activeBigInt
+  const nonEarningBigInt = totalLifecycle - activeBigInt
 
   // Format values
   const totalUsd = formatUSD(data.totalValue, ethPrice)

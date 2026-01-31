@@ -14,11 +14,11 @@
  * Maps to the "state buckets" visible on the dashboard.
  */
 export type StakeState =
+  | 'deposited'           // ETH received, awaiting validator creation
+  | 'pending_activation'  // Validator created, in entry queue
   | 'active'              // Currently staking and earning rewards
-  | 'pending_activation'  // Deposited, waiting for activation
-  | 'in_transit'          // Moving between custodians/validators
-  | 'exiting'             // Exit initiated, waiting for completion
-  | 'exited'              // Fully withdrawn from staking
+  | 'exiting'             // Exit initiated, in withdrawal queue
+  | 'withdrawable'        // Exited, ready for treasury withdrawal
 
 /**
  * Validator operational status (distinct from stake state)
@@ -165,10 +165,11 @@ export interface PortfolioSummary {
 }
 
 export interface StateBuckets {
-  active: bigint
-  inTransit: bigint
-  rewards: bigint
-  exiting: bigint
+  deposited: bigint       // ETH received, awaiting validator creation
+  entryQueue: bigint      // Validator created, in activation queue
+  active: bigint          // Currently staking and earning
+  exiting: bigint         // Exit initiated, in withdrawal queue
+  withdrawable: bigint    // Exited, ready for withdrawal
 }
 
 export interface CustodianAllocation {
@@ -266,9 +267,10 @@ export type SerializedBigInt = string
 export interface SerializedPortfolioSummary extends Omit<PortfolioSummary, 'totalValue' | 'stateBuckets'> {
   totalValue: SerializedBigInt
   stateBuckets: {
+    deposited: SerializedBigInt
+    entryQueue: SerializedBigInt
     active: SerializedBigInt
-    inTransit: SerializedBigInt
-    rewards: SerializedBigInt
     exiting: SerializedBigInt
+    withdrawable: SerializedBigInt
   }
 }

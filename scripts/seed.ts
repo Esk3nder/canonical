@@ -48,7 +48,7 @@ async function seed() {
   // Create validators with realistic data
   const validators = []
   const statuses = ['active', 'active', 'active', 'active', 'pending', 'exited'] as const
-  const stakeStates = ['active', 'active', 'active', 'pending_activation', 'in_transit', 'exiting'] as const
+  const stakeStates = ['active', 'active', 'active', 'deposited', 'pending_activation', 'exiting', 'withdrawable'] as const
 
   for (let i = 0; i < 50; i++) {
     const operatorIdx = i % operatorData.length
@@ -109,12 +109,13 @@ async function seed() {
   }
 
   // Add additional reward events for rewards pulse demo
-  // Claimable rewards (finalized) - larger amounts
+  // Claimable rewards (finalized) - realistic amounts for 3-4% APY (in gwei)
+  // ~0.09 ETH/month per validator at 3.5% APY on 32 ETH
   const claimableRewards = [
-    { validatorIdx: 0, amount: '62000000000000000000', hoursAgo: 2 }, // 62 ETH - Figment (Coinbase)
-    { validatorIdx: 1, amount: '48000000000000000000', hoursAgo: 5 }, // 48 ETH - Blockdaemon (Coinbase)
-    { validatorIdx: 2, amount: '15000000000000000000', hoursAgo: 12 }, // 15 ETH - Staked (Anchorage)
-    { validatorIdx: 3, amount: '8200000000000000000', hoursAgo: 1 }, // 8.2 ETH - Chorus (BitGo) - recent for 24h change
+    { validatorIdx: 0, amount: '90000000', hoursAgo: 2 }, // 0.09 ETH - Figment (Coinbase)
+    { validatorIdx: 1, amount: '85000000', hoursAgo: 5 }, // 0.085 ETH - Blockdaemon (Coinbase)
+    { validatorIdx: 2, amount: '88000000', hoursAgo: 12 }, // 0.088 ETH - Staked (Anchorage)
+    { validatorIdx: 3, amount: '92000000', hoursAgo: 1 }, // 0.092 ETH - Chorus (BitGo)
   ]
 
   for (let i = 0; i < claimableRewards.length; i++) {
@@ -132,11 +133,12 @@ async function seed() {
     })
   }
 
-  // Accrued rewards (unfinalized/pending)
+  // Accrued rewards (unfinalized/pending) - in gwei
+  // Pending rewards accumulating over a few days
   const accruedRewards = [
-    { validatorIdx: 0, amount: '125000000000000000000', hoursAgo: 0 }, // 125 ETH pending
-    { validatorIdx: 1, amount: '100000000000000000000', hoursAgo: 0 }, // 100 ETH pending
-    { validatorIdx: 2, amount: '100000000000000000000', hoursAgo: 0 }, // 100 ETH pending
+    { validatorIdx: 0, amount: '45000000', hoursAgo: 0 }, // 0.045 ETH pending
+    { validatorIdx: 1, amount: '42000000', hoursAgo: 0 }, // 0.042 ETH pending
+    { validatorIdx: 2, amount: '48000000', hoursAgo: 0 }, // 0.048 ETH pending
   ]
 
   for (let i = 0; i < accruedRewards.length; i++) {
@@ -154,12 +156,12 @@ async function seed() {
     })
   }
 
-  // Claimed this month rewards (finalized, within current month)
+  // Claimed this month rewards (finalized, within current month) - in gwei
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
   const claimedThisMonth = [
-    { validatorIdx: 0, amount: '50000000000000000000', daysAgo: 5 }, // 50 ETH
-    { validatorIdx: 1, amount: '40000000000000000000', daysAgo: 10 }, // 40 ETH
-    { validatorIdx: 2, amount: '30000000000000000000', daysAgo: 15 }, // 30 ETH
+    { validatorIdx: 0, amount: '95000000', daysAgo: 5 }, // 0.095 ETH
+    { validatorIdx: 1, amount: '88000000', daysAgo: 10 }, // 0.088 ETH
+    { validatorIdx: 2, amount: '92000000', daysAgo: 15 }, // 0.092 ETH
   ]
 
   for (let i = 0; i < claimedThisMonth.length; i++) {
@@ -223,10 +225,10 @@ async function seed() {
     date: dateStr,
     entityId: entity.id,
     totalValue,
-    activeStake: (40n * 32000000000n).toString(),
-    inTransitStake: (5n * 32000000000n).toString(),
+    activeStake: (38n * 32000000000n).toString(),
+    inTransitStake: (7n * 32000000000n).toString(), // deposited + entryQueue
     rewardsAccrued: '10000000000',
-    exitingStake: (5n * 32000000000n).toString(),
+    exitingStake: (5n * 32000000000n).toString(), // exiting + withdrawable
     validatorCount: 50,
     trailingApy30d: 4.2,
   })

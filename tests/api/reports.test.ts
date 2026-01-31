@@ -30,10 +30,11 @@ describe('Reporting API', () => {
             trailingApy30d: 0.045,
             validatorCount: 100,
             stateBuckets: {
+              deposited: '100000000000000',
+              entryQueue: '200000000000000',
               active: '4500000000000000',
-              inTransit: '300000000000000',
-              rewards: '200000000000000',
               exiting: '0',
+              withdrawable: '200000000000000',
             },
           },
         },

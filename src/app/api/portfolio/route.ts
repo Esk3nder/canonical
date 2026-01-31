@@ -28,10 +28,11 @@ function serializePortfolioSummary(
     networkBenchmarkApy: summary.networkBenchmarkApy,
     validatorCount: summary.validatorCount,
     stateBuckets: {
+      deposited: summary.stateBuckets.deposited.toString(),
+      entryQueue: summary.stateBuckets.entryQueue.toString(),
       active: summary.stateBuckets.active.toString(),
-      inTransit: summary.stateBuckets.inTransit.toString(),
-      rewards: summary.stateBuckets.rewards.toString(),
       exiting: summary.stateBuckets.exiting.toString(),
+      withdrawable: summary.stateBuckets.withdrawable.toString(),
     },
     custodianBreakdown: summary.custodianBreakdown.map((c) => ({
       custodianId: c.custodianId,

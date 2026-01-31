@@ -2,7 +2,7 @@
 
 /**
  * CustodianTable Component
- * Minimal table showing custodian allocation and performance
+ * Logo-heavy list showing custodian allocation and performance
  */
 
 import { formatCurrency } from '@/lib/format'
@@ -24,21 +24,27 @@ interface CustodianTableProps {
   onCustodianClick?: (custodianId: string) => void
 }
 
-// Partner brand colors for logos
-const PARTNER_BRANDS: Record<string, { bg: string; text: string; initials?: string }> = {
-  coinbase: { bg: 'bg-blue-600', text: 'text-white', initials: 'CB' },
-  anchorage: { bg: 'bg-slate-800', text: 'text-white', initials: 'AN' },
+// Partner brand colors and logos
+const PARTNER_BRANDS: Record<string, { bg: string; text: string; initials?: string; logo?: string }> = {
+  coinbase: { bg: 'bg-blue-600', text: 'text-white', initials: 'CB', logo: '/logos/coinbase.png' },
+  anchorage: { bg: 'bg-black', text: 'text-white', initials: 'AN', logo: '/logos/anchorage.png' },
   figment: { bg: 'bg-purple-600', text: 'text-white', initials: 'FG' },
   lido: { bg: 'bg-sky-500', text: 'text-white', initials: 'LD' },
   kraken: { bg: 'bg-violet-700', text: 'text-white', initials: 'KR' },
-  bitgo: { bg: 'bg-blue-500', text: 'text-white', initials: 'BG' },
+  bitgo: { bg: 'bg-blue-500', text: 'text-white', initials: 'BG', logo: '/logos/bitgo.png' },
   fireblocks: { bg: 'bg-orange-500', text: 'text-white', initials: 'FB' },
   'self-node': { bg: 'bg-emerald-600', text: 'text-white', initials: 'SN' },
 }
 
 function getPartnerBrand(name: string) {
-  const key = name.toLowerCase().replace(/\s+/g, '-')
-  if (PARTNER_BRANDS[key]) return PARTNER_BRANDS[key]
+  const nameLower = name.toLowerCase()
+
+  // Check for exact match first, then partial match (e.g., "Coinbase Prime" matches "coinbase")
+  for (const [key, brand] of Object.entries(PARTNER_BRANDS)) {
+    if (nameLower === key || nameLower.startsWith(key)) {
+      return brand
+    }
+  }
 
   // Generate initials and a consistent color for unknown partners
   const initials = name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)
@@ -59,9 +65,15 @@ export function CustodianTable({
       <div className="bg-white border border-slate-200 rounded-lg p-5 h-full">
         <div className="animate-pulse space-y-4">
           <div className="h-4 bg-slate-200 rounded w-40" />
-          <div className="space-y-2">
+          <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-12 bg-slate-100 rounded" />
+              <div key={i} className="flex items-center gap-4">
+                <div className="w-11 h-11 bg-slate-200 rounded-lg" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-slate-200 rounded w-24" />
+                  <div className="h-3 bg-slate-100 rounded w-16" />
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -86,17 +98,19 @@ export function CustodianTable({
         Custodians
       </h3>
 
-      <div className="space-y-1">
-        {/* Header */}
-        <div className="grid grid-cols-[1fr,auto,auto] gap-4 px-3 py-2 text-xs text-slate-400 uppercase tracking-wide">
-          <span>Partner</span>
-          <span className="text-right w-24">Stake</span>
-          <span className="text-right w-16">APY</span>
-        </div>
+      {/* Table header */}
+      <div className="grid grid-cols-[auto,1fr,auto,auto] gap-4 px-3 py-2 text-xs text-slate-400 uppercase tracking-wide border-b border-slate-100">
+        <span className="w-11"></span>
+        <span>Partner</span>
+        <span className="text-right w-24">Stake</span>
+        <span className="text-right w-20">30d APY</span>
+      </div>
 
-        {/* Rows */}
+      {/* Table rows */}
+      <div className="divide-y divide-slate-50">
         {sorted.map((custodian, idx) => {
           const { value: formatted, suffix } = formatCurrency(custodian.value, currency, ethPrice)
+          const brand = getPartnerBrand(custodian.custodianName)
 
           return (
             <div
@@ -104,53 +118,46 @@ export function CustodianTable({
               data-testid={`custodian-row-${idx}`}
               onClick={() => onCustodianClick?.(custodian.custodianId)}
               className={cn(
-                'grid grid-cols-[1fr,auto,auto] gap-4 px-3 py-3 rounded-md',
+                'grid grid-cols-[auto,1fr,auto,auto] gap-4 items-center px-3 py-3',
                 'hover:bg-slate-50 cursor-pointer transition-colors'
               )}
             >
-              {/* Logo and name with allocation bar */}
-              <div className="flex items-center gap-3 min-w-0">
-                {/* Partner logo */}
-                {(() => {
-                  const brand = getPartnerBrand(custodian.custodianName)
-                  return (
-                    <div className={cn(
-                      'w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0',
-                      'text-xs font-semibold',
-                      brand.bg, brand.text
-                    )}>
-                      {brand.initials}
-                    </div>
-                  )
-                })()}
+              {/* Partner logo */}
+              {brand.logo ? (
+                <img
+                  src={brand.logo}
+                  alt={custodian.custodianName}
+                  className="w-11 h-11 rounded-lg flex-shrink-0 object-cover shadow-sm"
+                />
+              ) : (
+                <div className={cn(
+                  'w-11 h-11 rounded-lg flex items-center justify-center flex-shrink-0',
+                  'text-base font-bold shadow-sm',
+                  brand.bg, brand.text
+                )}>
+                  {brand.initials}
+                </div>
+              )}
 
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-slate-800 truncate">
-                      {custodian.custodianName}
-                    </span>
-                    <span className="text-xs text-slate-400">
-                      {(custodian.percentage * 100).toFixed(0)}%
-                    </span>
-                  </div>
-                  <div className="mt-1 h-1 bg-slate-100 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-primary-400 rounded-full"
-                      style={{ width: `${custodian.percentage * 100}%` }}
-                    />
-                  </div>
+              {/* Name and validators */}
+              <div className="min-w-0">
+                <div className="text-sm font-semibold text-slate-900 truncate">
+                  {custodian.custodianName}
+                </div>
+                <div className="text-xs text-slate-400">
+                  {custodian.validatorCount.toLocaleString()} validators
                 </div>
               </div>
 
               {/* Stake value */}
-              <span className="text-sm tabular-nums text-slate-700 text-right w-24">
+              <div className="text-sm font-medium text-slate-900 tabular-nums text-right w-24">
                 {formatted}{suffix ? ` ${suffix}` : ''}
-              </span>
+              </div>
 
               {/* APY */}
-              <span className="text-sm tabular-nums text-emerald-600 text-right w-16">
+              <div className="text-sm font-medium text-emerald-600 tabular-nums text-right w-20">
                 {(custodian.trailingApy30d * 100).toFixed(2)}%
-              </span>
+              </div>
             </div>
           )
         })}

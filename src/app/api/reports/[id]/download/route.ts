@@ -162,10 +162,11 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
             ...statement.summary,
             totalValue: statement.summary.totalValue.toString(),
             stateBuckets: {
+              deposited: statement.summary.stateBuckets.deposited.toString(),
+              entryQueue: statement.summary.stateBuckets.entryQueue.toString(),
               active: statement.summary.stateBuckets.active.toString(),
-              inTransit: statement.summary.stateBuckets.inTransit.toString(),
-              rewards: statement.summary.stateBuckets.rewards.toString(),
               exiting: statement.summary.stateBuckets.exiting.toString(),
+              withdrawable: statement.summary.stateBuckets.withdrawable.toString(),
             },
             custodianBreakdown: statement.summary.custodianBreakdown.map(c => ({
               ...c,

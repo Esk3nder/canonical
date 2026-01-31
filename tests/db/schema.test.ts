@@ -48,7 +48,7 @@ describe('Database Schema', () => {
         entity_id TEXT REFERENCES entities(id),
         withdrawal_credential TEXT NOT NULL,
         status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('active', 'pending', 'slashed', 'exited')),
-        stake_state TEXT NOT NULL DEFAULT 'pending_activation' CHECK (stake_state IN ('active', 'pending_activation', 'in_transit', 'exiting', 'exited')),
+        stake_state TEXT NOT NULL DEFAULT 'deposited' CHECK (stake_state IN ('deposited', 'pending_activation', 'active', 'exiting', 'withdrawable')),
         activation_epoch INTEGER,
         exit_epoch INTEGER,
         balance TEXT NOT NULL DEFAULT '0',
@@ -253,7 +253,7 @@ describe('Database Schema', () => {
       expect(validators).toHaveLength(1)
       expect(validators[0].pubkey).toBe('0x1234567890abcdef')
       expect(validators[0].status).toBe('pending') // Default value
-      expect(validators[0].stakeState).toBe('pending_activation') // Default value
+      expect(validators[0].stakeState).toBe('deposited') // Default value
     })
 
     it('enforces unique pubkey constraint', () => {

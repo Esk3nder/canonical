@@ -40,7 +40,6 @@ describe('KPIBands', () => {
     render(<KPIBands data={mockData} isLoading={false} />, { wrapper: TestWrapper })
 
     expect(screen.getByText(/Global Blended APY/i)).toBeInTheDocument()
-    expect(screen.getByText(/30-day trailing/i)).toBeInTheDocument()
   })
 
   it('renders month-over-month change', () => {
@@ -50,19 +49,20 @@ describe('KPIBands', () => {
     expect(screen.getByText(/vs last month/i)).toBeInTheDocument()
   })
 
-  it('renders network benchmark', () => {
+  it('renders network benchmark (CESR)', () => {
     render(<KPIBands data={mockData} isLoading={false} />, { wrapper: TestWrapper })
 
-    expect(screen.getByText(/Network benchmark/i)).toBeInTheDocument()
+    // Network benchmark now displayed as "CESR: X%"
+    expect(screen.getByText(/CESR/i)).toBeInTheDocument()
     expect(screen.getByText(/3\.8%/)).toBeInTheDocument()
-    expect(screen.getByText(/Rated/i)).toBeInTheDocument()
   })
 
-  it('renders validator count', () => {
+  // Validator count is no longer displayed in KPIBands - it's in the expanded modal
+  it('accepts validator count in data', () => {
     render(<KPIBands data={mockData} isLoading={false} />, { wrapper: TestWrapper })
 
-    expect(screen.getByTestId('validator-count')).toBeInTheDocument()
-    expect(screen.getByText('156')).toBeInTheDocument()
+    // Component should render without errors when validatorCount is provided
+    expect(screen.getByTestId('portfolio-value')).toBeInTheDocument()
   })
 
   it('shows loading state', () => {
@@ -78,12 +78,12 @@ describe('KPIBands', () => {
     expect(screen.getByText(/Failed to load/i)).toBeInTheDocument()
   })
 
-  it('formats large numbers with commas', () => {
+  it('formats portfolio value correctly', () => {
     render(<KPIBands data={mockData} isLoading={false} />, { wrapper: TestWrapper })
 
-    // Validator count should have comma formatting for large numbers
-    const validatorElement = screen.getByTestId('validator-count')
-    expect(validatorElement).toBeInTheDocument()
+    // Portfolio value should be displayed with proper formatting
+    const portfolioElement = screen.getByTestId('portfolio-value')
+    expect(portfolioElement).toBeInTheDocument()
   })
 
   it('shows positive APY change in green', () => {

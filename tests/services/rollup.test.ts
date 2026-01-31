@@ -53,35 +53,48 @@ describe('Rollup Service', () => {
       const validators = [
         createTestValidator({ id: 'v1', stakeState: 'active', balance: 32000000000n }),
         createTestValidator({ id: 'v2', stakeState: 'active', balance: 32000000000n }),
-        createTestValidator({ id: 'v3', stakeState: 'in_transit', balance: 32000000000n }),
+        createTestValidator({ id: 'v3', stakeState: 'pending_activation', balance: 32000000000n }),
         createTestValidator({ id: 'v4', stakeState: 'exiting', balance: 32000000000n }),
+        createTestValidator({ id: 'v5', stakeState: 'withdrawable', balance: 32000000000n }),
       ]
 
       const buckets = aggregateByStateBucket(validators)
 
       expect(buckets.active).toBe(64000000000n) // 2 validators * 32 ETH
-      expect(buckets.inTransit).toBe(32000000000n)
+      expect(buckets.entryQueue).toBe(32000000000n)
       expect(buckets.exiting).toBe(32000000000n)
-      expect(buckets.rewards).toBe(0n) // No rewards in this test
+      expect(buckets.withdrawable).toBe(32000000000n)
+      expect(buckets.deposited).toBe(0n)
     })
 
     it('handles empty validator list', () => {
       const buckets = aggregateByStateBucket([])
 
       expect(buckets.active).toBe(0n)
-      expect(buckets.inTransit).toBe(0n)
+      expect(buckets.entryQueue).toBe(0n)
       expect(buckets.exiting).toBe(0n)
-      expect(buckets.rewards).toBe(0n)
+      expect(buckets.deposited).toBe(0n)
+      expect(buckets.withdrawable).toBe(0n)
     })
 
-    it('includes pending_activation in inTransit bucket', () => {
+    it('includes pending_activation in entryQueue bucket', () => {
       const validators = [
         createTestValidator({ stakeState: 'pending_activation', balance: 32000000000n }),
       ]
 
       const buckets = aggregateByStateBucket(validators)
 
-      expect(buckets.inTransit).toBe(32000000000n)
+      expect(buckets.entryQueue).toBe(32000000000n)
+    })
+
+    it('includes deposited in deposited bucket', () => {
+      const validators = [
+        createTestValidator({ stakeState: 'deposited', balance: 32000000000n }),
+      ]
+
+      const buckets = aggregateByStateBucket(validators)
+
+      expect(buckets.deposited).toBe(32000000000n)
     })
   })
 
@@ -210,7 +223,7 @@ describe('Rollup Service', () => {
     it('produces deterministic output for same inputs', () => {
       const validators = [
         createTestValidator({ id: 'v1', custodianId: 'c1', custodianName: 'Coinbase', stakeState: 'active', balance: 32000000000n }),
-        createTestValidator({ id: 'v2', custodianId: 'c1', custodianName: 'Coinbase', stakeState: 'in_transit', balance: 32000000000n }),
+        createTestValidator({ id: 'v2', custodianId: 'c1', custodianName: 'Coinbase', stakeState: 'pending_activation', balance: 32000000000n }),
       ]
 
       const rewardEvents = [
@@ -224,7 +237,7 @@ describe('Rollup Service', () => {
       expect(summary1.totalValue).toBe(summary2.totalValue)
       expect(summary1.validatorCount).toBe(summary2.validatorCount)
       expect(summary1.stateBuckets.active).toBe(summary2.stateBuckets.active)
-      expect(summary1.stateBuckets.inTransit).toBe(summary2.stateBuckets.inTransit)
+      expect(summary1.stateBuckets.entryQueue).toBe(summary2.stateBuckets.entryQueue)
     })
 
     it('includes all required fields', () => {
@@ -242,9 +255,10 @@ describe('Rollup Service', () => {
       expect(summary).toHaveProperty('asOfTimestamp')
 
       expect(summary.stateBuckets).toHaveProperty('active')
-      expect(summary.stateBuckets).toHaveProperty('inTransit')
-      expect(summary.stateBuckets).toHaveProperty('rewards')
+      expect(summary.stateBuckets).toHaveProperty('deposited')
+      expect(summary.stateBuckets).toHaveProperty('entryQueue')
       expect(summary.stateBuckets).toHaveProperty('exiting')
+      expect(summary.stateBuckets).toHaveProperty('withdrawable')
     })
   })
 })

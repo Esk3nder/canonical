@@ -47,11 +47,11 @@ const STATUS_COLORS: Record<string, string> = {
 
 const STATE_OPTIONS = [
   { value: '', label: 'All States' },
+  { value: 'deposited', label: 'Deposited' },
+  { value: 'pending_activation', label: 'Entry Queue' },
   { value: 'active', label: 'Active' },
-  { value: 'pending_activation', label: 'Pending Activation' },
-  { value: 'in_transit', label: 'In Transit' },
   { value: 'exiting', label: 'Exiting' },
-  { value: 'exited', label: 'Exited' },
+  { value: 'withdrawable', label: 'Withdrawable' },
 ]
 
 export function ValidatorTable({

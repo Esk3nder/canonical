@@ -14,13 +14,14 @@ test.describe('Morning check flow', () => {
     // Step 2: KPIs visible above the fold
     await expect(page.getByTestId('portfolio-value')).toBeVisible()
     await expect(page.getByTestId('trailing-apy')).toBeVisible()
-    await expect(page.getByTestId('validator-count')).toBeVisible()
+    // Validator count moved out of KPI bands
 
     // Step 3: State buckets visible
+    await expect(page.getByTestId('bucket-deposited')).toBeVisible()
+    await expect(page.getByTestId('bucket-entryQueue')).toBeVisible()
     await expect(page.getByTestId('bucket-active')).toBeVisible()
-    await expect(page.getByTestId('bucket-in-transit')).toBeVisible()
-    await expect(page.getByTestId('bucket-rewards')).toBeVisible()
     await expect(page.getByTestId('bucket-exiting')).toBeVisible()
+    await expect(page.getByTestId('bucket-withdrawable')).toBeVisible()
 
     // Step 4: Custodian distribution visible
     await expect(page.getByTestId('custodian-table')).toBeVisible()
@@ -121,7 +122,7 @@ test.describe('Dashboard data display', () => {
   test('state buckets show values and percentages', async ({ page }) => {
     await page.goto('/')
 
-    const buckets = ['active', 'in-transit', 'rewards', 'exiting']
+    const buckets = ['deposited', 'entryQueue', 'active', 'exiting', 'withdrawable']
 
     for (const bucket of buckets) {
       const element = page.getByTestId(`bucket-${bucket}`)

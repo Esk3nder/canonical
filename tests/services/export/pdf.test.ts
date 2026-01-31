@@ -15,10 +15,11 @@ describe('PDF Export Service', () => {
       trailingApy30d: 0.045,
       validatorCount: 156,
       stateBuckets: {
+        deposited: 100000000000000000n,
+        entryQueue: 200000000000000000n,
         active: 4500000000000000000n,
-        inTransit: 200000000000000000n,
-        rewards: 150000000000000000n,
         exiting: 150000000000000000n,
+        withdrawable: 150000000000000000n,
       },
       custodianBreakdown: [
         {
@@ -66,10 +67,11 @@ describe('PDF Export Service', () => {
       const html = generatePortfolioPDFContent(mockSummary)
 
       expect(html).toContain('State Buckets')
+      expect(html).toContain('Deposited')
+      expect(html).toContain('Entry Queue')
       expect(html).toContain('Active')
-      expect(html).toContain('In Transit')
-      expect(html).toContain('Rewards')
       expect(html).toContain('Exiting')
+      expect(html).toContain('Withdrawable')
     })
 
     it('includes methodology version when provided', () => {
@@ -100,10 +102,11 @@ describe('PDF Export Service', () => {
         trailingApy30d: 0.045,
         validatorCount: 156,
         stateBuckets: {
+          deposited: 100000000000000000n,
+          entryQueue: 200000000000000000n,
           active: 4500000000000000000n,
-          inTransit: 200000000000000000n,
-          rewards: 150000000000000000n,
           exiting: 150000000000000000n,
+          withdrawable: 150000000000000000n,
         },
         custodianBreakdown: [],
         asOfTimestamp: new Date('2026-01-31'),
