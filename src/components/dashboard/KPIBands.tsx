@@ -177,20 +177,20 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
           >
             {formattedApy}%
           </p>
-          {apyChange !== null && (
-            <span
-              data-testid="apy-change"
-              className={`text-sm font-medium ${
-                isApyPositive ? 'text-green-600' : 'text-red-600'
-              }`}
-            >
-              {isApyPositive ? '+' : ''}{apyChange.toFixed(1)}% vs last month
+          {formattedBenchmark && (
+            <span className="text-sm text-gray-500">
+              CESR: {formattedBenchmark}%
             </span>
           )}
         </div>
-        {formattedBenchmark && (
-          <p className="mt-2 text-sm text-gray-500">
-            CESR Rate: {formattedBenchmark}%
+        {apyChange !== null && (
+          <p
+            data-testid="apy-change"
+            className={`mt-1 text-sm font-medium ${
+              isApyPositive ? 'text-green-600' : 'text-red-600'
+            }`}
+          >
+            {isApyPositive ? '+' : ''}{apyChange.toFixed(1)}% vs last month
           </p>
         )}
       </button>
