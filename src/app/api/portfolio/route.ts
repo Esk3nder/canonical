@@ -24,6 +24,8 @@ function serializePortfolioSummary(
     totalValue: summary.totalValue.toString(),
     change24h: change24h?.toString() ?? '0',
     trailingApy30d: summary.trailingApy30d,
+    previousMonthApy: summary.previousMonthApy,
+    networkBenchmarkApy: summary.networkBenchmarkApy,
     validatorCount: summary.validatorCount,
     stateBuckets: {
       active: summary.stateBuckets.active.toString(),
@@ -79,8 +81,8 @@ export async function GET() {
       effectiveBalance: BigInt(v.effectiveBalance),
     }))
 
-    // Fetch reward events from the last 30 days
-    const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+    // Fetch reward events from the last 60 days (for current + previous month APY)
+    const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000)
     const rewardRows = await db
       .select({
         validatorId: stakeEvents.validatorId,
@@ -92,7 +94,7 @@ export async function GET() {
 
     // Transform to RewardEvent and filter by date
     const rewardEvents: RewardEvent[] = rewardRows
-      .filter((r) => r.timestamp >= thirtyDaysAgo)
+      .filter((r) => r.timestamp >= sixtyDaysAgo)
       .map((r) => ({
         validatorId: r.validatorId,
         amount: BigInt(r.amount),

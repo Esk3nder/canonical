@@ -38,6 +38,35 @@ const config: Config = {
           700: '#b91c1c',
         },
       },
+      animation: {
+        'modal-in': 'modalIn 200ms ease-out forwards',
+        'modal-out': 'modalOut 150ms ease-in forwards',
+        'backdrop-in': 'backdropIn 200ms ease-out forwards',
+        'backdrop-out': 'backdropOut 150ms ease-in forwards',
+        'pulse-live': 'pulseLive 2s ease-in-out infinite',
+      },
+      keyframes: {
+        modalIn: {
+          '0%': { opacity: '0', transform: 'scale(0.95)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        modalOut: {
+          '0%': { opacity: '1', transform: 'scale(1)' },
+          '100%': { opacity: '0', transform: 'scale(0.95)' },
+        },
+        backdropIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        backdropOut: {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0' },
+        },
+        pulseLive: {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.5' },
+        },
+      },
     },
   },
   plugins: [],

@@ -4,19 +4,45 @@
  * KPIBands Component
  *
  * Displays key portfolio metrics in a prominent band layout:
- * - Total Portfolio Value (with dual currency display and 24h change)
+ * - Total Portfolio Value (with dual currency display and 24h change) - CLICKABLE to expand
  * - Trailing 30-day APY
  * - Validator Count
  */
 
+import { useState } from 'react'
+import { Info } from 'lucide-react'
 import { formatCurrency, formatEthChange } from '@/lib/format'
 import { useCurrency } from '@/contexts/CurrencyContext'
+import { PortfolioExpandedModal } from './PortfolioExpandedModal'
+
+interface StateBuckets {
+  active: string
+  inTransit: string
+  rewards: string
+  exiting: string
+}
+
+interface CustodianAllocation {
+  custodianId: string
+  custodianName: string
+  value: string
+  percentage: number
+  trailingApy30d: number
+  validatorCount: number
+  change7d?: number
+  change30d?: number
+}
 
 interface KPIData {
   totalValue: string
   change24h?: string
   trailingApy30d: number
+  previousMonthApy?: number
+  networkBenchmarkApy?: number
   validatorCount: number
+  stateBuckets?: StateBuckets
+  custodianBreakdown?: CustodianAllocation[]
+  asOfTimestamp?: string
 }
 
 interface KPIBandsProps {
@@ -27,6 +53,7 @@ interface KPIBandsProps {
 
 export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
   const { currency, ethPrice } = useCurrency()
+  const [isExpanded, setIsExpanded] = useState(false)
 
   if (isLoading) {
     return (
@@ -73,13 +100,36 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
   const change24hFormatted = data.change24h ? formatEthChange(data.change24h) : null
   const isPositiveChange = data.change24h ? BigInt(data.change24h) >= 0n : true
 
-  const formattedApy = (data.trailingApy30d * 100).toFixed(2)
+  const formattedApy = (data.trailingApy30d * 100).toFixed(1)
   const formattedCount = data.validatorCount.toLocaleString()
 
+  // Calculate month-over-month change
+  const apyChange = data.previousMonthApy !== undefined
+    ? (data.trailingApy30d - data.previousMonthApy) * 100
+    : null
+  const isApyPositive = apyChange !== null && apyChange >= 0
+
+  // Format network benchmark
+  const formattedBenchmark = data.networkBenchmarkApy !== undefined
+    ? (data.networkBenchmarkApy * 100).toFixed(1)
+    : null
+
+  // Default state buckets for modal if not provided
+  const defaultStateBuckets: StateBuckets = data?.stateBuckets ?? {
+    active: data?.totalValue ? (BigInt(data.totalValue) * 98n / 100n).toString() : '0',
+    inTransit: data?.totalValue ? (BigInt(data.totalValue) * 1n / 100n).toString() : '0',
+    rewards: '0',
+    exiting: data?.totalValue ? (BigInt(data.totalValue) * 1n / 100n).toString() : '0',
+  }
+
   return (
+    <>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      {/* Portfolio Value - Enhanced with dual currency display */}
-      <div className="bg-white rounded-lg shadow p-6">
+      {/* Portfolio Value - Enhanced with dual currency display - CLICKABLE */}
+      <button
+        onClick={() => setIsExpanded(true)}
+        className="bg-white rounded-lg shadow p-6 text-left transition-all duration-200 hover:shadow-lg hover:scale-[1.02] cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+      >
         <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
           Portfolio Value
         </p>
@@ -108,19 +158,45 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
             </span>
           )}
         </div>
-      </div>
+      </button>
 
-      {/* Trailing APY */}
+      {/* Global Blended APY */}
       <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-          Blended Staking APY
+        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide flex items-center gap-1">
+          Global Blended APY
+          <span
+            className="cursor-help"
+            title="30-day trailing, net of operator fees, consensus + execution"
+          >
+            <Info className="w-3.5 h-3.5 text-gray-400" />
+          </span>
         </p>
-        <p
-          data-testid="trailing-apy"
-          className="mt-2 text-3xl font-bold text-green-600"
-        >
-          {formattedApy}%
-        </p>
+        <div className="mt-3 flex items-baseline gap-3">
+          <p
+            data-testid="trailing-apy"
+            className="text-3xl font-bold text-green-600"
+          >
+            {formattedApy}%
+          </p>
+          {apyChange !== null && (
+            <span
+              data-testid="apy-change"
+              className={`text-sm font-medium ${
+                isApyPositive ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
+              {isApyPositive ? '+' : ''}{apyChange.toFixed(1)}% vs last month
+            </span>
+          )}
+        </div>
+        {formattedBenchmark && (
+          <p
+            className="mt-2 text-sm text-gray-500 cursor-help"
+            title="30-day trailing APY, net of operator fees"
+          >
+            CESR Rate: {formattedBenchmark}%
+          </p>
+        )}
       </div>
 
       {/* Validator Count */}
@@ -136,5 +212,19 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
         </p>
       </div>
     </div>
+
+    {/* Expanded Portfolio Modal */}
+    <PortfolioExpandedModal
+      isOpen={isExpanded}
+      onClose={() => setIsExpanded(false)}
+      data={{
+        totalValue: data.totalValue,
+        change24h: data.change24h,
+        stateBuckets: defaultStateBuckets,
+        custodianBreakdown: data.custodianBreakdown ?? [],
+        asOfTimestamp: data.asOfTimestamp ?? new Date().toISOString(),
+      }}
+    />
+    </>
   )
 }

@@ -14,6 +14,8 @@ interface PortfolioData {
   totalValue: string
   change24h: string
   trailingApy30d: number
+  previousMonthApy?: number
+  networkBenchmarkApy?: number
   validatorCount: number
   stateBuckets: {
     active: string
@@ -162,7 +164,12 @@ export default function PortfolioOverview() {
                   totalValue: portfolioData.totalValue,
                   change24h: portfolioData.change24h,
                   trailingApy30d: portfolioData.trailingApy30d,
+                  previousMonthApy: portfolioData.previousMonthApy,
+                  networkBenchmarkApy: portfolioData.networkBenchmarkApy,
                   validatorCount: portfolioData.validatorCount,
+                  stateBuckets: portfolioData.stateBuckets,
+                  custodianBreakdown: portfolioData.custodianBreakdown,
+                  asOfTimestamp: portfolioData.asOfTimestamp,
                 }
               : null
           }
