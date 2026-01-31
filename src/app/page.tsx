@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   KPIBands,
-  StateBuckets,
-  CustodianDistribution,
+  StakeLifecycle,
+  CustodianTable,
   ExceptionSummary,
 } from '@/components/dashboard'
 import type { RewardsPulseData } from '@/components/dashboard'
@@ -209,19 +209,15 @@ export default function PortfolioOverview() {
         />
       </div>
 
-      {/* State Buckets */}
-      <div className="mb-6">
-        <StateBuckets
+      {/* Stake Lifecycle & Custodians - Side by Side */}
+      <div className="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <StakeLifecycle
           data={portfolioData?.stateBuckets ?? null}
           totalValue={portfolioData?.totalValue ?? '0'}
           isLoading={portfolioLoading}
-          onBucketClick={handleBucketClick}
+          onStateClick={handleBucketClick}
         />
-      </div>
-
-      {/* Custodian Distribution */}
-      <div className="mb-6">
-        <CustodianDistribution
+        <CustodianTable
           data={portfolioData?.custodianBreakdown ?? null}
           isLoading={portfolioLoading}
           onCustodianClick={handleCustodianClick}

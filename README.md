@@ -30,7 +30,7 @@ npm run dev:setup
 ```
 
 This command will:
-1. Create `.env.local` from `.env.example` (if needed)
+1. Create `.env` from `.env.example` (if needed)
 2. Start PostgreSQL in Docker
 3. Run database migrations
 4. Seed demo data (if database is empty)
@@ -60,10 +60,10 @@ createdb canonical_staking
 ### 3. Configure environment
 
 ```bash
-cp .env.example .env.local
+cp .env.example .env
 ```
 
-Edit `.env.local`:
+Edit `.env`:
 
 ```env
 DATABASE_URL=postgresql://username:password@localhost:5432/canonical_staking

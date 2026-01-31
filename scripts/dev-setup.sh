@@ -3,12 +3,12 @@ set -e
 
 echo "Setting up local development environment..."
 
-# Create .env.local if it doesn't exist
-if [ ! -f .env.local ]; then
-  echo "Creating .env.local from .env.example..."
-  cp .env.example .env.local
+# Create .env if it doesn't exist
+if [ ! -f .env ]; then
+  echo "Creating .env from .env.example..."
+  cp .env.example .env
 else
-  echo ".env.local already exists, skipping..."
+  echo ".env already exists, skipping..."
 fi
 
 # Clean up any stale containers
