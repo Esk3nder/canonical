@@ -17,7 +17,7 @@ Institutional staking portfolio dashboard built with Next.js 14, PostgreSQL, and
 - Node.js 18+
 - Docker (recommended) or PostgreSQL 14+
 
-## Quick Start (Docker)
+## Quick Start
 
 ```bash
 # Clone and install
@@ -25,21 +25,16 @@ git clone https://github.com/Esk3nder/canonical.git
 cd canonical
 npm install
 
-# Start PostgreSQL
-docker compose up -d
-
-# Configure environment
-cp .env.example .env.local
-
-# Push schema to database
-npm run db:push
-
-# Seed demo data (optional)
-npm run db:seed
-
-# Start dev server
-npm run dev
+# One command to set up and start everything
+npm run dev:setup
 ```
+
+This command will:
+1. Create `.env.local` from `.env.example` (if needed)
+2. Start PostgreSQL in Docker
+3. Run database migrations
+4. Seed demo data (if database is empty)
+5. Start the dev server
 
 Open [http://localhost:3000](http://localhost:3000)
 
@@ -93,7 +88,8 @@ npm run dev
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev` | Start development server |
+| `npm run dev:setup` | **One-command setup**: starts postgres, runs migrations, seeds, and starts dev server |
+| `npm run dev` | Start development server (requires postgres running) |
 | `npm run build` | Build for production |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
@@ -104,6 +100,7 @@ npm run dev
 | `npm run db:push` | Push schema to database |
 | `npm run db:seed` | Seed demo data |
 | `npm run db:studio` | Open Drizzle Studio |
+| `npm run db:reset` | Delete database and start fresh |
 
 ## Docker Deployment (Full Stack)
 

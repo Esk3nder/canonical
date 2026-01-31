@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:setup": "./scripts/dev-setup.sh && npm run dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -15,7 +16,8 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "npx tsx scripts/seed.ts"
+    "db:seed": "npx tsx scripts/seed.ts",
+    "db:reset": "docker rm -f canonical-postgres && docker volume rm montpellier_postgres_data && npm run dev:setup"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.0.0",
