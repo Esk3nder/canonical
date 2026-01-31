@@ -52,7 +52,7 @@ describe('ValidatorTable', () => {
   it('shows status/state per validator', () => {
     render(<ValidatorTable data={mockData} total={3} />)
 
-    expect(screen.getByText('active')).toBeInTheDocument()
+    expect(screen.getAllByText('active').length).toBeGreaterThan(0)
     expect(screen.getByText('pending')).toBeInTheDocument()
   })
 

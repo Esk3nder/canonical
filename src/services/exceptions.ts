@@ -126,8 +126,8 @@ export function detectPortfolioValueChange(
 
   // Determine severity based on magnitude
   let severity: 'low' | 'medium' | 'high' | 'critical' = 'medium'
-  if (changePercent > 0.2) severity = 'critical'
-  else if (changePercent > 0.1) severity = 'high'
+  if (changePercent >= 0.2) severity = 'critical'
+  else if (changePercent >= 0.1) severity = 'high'
 
   return createException({
     type: 'portfolio_value_change',

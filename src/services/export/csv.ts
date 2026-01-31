@@ -43,21 +43,14 @@ export function generatePortfolioCSV(
 ): string {
   const lines: string[] = []
 
-  // Metadata section
-  lines.push('Portfolio Summary Report')
+  // Summary header row for quick scan
+  lines.push(toCSVRow(['Total Value', 'Trailing APY', 'Validator Count']))
+  lines.push(toCSVRow([summary.totalValue, summary.trailingApy30d, summary.validatorCount]))
   lines.push(`Generated At,${new Date().toISOString()}`)
+  lines.push(`As Of,${summary.asOfTimestamp.toISOString()}`)
   if (methodologyVersion) {
     lines.push(`Methodology Version,${methodologyVersion}`)
   }
-  lines.push(`As Of,${summary.asOfTimestamp.toISOString()}`)
-  lines.push('')
-
-  // Summary section
-  lines.push('Key Metrics')
-  lines.push(toCSVRow(['Metric', 'Value']))
-  lines.push(toCSVRow(['Total Value (gwei)', summary.totalValue]))
-  lines.push(toCSVRow(['Trailing APY (30d)', summary.trailingApy30d]))
-  lines.push(toCSVRow(['Validator Count', summary.validatorCount]))
   lines.push('')
 
   // State buckets section

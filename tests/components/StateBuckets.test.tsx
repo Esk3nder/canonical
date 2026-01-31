@@ -4,6 +4,11 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { StateBuckets } from '@/components/dashboard/StateBuckets'
+import { CurrencyProvider } from '@/contexts/CurrencyContext'
+
+function TestWrapper({ children }: { children: React.ReactNode }) {
+  return <CurrencyProvider>{children}</CurrencyProvider>
+}
 
 describe('StateBuckets', () => {
   const mockData = {
@@ -16,7 +21,7 @@ describe('StateBuckets', () => {
   const totalValue = '5000000000000000000' // 5000 ETH
 
   it('renders all four state buckets', () => {
-    render(<StateBuckets data={mockData} totalValue={totalValue} />)
+    render(<StateBuckets data={mockData} totalValue={totalValue} />, { wrapper: TestWrapper })
 
     expect(screen.getByTestId('bucket-active')).toBeInTheDocument()
     expect(screen.getByTestId('bucket-in-transit')).toBeInTheDocument()
@@ -25,7 +30,7 @@ describe('StateBuckets', () => {
   })
 
   it('shows values and percentages', () => {
-    render(<StateBuckets data={mockData} totalValue={totalValue} />)
+    render(<StateBuckets data={mockData} totalValue={totalValue} />, { wrapper: TestWrapper })
 
     // Active should be 90%
     expect(screen.getByText(/90\.00%/)).toBeInTheDocument()
@@ -40,7 +45,8 @@ describe('StateBuckets', () => {
         data={mockData}
         totalValue={totalValue}
         onBucketClick={onBucketClick}
-      />
+      />,
+      { wrapper: TestWrapper }
     )
 
     fireEvent.click(screen.getByTestId('bucket-active'))
@@ -61,7 +67,8 @@ describe('StateBuckets', () => {
         data={anomalyData}
         totalValue={totalValue}
         anomalyThreshold={0.1}
-      />
+      />,
+      { wrapper: TestWrapper }
     )
 
     const inTransitBucket = screen.getByTestId('bucket-in-transit')
@@ -69,7 +76,7 @@ describe('StateBuckets', () => {
   })
 
   it('shows loading state', () => {
-    render(<StateBuckets data={null} totalValue="0" isLoading={true} />)
+    render(<StateBuckets data={null} totalValue="0" isLoading={true} />, { wrapper: TestWrapper })
 
     expect(screen.getByTestId('buckets-loading')).toBeInTheDocument()
   })

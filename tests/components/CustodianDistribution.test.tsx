@@ -2,8 +2,13 @@
  * CustodianDistribution Component Tests
  */
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, within } from '@testing-library/react'
 import { CustodianDistribution } from '@/components/dashboard/CustodianDistribution'
+import { CurrencyProvider } from '@/contexts/CurrencyContext'
+
+function TestWrapper({ children }: { children: React.ReactNode }) {
+  return <CurrencyProvider>{children}</CurrencyProvider>
+}
 
 describe('CustodianDistribution', () => {
   const mockData = [
@@ -40,23 +45,24 @@ describe('CustodianDistribution', () => {
   ]
 
   it('renders allocation chart', () => {
-    render(<CustodianDistribution data={mockData} />)
+    render(<CustodianDistribution data={mockData} />, { wrapper: TestWrapper })
 
     expect(screen.getByTestId('allocation-chart')).toBeInTheDocument()
   })
 
   it('renders comparison table (no hover needed)', () => {
-    render(<CustodianDistribution data={mockData} />)
+    render(<CustodianDistribution data={mockData} />, { wrapper: TestWrapper })
 
-    expect(screen.getByTestId('custodian-table')).toBeInTheDocument()
+    const table = screen.getByTestId('custodian-table')
+    expect(table).toBeInTheDocument()
     // All custodians visible in table
-    expect(screen.getByText('Coinbase Prime')).toBeInTheDocument()
-    expect(screen.getByText('Anchorage Digital')).toBeInTheDocument()
-    expect(screen.getByText('BitGo')).toBeInTheDocument()
+    expect(within(table).getByText('Coinbase Prime')).toBeInTheDocument()
+    expect(within(table).getByText('Anchorage Digital')).toBeInTheDocument()
+    expect(within(table).getByText('BitGo')).toBeInTheDocument()
   })
 
   it('shows per-custodian APY', () => {
-    render(<CustodianDistribution data={mockData} />)
+    render(<CustodianDistribution data={mockData} />, { wrapper: TestWrapper })
 
     // APY values should be formatted as percentages
     expect(screen.getByText(/4\.80%/)).toBeInTheDocument()
@@ -65,7 +71,7 @@ describe('CustodianDistribution', () => {
   })
 
   it('shows 7d/30d change indicators', () => {
-    render(<CustodianDistribution data={mockData} />)
+    render(<CustodianDistribution data={mockData} />, { wrapper: TestWrapper })
 
     // Should show positive/negative indicators
     const table = screen.getByTestId('custodian-table')
@@ -73,7 +79,7 @@ describe('CustodianDistribution', () => {
   })
 
   it('supports sorting', () => {
-    render(<CustodianDistribution data={mockData} />)
+    render(<CustodianDistribution data={mockData} />, { wrapper: TestWrapper })
 
     // Click on Value header to sort
     const valueHeader = screen.getByRole('columnheader', { name: /Value/i })
@@ -84,13 +90,13 @@ describe('CustodianDistribution', () => {
   })
 
   it('shows loading state', () => {
-    render(<CustodianDistribution data={null} isLoading={true} />)
+    render(<CustodianDistribution data={null} isLoading={true} />, { wrapper: TestWrapper })
 
     expect(screen.getByTestId('distribution-loading')).toBeInTheDocument()
   })
 
   it('handles empty data', () => {
-    render(<CustodianDistribution data={[]} />)
+    render(<CustodianDistribution data={[]} />, { wrapper: TestWrapper })
 
     expect(screen.getByText(/No custodian data/i)).toBeInTheDocument()
   })
