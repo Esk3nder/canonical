@@ -35,11 +35,11 @@ const STATUS_COLORS: Record<string, string> = {
 
 const STATE_OPTIONS = [
   { value: '', label: 'All States' },
+  { value: 'deposited', label: 'Deposited' },
+  { value: 'pending_activation', label: 'Entry Queue' },
   { value: 'active', label: 'Active' },
-  { value: 'pending_activation', label: 'Pending Activation' },
-  { value: 'in_transit', label: 'In Transit' },
   { value: 'exiting', label: 'Exiting' },
-  { value: 'exited', label: 'Exited' },
+  { value: 'withdrawable', label: 'Withdrawable' },
 ]
 
 function ValidatorsContent() {
@@ -74,7 +74,7 @@ function ValidatorsContent() {
               operatorName: `${c.custodianName} Operator`,
               custodianName: c.custodianName,
               status: 'active',
-              stakeState: i % 5 === 0 ? 'pending_activation' : i % 7 === 0 ? 'exiting' : 'active',
+              stakeState: ['deposited', 'pending_activation', 'active', 'exiting', 'withdrawable'][i % 5],
               balance: (BigInt(c.value) / BigInt(c.validatorCount || 1)).toString(),
               effectiveBalance: '32000000000',
               trailingApy30d: c.trailingApy30d,

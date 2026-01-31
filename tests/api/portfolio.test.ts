@@ -31,10 +31,11 @@ describe('GET /api/portfolio', () => {
         trailingApy30d: 0.045,
         validatorCount: 2,
         stateBuckets: {
+          deposited: '0',
+          entryQueue: '0',
           active: '64000000000000',
-          inTransit: '0',
-          rewards: '100000000',
           exiting: '0',
+          withdrawable: '0',
         },
         custodianBreakdown: [],
         asOfTimestamp: new Date().toISOString(),
@@ -72,19 +73,21 @@ describe('GET /api/portfolio', () => {
     const response = {
       data: {
         stateBuckets: {
+          deposited: '100000000000000',
+          entryQueue: '200000000000000',
           active: '5000000000000000',
-          inTransit: '100000000000000',
-          rewards: '50000000000000',
           exiting: '0',
+          withdrawable: '50000000000000',
         },
       },
     }
 
     expect(response.data.stateBuckets).toBeDefined()
+    expect(response.data.stateBuckets.deposited).toBeDefined()
+    expect(response.data.stateBuckets.entryQueue).toBeDefined()
     expect(response.data.stateBuckets.active).toBeDefined()
-    expect(response.data.stateBuckets.inTransit).toBeDefined()
-    expect(response.data.stateBuckets.rewards).toBeDefined()
     expect(response.data.stateBuckets.exiting).toBeDefined()
+    expect(response.data.stateBuckets.withdrawable).toBeDefined()
   })
 
   it('returns custodian breakdown', async () => {

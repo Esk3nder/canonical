@@ -88,12 +88,12 @@ describe('Exception Detection Service', () => {
   })
 
   describe('detectInTransitStuck', () => {
-    it('flags in-transit stuck > N days', () => {
+    it('flags pre-activation stuck > N days', () => {
       const now = new Date('2026-01-23')
       const validators: ValidatorWithTransit[] = [
         {
           id: 'v1',
-          stakeState: 'in_transit',
+          stakeState: 'deposited',
           transitStartDate: new Date('2026-01-10'), // 13 days ago
         },
         {
@@ -113,12 +113,12 @@ describe('Exception Detection Service', () => {
       expect(exceptions[0].type).toBe('in_transit_stuck')
     })
 
-    it('does not flag recent in-transit', () => {
+    it('does not flag recent pre-activation', () => {
       const now = new Date('2026-01-23')
       const validators: ValidatorWithTransit[] = [
         {
           id: 'v1',
-          stakeState: 'in_transit',
+          stakeState: 'deposited',
           transitStartDate: new Date('2026-01-20'), // 3 days ago
         },
       ]

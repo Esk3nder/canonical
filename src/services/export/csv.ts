@@ -59,24 +59,29 @@ export function generatePortfolioCSV(
   const total = summary.totalValue > 0n ? summary.totalValue : 1n
 
   lines.push(toCSVRow([
+    'Deposited',
+    summary.stateBuckets.deposited,
+    (Number(summary.stateBuckets.deposited) / Number(total) * 100).toFixed(2) + '%',
+  ]))
+  lines.push(toCSVRow([
+    'Entry Queue',
+    summary.stateBuckets.entryQueue,
+    (Number(summary.stateBuckets.entryQueue) / Number(total) * 100).toFixed(2) + '%',
+  ]))
+  lines.push(toCSVRow([
     'Active',
     summary.stateBuckets.active,
     (Number(summary.stateBuckets.active) / Number(total) * 100).toFixed(2) + '%',
   ]))
   lines.push(toCSVRow([
-    'In Transit',
-    summary.stateBuckets.inTransit,
-    (Number(summary.stateBuckets.inTransit) / Number(total) * 100).toFixed(2) + '%',
-  ]))
-  lines.push(toCSVRow([
-    'Rewards',
-    summary.stateBuckets.rewards,
-    (Number(summary.stateBuckets.rewards) / Number(total) * 100).toFixed(2) + '%',
-  ]))
-  lines.push(toCSVRow([
     'Exiting',
     summary.stateBuckets.exiting,
     (Number(summary.stateBuckets.exiting) / Number(total) * 100).toFixed(2) + '%',
+  ]))
+  lines.push(toCSVRow([
+    'Withdrawable',
+    summary.stateBuckets.withdrawable,
+    (Number(summary.stateBuckets.withdrawable) / Number(total) * 100).toFixed(2) + '%',
   ]))
 
   return lines.join('\n')

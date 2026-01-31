@@ -17,10 +17,11 @@ import { APYExpandedModal } from './APYExpandedModal'
 import { RewardsPulseModal } from './RewardsPulseModal'
 
 interface StateBuckets {
+  deposited: string
+  entryQueue: string
   active: string
-  inTransit: string
-  rewards: string
   exiting: string
+  withdrawable: string
 }
 
 interface CustodianAllocation {
@@ -138,10 +139,11 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
 
   // Default state buckets for modal if not provided
   const defaultStateBuckets: StateBuckets = data?.stateBuckets ?? {
-    active: data?.totalValue ? (BigInt(data.totalValue) * 98n / 100n).toString() : '0',
-    inTransit: data?.totalValue ? (BigInt(data.totalValue) * 1n / 100n).toString() : '0',
-    rewards: '0',
+    deposited: data?.totalValue ? (BigInt(data.totalValue) * 1n / 100n).toString() : '0',
+    entryQueue: data?.totalValue ? (BigInt(data.totalValue) * 1n / 100n).toString() : '0',
+    active: data?.totalValue ? (BigInt(data.totalValue) * 96n / 100n).toString() : '0',
     exiting: data?.totalValue ? (BigInt(data.totalValue) * 1n / 100n).toString() : '0',
+    withdrawable: data?.totalValue ? (BigInt(data.totalValue) * 1n / 100n).toString() : '0',
   }
 
   return (

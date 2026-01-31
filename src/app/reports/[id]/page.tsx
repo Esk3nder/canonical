@@ -31,10 +31,11 @@ interface ReportDetail {
     trailingApy30d: number
     validatorCount: number
     stateBuckets: {
+      deposited: string
+      entryQueue: string
       active: string
-      inTransit: string
-      rewards: string
       exiting: string
+      withdrawable: string
     }
   }
   custodianBreakdown?: Array<{
@@ -257,29 +258,35 @@ export default function ReportDetailPage() {
 
                 {/* State Buckets */}
                 <h3 className="text-md font-semibold mt-6 mb-3">State Buckets</h3>
-                <div className="grid grid-cols-4 gap-3">
-                  <div className="bg-green-50 rounded-lg p-3">
-                    <div className="text-xs text-green-700 uppercase">Active</div>
-                    <div className="text-lg font-semibold text-green-800">
+                <div className="grid grid-cols-5 gap-3">
+                  <div className="bg-slate-50 rounded-lg p-3">
+                    <div className="text-xs text-slate-700 uppercase">Deposited</div>
+                    <div className="text-lg font-semibold text-slate-800">
+                      {formatEther(report.summary.stateBuckets.deposited)} ETH
+                    </div>
+                  </div>
+                  <div className="bg-amber-50 rounded-lg p-3">
+                    <div className="text-xs text-amber-700 uppercase">Entry Queue</div>
+                    <div className="text-lg font-semibold text-amber-800">
+                      {formatEther(report.summary.stateBuckets.entryQueue)} ETH
+                    </div>
+                  </div>
+                  <div className="bg-emerald-50 rounded-lg p-3">
+                    <div className="text-xs text-emerald-700 uppercase">Active</div>
+                    <div className="text-lg font-semibold text-emerald-800">
                       {formatEther(report.summary.stateBuckets.active)} ETH
-                    </div>
-                  </div>
-                  <div className="bg-blue-50 rounded-lg p-3">
-                    <div className="text-xs text-blue-700 uppercase">In Transit</div>
-                    <div className="text-lg font-semibold text-blue-800">
-                      {formatEther(report.summary.stateBuckets.inTransit)} ETH
-                    </div>
-                  </div>
-                  <div className="bg-purple-50 rounded-lg p-3">
-                    <div className="text-xs text-purple-700 uppercase">Rewards</div>
-                    <div className="text-lg font-semibold text-purple-800">
-                      {formatEther(report.summary.stateBuckets.rewards)} ETH
                     </div>
                   </div>
                   <div className="bg-orange-50 rounded-lg p-3">
                     <div className="text-xs text-orange-700 uppercase">Exiting</div>
                     <div className="text-lg font-semibold text-orange-800">
                       {formatEther(report.summary.stateBuckets.exiting)} ETH
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <div className="text-xs text-blue-700 uppercase">Withdrawable</div>
+                    <div className="text-lg font-semibold text-blue-800">
+                      {formatEther(report.summary.stateBuckets.withdrawable)} ETH
                     </div>
                   </div>
                 </div>

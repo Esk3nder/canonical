@@ -190,7 +190,7 @@ export function detectInTransitStuck(
   const thresholdMs = thresholdDays * 24 * 60 * 60 * 1000
   const exceptions: Exception[] = []
 
-  const inTransitStates: StakeState[] = ['in_transit', 'pending_activation']
+  const inTransitStates: StakeState[] = ['deposited', 'pending_activation']
 
   for (const validator of validators) {
     if (!inTransitStates.includes(validator.stakeState)) {
