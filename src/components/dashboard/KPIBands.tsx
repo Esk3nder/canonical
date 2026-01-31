@@ -5,16 +5,16 @@
  *
  * Displays key portfolio metrics in a prominent band layout:
  * - Total Portfolio Value (with dual currency display and 24h change) - CLICKABLE to expand
- * - Trailing 30-day APY
- * - Validator Count
+ * - Trailing 30-day APY - CLICKABLE to expand
+ * - Rewards Pulse - CLICKABLE to expand
  */
 
 import { useState } from 'react'
-import { Info } from 'lucide-react'
-import { formatCurrency, formatEthChange } from '@/lib/format'
+import { formatCurrency, formatEthChange, formatEther, formatUSD } from '@/lib/format'
 import { useCurrency } from '@/contexts/CurrencyContext'
 import { PortfolioExpandedModal } from './PortfolioExpandedModal'
 import { APYExpandedModal } from './APYExpandedModal'
+import { RewardsPulseModal } from './RewardsPulseModal'
 
 interface StateBuckets {
   active: string
@@ -46,16 +46,37 @@ interface KPIData {
   asOfTimestamp?: string
 }
 
+interface CustodianReward {
+  custodianId: string
+  custodianName: string
+  amount: string
+}
+
+interface RewardsPulseData {
+  claimableNow: string
+  claimable24hChange: string
+  custodianBreakdown: CustodianReward[]
+  accrued: string
+  claimedThisMonth: string
+  asOfTimestamp: string
+}
+
 interface KPIBandsProps {
   data: KPIData | null
   isLoading: boolean
   error?: string
+  rewardsPulse?: {
+    data: RewardsPulseData | null
+    isLoading: boolean
+    error?: string
+  }
 }
 
-export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
+export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps) {
   const { currency, ethPrice } = useCurrency()
   const [isExpanded, setIsExpanded] = useState(false)
   const [isApyExpanded, setIsApyExpanded] = useState(false)
+  const [isRewardsExpanded, setIsRewardsExpanded] = useState(false)
 
   if (isLoading) {
     return (
@@ -103,7 +124,6 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
   const isPositiveChange = data.change24h ? BigInt(data.change24h) >= 0n : true
 
   const formattedApy = (data.trailingApy30d * 100).toFixed(1)
-  const formattedCount = data.validatorCount.toLocaleString()
 
   // Calculate month-over-month change
   const apyChange = data.previousMonthApy !== undefined
@@ -195,18 +215,44 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
         )}
       </button>
 
-      {/* Validator Count */}
-      <div className="bg-white rounded-lg shadow p-6">
-        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
-          Active Validators
-        </p>
-        <p
-          data-testid="validator-count"
-          className="mt-2 text-3xl font-bold text-gray-900"
+      {/* Rewards Pulse - CLICKABLE */}
+      {rewardsPulse?.isLoading ? (
+        <div className="bg-white rounded-lg shadow p-6 animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-32 mb-4" />
+          <div className="h-8 bg-gray-200 rounded w-24 mb-2" />
+          <div className="h-4 bg-gray-200 rounded w-40" />
+        </div>
+      ) : rewardsPulse?.error ? (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-red-700">
+          <p className="font-medium text-sm">Error loading rewards</p>
+        </div>
+      ) : rewardsPulse?.data ? (
+        <button
+          onClick={() => setIsRewardsExpanded(true)}
+          className="bg-white rounded-lg shadow p-6 text-left transition-all duration-200 hover:shadow-lg hover:scale-[1.02] cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
-          {formattedCount}
-        </p>
-      </div>
+          <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+            Rewards <span className="normal-case font-normal">(Last 30 Days)</span>
+          </p>
+
+          {/* Claimable Now - Primary metric */}
+          <p className="text-3xl font-bold text-gray-900 mt-2">
+            {formatEther(rewardsPulse.data.claimableNow)} <span className="text-xl text-gray-500">ETH</span>
+          </p>
+          <div className="mt-1 flex items-center gap-2">
+            <span className="text-lg text-gray-500">
+              {formatUSD(rewardsPulse.data.claimableNow, ethPrice)}
+            </span>
+            <span
+              className={`text-sm font-medium ${
+                BigInt(rewardsPulse.data.claimable24hChange) >= 0n ? 'text-green-600' : 'text-red-600'
+              }`}
+            >
+              {formatEthChange(rewardsPulse.data.claimable24hChange)} (24h)
+            </span>
+          </div>
+        </button>
+      ) : null}
     </div>
 
     {/* Expanded Portfolio Modal */}
@@ -234,6 +280,15 @@ export function KPIBands({ data, isLoading, error }: KPIBandsProps) {
         asOfTimestamp: data.asOfTimestamp ?? new Date().toISOString(),
       }}
     />
+
+    {/* Expanded Rewards Pulse Modal */}
+    {rewardsPulse?.data && (
+      <RewardsPulseModal
+        isOpen={isRewardsExpanded}
+        onClose={() => setIsRewardsExpanded(false)}
+        data={rewardsPulse.data}
+      />
+    )}
     </>
   )
 }

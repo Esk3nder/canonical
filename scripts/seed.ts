@@ -107,6 +107,79 @@ async function seed() {
       finalized: true,
     })
   }
+
+  // Add additional reward events for rewards pulse demo
+  // Claimable rewards (finalized) - larger amounts
+  const claimableRewards = [
+    { validatorIdx: 0, amount: '62000000000000000000', hoursAgo: 2 }, // 62 ETH - Figment (Coinbase)
+    { validatorIdx: 1, amount: '48000000000000000000', hoursAgo: 5 }, // 48 ETH - Blockdaemon (Coinbase)
+    { validatorIdx: 2, amount: '15000000000000000000', hoursAgo: 12 }, // 15 ETH - Staked (Anchorage)
+    { validatorIdx: 3, amount: '8200000000000000000', hoursAgo: 1 }, // 8.2 ETH - Chorus (BitGo) - recent for 24h change
+  ]
+
+  for (let i = 0; i < claimableRewards.length; i++) {
+    const { validatorIdx, amount, hoursAgo } = claimableRewards[i]
+    const timestamp = new Date(now.getTime() - hoursAgo * 60 * 60 * 1000)
+    events.push({
+      id: `event-claim-${i.toString().padStart(4, '0')}`,
+      validatorId: validators[validatorIdx].id,
+      eventType: 'reward' as const,
+      amount,
+      epoch: 200000 + i,
+      slot: (200000 + i) * 32,
+      timestamp,
+      finalized: true,
+    })
+  }
+
+  // Accrued rewards (unfinalized/pending)
+  const accruedRewards = [
+    { validatorIdx: 0, amount: '125000000000000000000', hoursAgo: 0 }, // 125 ETH pending
+    { validatorIdx: 1, amount: '100000000000000000000', hoursAgo: 0 }, // 100 ETH pending
+    { validatorIdx: 2, amount: '100000000000000000000', hoursAgo: 0 }, // 100 ETH pending
+  ]
+
+  for (let i = 0; i < accruedRewards.length; i++) {
+    const { validatorIdx, amount, hoursAgo } = accruedRewards[i]
+    const timestamp = new Date(now.getTime() - hoursAgo * 60 * 60 * 1000)
+    events.push({
+      id: `event-accrued-${i.toString().padStart(4, '0')}`,
+      validatorId: validators[validatorIdx].id,
+      eventType: 'reward' as const,
+      amount,
+      epoch: 300000 + i,
+      slot: (300000 + i) * 32,
+      timestamp,
+      finalized: false,
+    })
+  }
+
+  // Claimed this month rewards (finalized, within current month)
+  const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+  const claimedThisMonth = [
+    { validatorIdx: 0, amount: '50000000000000000000', daysAgo: 5 }, // 50 ETH
+    { validatorIdx: 1, amount: '40000000000000000000', daysAgo: 10 }, // 40 ETH
+    { validatorIdx: 2, amount: '30000000000000000000', daysAgo: 15 }, // 30 ETH
+  ]
+
+  for (let i = 0; i < claimedThisMonth.length; i++) {
+    const { validatorIdx, amount, daysAgo } = claimedThisMonth[i]
+    const timestamp = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000)
+    // Only add if within current month
+    if (timestamp >= startOfMonth) {
+      events.push({
+        id: `event-claimed-${i.toString().padStart(4, '0')}`,
+        validatorId: validators[validatorIdx].id,
+        eventType: 'reward' as const,
+        amount,
+        epoch: 400000 + i,
+        slot: (400000 + i) * 32,
+        timestamp,
+        finalized: true,
+      })
+    }
+  }
+
   await db.insert(schema.stakeEvents).values(events)
   console.log('Created stake events:', events.length)
 

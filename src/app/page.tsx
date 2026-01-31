@@ -8,6 +8,7 @@ import {
   CustodianDistribution,
   ExceptionSummary,
 } from '@/components/dashboard'
+import type { RewardsPulseData } from '@/components/dashboard'
 
 // API response types
 interface PortfolioData {
@@ -67,6 +68,11 @@ export default function PortfolioOverview() {
     }>
   } | null>(null)
   const [exceptionsLoading, setExceptionsLoading] = useState(true)
+
+  // Rewards Pulse state
+  const [rewardsPulseData, setRewardsPulseData] = useState<RewardsPulseData | null>(null)
+  const [rewardsPulseLoading, setRewardsPulseLoading] = useState(true)
+  const [rewardsPulseError, setRewardsPulseError] = useState<string | undefined>()
 
   // Fetch portfolio data
   useEffect(() => {
@@ -134,6 +140,26 @@ export default function PortfolioOverview() {
     fetchExceptions()
   }, [])
 
+  // Fetch rewards pulse
+  useEffect(() => {
+    async function fetchRewardsPulse() {
+      try {
+        setRewardsPulseLoading(true)
+        const res = await fetch('/api/rewards/pulse')
+        if (!res.ok) throw new Error('Failed to fetch rewards pulse')
+        const json = await res.json()
+        setRewardsPulseData(json.data)
+        setRewardsPulseError(undefined)
+      } catch (err) {
+        setRewardsPulseError(err instanceof Error ? err.message : 'Unknown error')
+      } finally {
+        setRewardsPulseLoading(false)
+      }
+    }
+
+    fetchRewardsPulse()
+  }, [])
+
   // Navigation handlers
   const handleCustodianClick = (custodianId: string) => {
     router.push(`/custodians/${custodianId}`)
@@ -175,6 +201,11 @@ export default function PortfolioOverview() {
           }
           isLoading={portfolioLoading}
           error={portfolioError}
+          rewardsPulse={{
+            data: rewardsPulseData,
+            isLoading: rewardsPulseLoading,
+            error: rewardsPulseError,
+          }}
         />
       </div>
 
