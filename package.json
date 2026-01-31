@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "./scripts/check-env.sh && next dev",
     "dev:setup": "./scripts/dev-setup.sh && npm run dev",
     "build": "next build",
     "start": "next start",
