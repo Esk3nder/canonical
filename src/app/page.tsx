@@ -19,10 +19,11 @@ interface PortfolioData {
   networkBenchmarkApy?: number
   validatorCount: number
   stateBuckets: {
+    deposited: string
+    entryQueue: string
     active: string
-    inTransit: string
-    rewards: string
     exiting: string
+    withdrawable: string
   }
   custodianBreakdown: Array<{
     custodianId: string

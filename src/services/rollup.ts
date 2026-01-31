@@ -41,34 +41,37 @@ export interface RewardEvent {
 
 /**
  * Aggregates validator balances by stake state into buckets.
- * Maps stake states to the four primary buckets shown on the dashboard.
+ * Maps stake states to the five lifecycle stages shown on the dashboard.
  */
 export function aggregateByStateBucket(
   validators: ValidatorWithContext[]
 ): StateBuckets {
   const buckets: StateBuckets = {
+    deposited: 0n,
+    entryQueue: 0n,
     active: 0n,
-    inTransit: 0n,
-    rewards: 0n,
     exiting: 0n,
+    withdrawable: 0n,
   }
 
   for (const validator of validators) {
     const balance = validator.balance
 
     switch (validator.stakeState) {
-      case 'active':
-        buckets.active += balance
+      case 'deposited':
+        buckets.deposited += balance
         break
       case 'pending_activation':
-      case 'in_transit':
-        buckets.inTransit += balance
+        buckets.entryQueue += balance
+        break
+      case 'active':
+        buckets.active += balance
         break
       case 'exiting':
         buckets.exiting += balance
         break
-      case 'exited':
-        // Exited validators don't count toward active buckets
+      case 'withdrawable':
+        buckets.withdrawable += balance
         break
     }
   }
@@ -260,15 +263,12 @@ export function createPortfolioSummary(
   validators: ValidatorWithContext[],
   rewardEvents: RewardEvent[]
 ): PortfolioSummary {
-  // Calculate state buckets
+  // Calculate state buckets (lifecycle stages only, no rewards)
   const stateBuckets = aggregateByStateBucket(validators)
 
-  // Calculate unclaimed rewards (simplified - sum of recent rewards)
   const now = new Date()
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
   const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
-  const recentRewards = rewardEvents.filter((e) => e.timestamp >= thirtyDaysAgo)
-  stateBuckets.rewards = recentRewards.reduce((sum, e) => sum + e.amount, 0n)
 
   // Roll up to custodian level
   const custodianBreakdown = rollupValidatorsToCustodian(validators, rewardEvents)

@@ -3,11 +3,12 @@
 /**
  * StateBuckets Component
  *
- * Displays the four state buckets for staking assets:
+ * Displays the five state buckets for staking lifecycle:
+ * - Deposited (ETH received, awaiting validator creation)
+ * - Entry Queue (validator created, awaiting activation)
  * - Active (staking and earning)
- * - In Transit (pending activation or moving)
- * - Rewards (claimable/unclaimed)
  * - Exiting (withdrawal in progress)
+ * - Withdrawable (ready for treasury)
  */
 
 import { formatCurrency, formatPercent } from '@/lib/format'
@@ -15,10 +16,11 @@ import { useCurrency } from '@/contexts/CurrencyContext'
 import { cn } from '@/lib/utils'
 
 interface StateBucketsData {
+  deposited: string
+  entryQueue: string
   active: string
-  inTransit: string
-  rewards: string
   exiting: string
+  withdrawable: string
 }
 
 interface StateBucketsProps {
@@ -31,37 +33,49 @@ interface StateBucketsProps {
 
 const BUCKET_CONFIG = [
   {
+    key: 'deposited',
+    stateKey: 'deposited',
+    label: 'Deposited',
+    description: 'ETH received, awaiting validator creation',
+    color: 'bg-slate-500',
+    textColor: 'text-slate-700',
+    bgColor: 'bg-slate-50',
+  },
+  {
+    key: 'entryQueue',
+    stateKey: 'pending_activation',
+    label: 'Entry Queue',
+    description: 'Validator created, awaiting activation',
+    color: 'bg-amber-500',
+    textColor: 'text-amber-700',
+    bgColor: 'bg-amber-50',
+  },
+  {
     key: 'active',
-    label: 'Active Stake',
+    stateKey: 'active',
+    label: 'Active',
     description: 'Currently staking and earning rewards',
-    color: 'bg-green-500',
-    textColor: 'text-green-700',
-    bgColor: 'bg-green-50',
-  },
-  {
-    key: 'inTransit',
-    stateKey: 'in_transit',
-    label: 'In Transit',
-    description: 'Pending activation or moving between validators',
-    color: 'bg-blue-500',
-    textColor: 'text-blue-700',
-    bgColor: 'bg-blue-50',
-  },
-  {
-    key: 'rewards',
-    label: 'Rewards',
-    description: 'Claimable and unclaimed rewards',
-    color: 'bg-purple-500',
-    textColor: 'text-purple-700',
-    bgColor: 'bg-purple-50',
+    color: 'bg-emerald-500',
+    textColor: 'text-emerald-700',
+    bgColor: 'bg-emerald-50',
   },
   {
     key: 'exiting',
+    stateKey: 'exiting',
     label: 'Exiting',
-    description: 'Withdrawal in progress',
+    description: 'Exit initiated, in withdrawal queue',
     color: 'bg-orange-500',
     textColor: 'text-orange-700',
     bgColor: 'bg-orange-50',
+  },
+  {
+    key: 'withdrawable',
+    stateKey: 'withdrawable',
+    label: 'Withdrawable',
+    description: 'Ready for treasury withdrawal',
+    color: 'bg-blue-500',
+    textColor: 'text-blue-700',
+    bgColor: 'bg-blue-50',
   },
 ]
 
@@ -76,8 +90,8 @@ export function StateBuckets({
 
   if (isLoading) {
     return (
-      <div data-testid="buckets-loading" className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map((i) => (
+      <div data-testid="buckets-loading" className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        {[1, 2, 3, 4, 5].map((i) => (
           <div
             key={i}
             className="bg-white rounded-lg shadow p-4 animate-pulse"
@@ -102,17 +116,20 @@ export function StateBuckets({
     return Number(BigInt(value)) / Number(total)
   }
 
+  // Check for anomaly: deposited + entryQueue (pre-active) above threshold
+  const preActivePercentage = calculatePercentage(data.deposited) + calculatePercentage(data.entryQueue)
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
       {BUCKET_CONFIG.map((bucket) => {
         const value = data[bucket.key as keyof StateBucketsData]
         const percentage = calculatePercentage(value)
-        const isAnomaly = bucket.key === 'inTransit' && percentage > anomalyThreshold
+        const isAnomaly = (bucket.key === 'deposited' || bucket.key === 'entryQueue') && preActivePercentage > anomalyThreshold
 
         return (
           <div
             key={bucket.key}
-            data-testid={`bucket-${bucket.key === 'inTransit' ? 'in-transit' : bucket.key}`}
+            data-testid={`bucket-${bucket.key}`}
             onClick={() => onBucketClick?.(bucket.stateKey || bucket.key)}
             className={cn(
               'rounded-lg shadow p-4 cursor-pointer transition-all hover:shadow-md',

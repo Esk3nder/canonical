@@ -49,7 +49,7 @@ export const validators = pgTable('validators', {
   entityId: text('entity_id').references(() => entities.id),
   withdrawalCredential: text('withdrawal_credential').notNull(),
   status: text('status', { enum: ['active', 'pending', 'slashed', 'exited'] }).notNull().default('pending'),
-  stakeState: text('stake_state', { enum: ['active', 'pending_activation', 'in_transit', 'exiting', 'exited'] }).notNull().default('pending_activation'),
+  stakeState: text('stake_state', { enum: ['deposited', 'pending_activation', 'active', 'exiting', 'withdrawable'] }).notNull().default('deposited'),
   activationEpoch: integer('activation_epoch'),
   exitEpoch: integer('exit_epoch'),
   balance: text('balance').notNull().default('0'), // Store as string for bigint
