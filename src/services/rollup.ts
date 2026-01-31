@@ -239,6 +239,16 @@ export function rollupCustodiansToPortfolio(
 }
 
 // ============================================================================
+// Constants
+// ============================================================================
+
+/**
+ * Network benchmark APY from Rated (hardcoded).
+ * This represents the average network staking yield.
+ */
+export const NETWORK_BENCHMARK_APY = 0.038 // 3.8%
+
+// ============================================================================
 // Portfolio Summary
 // ============================================================================
 
@@ -256,6 +266,7 @@ export function createPortfolioSummary(
   // Calculate unclaimed rewards (simplified - sum of recent rewards)
   const now = new Date()
   const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
   const recentRewards = rewardEvents.filter((e) => e.timestamp >= thirtyDaysAgo)
   stateBuckets.rewards = recentRewards.reduce((sum, e) => sum + e.amount, 0n)
 
@@ -265,9 +276,20 @@ export function createPortfolioSummary(
   // Roll up to portfolio level
   const portfolioRollup = rollupCustodiansToPortfolio(custodianBreakdown)
 
+  // Calculate previous month APY (days 31-60)
+  const totalValue = portfolioRollup.totalValue
+  const previousMonthApy = calculateTrailingApy(
+    rewardEvents,
+    totalValue,
+    sixtyDaysAgo,
+    thirtyDaysAgo
+  )
+
   return {
     totalValue: portfolioRollup.totalValue,
     trailingApy30d: portfolioRollup.trailingApy30d,
+    previousMonthApy,
+    networkBenchmarkApy: NETWORK_BENCHMARK_APY,
     validatorCount: portfolioRollup.validatorCount,
     stateBuckets,
     custodianBreakdown,

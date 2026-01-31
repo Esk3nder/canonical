@@ -156,6 +156,8 @@ export interface EvidenceLink {
 export interface PortfolioSummary {
   totalValue: bigint
   trailingApy30d: number    // As decimal (0.05 = 5%)
+  previousMonthApy?: number // Previous 30-day period APY (days 31-60)
+  networkBenchmarkApy?: number // Network average APY (e.g., from Rated)
   validatorCount: number
   stateBuckets: StateBuckets
   custodianBreakdown: CustodianAllocation[]
