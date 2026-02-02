@@ -87,8 +87,8 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
             key={i}
             className="bg-white rounded-lg shadow p-6 animate-pulse"
           >
-            <div className="h-4 bg-gray-200 rounded w-24 mb-2" />
-            <div className="h-8 bg-gray-200 rounded w-32" />
+            <div className="h-4 bg-slate-200 rounded w-24 mb-2" />
+            <div className="h-8 bg-slate-200 rounded w-32" />
           </div>
         ))}
       </div>
@@ -154,27 +154,27 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
         onClick={() => setIsExpanded(true)}
         className="bg-white rounded-lg shadow p-6 text-left transition-all duration-200 hover:shadow-lg hover:scale-[1.02] cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
       >
-        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+        <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">
           Portfolio Value
         </p>
 
         {/* Primary value */}
         <p
           data-testid="portfolio-value"
-          className="mt-2 text-3xl font-bold text-gray-900 transition-all duration-200"
+          className="mt-2 text-3xl font-bold text-slate-900 tabular-nums transition-all duration-200"
         >
           {primaryValue.value}{primaryValue.suffix && ` ${primaryValue.suffix}`}
         </p>
 
         {/* Secondary value with 24h change on same row */}
         <div className="mt-1 flex items-center gap-2 transition-all duration-200">
-          <span className="text-lg text-gray-500">
+          <span className="text-lg text-slate-500 tabular-nums">
             {secondaryValue.value}{secondaryValue.suffix && ` ${secondaryValue.suffix}`}
           </span>
           {change24hFormatted && (
             <span
               data-testid="portfolio-change-24h"
-              className={`text-sm font-medium ${
+              className={`text-sm font-medium tabular-nums ${
                 isPositiveChange ? 'text-green-600' : 'text-red-600'
               }`}
             >
@@ -189,18 +189,18 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
         onClick={() => setIsApyExpanded(true)}
         className="bg-white rounded-lg shadow p-6 text-left transition-all duration-200 hover:shadow-lg hover:scale-[1.02] cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
       >
-        <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+        <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">
           Global Blended APY
         </p>
         <div className="mt-3 flex items-baseline gap-3">
           <p
             data-testid="trailing-apy"
-            className="text-3xl font-bold text-green-600"
+            className="text-3xl font-bold text-green-600 tabular-nums"
           >
             {formattedApy}%
           </p>
           {formattedBenchmark && (
-            <span className="text-sm text-gray-500">
+            <span className="text-sm text-slate-500 tabular-nums">
               CESR: {formattedBenchmark}%
             </span>
           )}
@@ -208,7 +208,7 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
         {apyChange !== null && (
           <p
             data-testid="apy-change"
-            className={`mt-1 text-sm font-medium ${
+            className={`mt-1 text-sm font-medium tabular-nums ${
               isApyPositive ? 'text-green-600' : 'text-red-600'
             }`}
           >
@@ -220,9 +220,9 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
       {/* Rewards Pulse - CLICKABLE */}
       {rewardsPulse?.isLoading ? (
         <div className="bg-white rounded-lg shadow p-6 animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-32 mb-4" />
-          <div className="h-8 bg-gray-200 rounded w-24 mb-2" />
-          <div className="h-4 bg-gray-200 rounded w-40" />
+          <div className="h-4 bg-slate-200 rounded w-32 mb-4" />
+          <div className="h-8 bg-slate-200 rounded w-24 mb-2" />
+          <div className="h-4 bg-slate-200 rounded w-40" />
         </div>
       ) : rewardsPulse?.error ? (
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-red-700">
@@ -233,22 +233,22 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
           onClick={() => setIsRewardsExpanded(true)}
           className="bg-white rounded-lg shadow p-6 text-left transition-all duration-200 hover:shadow-lg hover:scale-[1.02] cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
         >
-          <p className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+          <p className="text-sm font-medium text-slate-500 uppercase tracking-wide">
             Rewards <span className="normal-case font-normal">(Last 30 Days)</span>
           </p>
 
           {/* Claimable Now - Primary metric */}
-          <p className="text-3xl font-bold text-gray-900 mt-2">
-            {formatEther(rewardsPulse.data.claimableNow)} <span className="text-xl text-gray-500">ETH</span>
+          <p className="text-3xl font-bold text-slate-900 mt-2 tabular-nums">
+            {formatEther(rewardsPulse.data.claimableNow)}<span className="unit-symbol">ETH</span>
           </p>
           <div className="mt-1 flex items-center gap-2">
-            <span className="text-lg text-gray-500">
+            <span className="text-lg text-slate-500 tabular-nums">
               {formatUSD(rewardsPulse.data.claimableNow, ethPrice)}
             </span>
             <span
               className={`text-sm font-medium ${
                 BigInt(rewardsPulse.data.claimable24hChange) >= 0n ? 'text-green-600' : 'text-red-600'
-              }`}
+              } tabular-nums`}
             >
               {formatEthChange(rewardsPulse.data.claimable24hChange)} (24h)
             </span>

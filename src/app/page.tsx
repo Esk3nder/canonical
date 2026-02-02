@@ -182,6 +182,16 @@ export default function PortfolioOverview() {
         <p className="text-gray-500">Institutional staking dashboard</p>
       </div>
 
+      {/* Exceptions Banner - Elevated for visibility */}
+      <div className="mb-6">
+        <ExceptionSummary
+          data={exceptionsData}
+          isLoading={exceptionsLoading}
+          onViewAll={() => router.push('/exceptions')}
+          onExceptionClick={handleExceptionClick}
+        />
+      </div>
+
       {/* KPI Bands */}
       <div className="mb-6">
         <KPIBands
@@ -222,16 +232,6 @@ export default function PortfolioOverview() {
           data={portfolioData?.custodianBreakdown ?? null}
           isLoading={portfolioLoading}
           onCustodianClick={handleCustodianClick}
-        />
-      </div>
-
-      {/* Exceptions Summary */}
-      <div className="mb-6">
-        <ExceptionSummary
-          data={exceptionsData}
-          isLoading={exceptionsLoading}
-          onViewAll={() => router.push('/exceptions')}
-          onExceptionClick={handleExceptionClick}
         />
       </div>
 

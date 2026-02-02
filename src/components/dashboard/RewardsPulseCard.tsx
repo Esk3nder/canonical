@@ -47,11 +47,11 @@ export function RewardsPulseCard({ data, isLoading, error }: RewardsPulseCardPro
     return (
       <div
         data-testid="rewards-pulse-loading"
-        className="bg-gray-900 rounded-lg shadow p-6 animate-pulse"
+        className="bg-slate-900 rounded-lg shadow p-6 animate-pulse"
       >
-        <div className="h-4 bg-gray-700 rounded w-32 mb-4" />
-        <div className="h-8 bg-gray-700 rounded w-24 mb-2" />
-        <div className="h-4 bg-gray-700 rounded w-40" />
+        <div className="h-4 bg-slate-700 rounded w-32 mb-4" />
+        <div className="h-8 bg-slate-700 rounded w-24 mb-2" />
+        <div className="h-4 bg-slate-700 rounded w-40" />
       </div>
     )
   }
@@ -94,11 +94,11 @@ export function RewardsPulseCard({ data, isLoading, error }: RewardsPulseCardPro
     <>
       <button
         onClick={() => setIsExpanded(true)}
-        className="w-full bg-gray-900 rounded-lg shadow p-6 text-left transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+        className="w-full bg-slate-900 rounded-lg shadow p-6 text-left transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+          <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wider">
             Rewards Pulse
           </h3>
           <div className="flex items-center gap-1.5">
@@ -113,49 +113,49 @@ export function RewardsPulseCard({ data, isLoading, error }: RewardsPulseCardPro
         {/* Claimable Now */}
         <div className="mb-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-400">Claimable Now</span>
+            <span className="text-sm text-slate-400">Claimable Now</span>
             <span
               className={`text-sm font-medium ${
                 isPositiveChange ? 'text-green-500' : 'text-red-400'
-              }`}
+              } tabular-nums`}
             >
               {change24h} 24h
             </span>
           </div>
           <p
             data-testid="claimable-now"
-            className="text-3xl font-bold text-white mt-1"
+            className="text-3xl font-bold text-white mt-1 tabular-nums"
           >
-            {claimableEth} <span className="text-xl text-gray-400">ETH</span>
+            {claimableEth}<span className="unit-symbol">ETH</span>
           </p>
-          <p className="text-sm text-gray-500">{claimableUsd}</p>
+          <p className="text-sm text-slate-500 tabular-nums">{claimableUsd}</p>
         </div>
 
         {/* Top Custodians */}
         {topCustodians.length > 0 && (
-          <p className="text-xs text-gray-500 mb-4">
+          <p className="text-xs text-slate-500 mb-4 tabular-nums">
             Top: {topCustodianText}
           </p>
         )}
 
         {/* Divider */}
-        <div className="border-t border-gray-700 my-4" />
+        <div className="border-t border-slate-700 my-4" />
 
         {/* Accrued & Claimed */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-400">Accrued (pending)</span>
-            <span className="text-sm font-medium text-white">
-              {accruedEth} ETH
+            <span className="text-sm text-slate-400">Accrued (pending)</span>
+            <span className="text-sm font-medium text-white tabular-nums">
+              {accruedEth}<span className="unit-symbol">ETH</span>
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-gray-400 flex items-center gap-1">
+            <span className="text-sm text-slate-400 flex items-center gap-1">
               Claimed This Month
               <CheckCircle className="h-3 w-3 text-green-500" />
             </span>
-            <span className="text-sm font-medium text-green-500">
-              {claimedEth} ETH
+            <span className="text-sm font-medium text-green-500 tabular-nums">
+              {claimedEth}<span className="unit-symbol">ETH</span>
             </span>
           </div>
         </div>

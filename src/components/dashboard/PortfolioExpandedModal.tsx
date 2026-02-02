@@ -136,21 +136,23 @@ export function PortfolioExpandedModal({
         } md:mx-4 max-h-[90vh] overflow-y-auto`}
       >
         {/* Header */}
-        <div className="px-6 pt-5 pb-4 border-b border-gray-200">
+        <div className="px-6 pt-5 pb-4 border-b border-slate-200">
           <div className="flex items-center justify-between">
             <div>
-              <h2 id="modal-title" className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <h2 id="modal-title" className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                 Portfolio Composition
               </h2>
               <div className="mt-2">
-                <span className="text-2xl font-bold text-gray-900">{totalEth} ETH</span>
-                <span className="text-lg text-gray-500 ml-2">· {totalUsd}</span>
+                <span className="text-2xl font-bold text-slate-900 tabular-nums">
+                  {totalEth}<span className="unit-symbol">ETH</span>
+                </span>
+                <span className="text-lg text-slate-500 ml-2 tabular-nums">· {totalUsd}</span>
               </div>
               {change24hEth && (
-                <p className={`text-sm font-medium mt-1 ${
+                <p className={`text-sm font-medium mt-1 tabular-nums ${
                   change24hIsPositive ? 'text-green-600' : 'text-red-600'
                 }`}>
-                  {change24hIsPositive ? '+' : ''}{change24hEth} ETH (24h)
+                  {change24hIsPositive ? '+' : ''}{change24hEth}<span className="unit-symbol">ETH</span> (24h)
                 </p>
               )}
             </div>
@@ -169,7 +171,7 @@ export function PortfolioExpandedModal({
           {sortedCustodians.length > 0 ? (
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-xs text-gray-500 uppercase tracking-wider">
+                <tr className="text-xs text-slate-500 uppercase tracking-wider">
                   <th className="text-left font-medium pb-2">Custodian</th>
                   <th className="text-right font-medium pb-2">ETH</th>
                   <th className="text-right font-medium pb-2">%</th>
@@ -185,7 +187,7 @@ export function PortfolioExpandedModal({
                   return (
                     <tr
                       key={custodian.custodianId}
-                      className="border-t border-gray-100"
+                      className="border-t border-slate-100"
                     >
                       <td className="py-2">
                         <div className="flex items-center gap-2">
@@ -195,37 +197,37 @@ export function PortfolioExpandedModal({
                               backgroundColor: getCustodianColor(custodian.custodianName),
                             }}
                           />
-                          <span className="text-gray-900">{custodian.custodianName}</span>
+                          <span className="text-slate-900">{custodian.custodianName}</span>
                         </div>
                       </td>
-                      <td className="py-2 text-right text-gray-900">{custodianEth}</td>
-                      <td className="py-2 text-right text-gray-500">{percentFormatted}%</td>
-                      <td className="py-2 text-right text-green-600">{custodianApy}%</td>
+                      <td className="py-2 text-right text-slate-900 tabular-nums">{custodianEth}</td>
+                      <td className="py-2 text-right text-slate-500 tabular-nums">{percentFormatted}%</td>
+                      <td className="py-2 text-right text-green-600 tabular-nums">{custodianApy}%</td>
                     </tr>
                   )
                 })}
               </tbody>
             </table>
           ) : (
-            <p className="text-sm text-gray-500 text-center py-4">
+            <p className="text-sm text-slate-500 text-center py-4">
               No custodian data available
             </p>
           )}
         </div>
 
         {/* Stake Status */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+            <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider">
               Stake Status
             </h3>
-            <span className="text-sm font-medium text-gray-900">
+            <span className="text-sm font-medium text-slate-900 tabular-nums">
               {earningRatio.toFixed(1)}% Active
             </span>
           </div>
 
           {/* Progress Bar */}
-          <div className="h-2 bg-gray-200 rounded-full overflow-hidden flex">
+          <div className="h-2 bg-slate-200 rounded-full overflow-hidden flex">
             <div
               className="bg-green-500 transition-all duration-300"
               style={{ width: `${earningRatio}%` }}
@@ -237,21 +239,21 @@ export function PortfolioExpandedModal({
           </div>
 
           {/* Legend */}
-          <div className="flex items-center justify-between mt-2 text-xs text-gray-600">
-            <span>
+          <div className="flex items-center justify-between mt-2 text-xs text-slate-600">
+            <span className="tabular-nums">
               <span className="inline-block w-2 h-2 rounded bg-green-500 mr-1" />
-              {formatNumber(Number(activeBigInt) / 1e18, 2)} ETH earning
+              {formatNumber(Number(activeBigInt) / 1e18, 2)}<span className="unit-symbol">ETH</span> earning
             </span>
-            <span>
+            <span className="tabular-nums">
               <span className="inline-block w-2 h-2 rounded bg-orange-400 mr-1" />
-              {formatNumber(Number(nonEarningBigInt) / 1e18, 2)} ETH pending
+              {formatNumber(Number(nonEarningBigInt) / 1e18, 2)}<span className="unit-symbol">ETH</span> pending
             </span>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-gray-200">
-          <p className="text-xs text-gray-400 text-center">
+        <div className="px-6 py-3 border-t border-slate-200">
+          <p className="text-xs text-slate-400 text-center">
             Updated {timeAgoText}
           </p>
         </div>

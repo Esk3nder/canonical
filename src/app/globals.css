@@ -19,7 +19,7 @@ body {
   }
 
   .kpi-value {
-    @apply text-3xl font-bold text-slate-900;
+    @apply text-3xl font-bold text-slate-900 tabular-nums;
   }
 
   .kpi-label {
@@ -39,7 +39,7 @@ body {
   }
 
   .data-table td {
-    @apply px-4 py-3 text-sm text-slate-700;
+    @apply px-4 py-3 text-sm text-slate-700 tabular-nums;
   }
 
   .exception-badge {
@@ -56,5 +56,17 @@ body {
 
   .exception-badge-resolved {
     @apply bg-success-50 text-success-700;
+  }
+}
+
+@layer utilities {
+  /* Tabular numbers for financial data alignment */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Unit styling for currency/token symbols */
+  .unit-symbol {
+    @apply text-[0.75em] text-slate-400 ml-0.5;
   }
 }

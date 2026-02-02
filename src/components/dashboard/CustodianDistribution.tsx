@@ -55,23 +55,23 @@ export function CustodianDistribution({
 
   if (isLoading) {
     return (
-      <div data-testid="distribution-loading" className="bg-white rounded-lg shadow p-6">
-        <div className="animate-pulse">
-          <div className="h-4 bg-gray-200 rounded w-48 mb-4" />
-          <div className="h-8 bg-gray-200 rounded w-full mb-4" />
+        <div data-testid="distribution-loading" className="bg-white rounded-lg shadow p-6">
+          <div className="animate-pulse">
+          <div className="h-4 bg-slate-200 rounded w-48 mb-4" />
+          <div className="h-8 bg-slate-200 rounded w-full mb-4" />
           <div className="space-y-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-12 bg-gray-200 rounded" />
+              <div key={i} className="h-12 bg-slate-200 rounded" />
             ))}
           </div>
+          </div>
         </div>
-      </div>
     )
   }
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+      <div className="bg-white rounded-lg shadow p-6 text-center text-slate-500">
         No custodian data available
       </div>
     )
@@ -117,12 +117,12 @@ export function CustodianDistribution({
     <th
       role="columnheader"
       onClick={() => handleSort(field)}
-      className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-50"
+      className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-50"
     >
       <div className="flex items-center gap-1">
         {children}
         {sortField === field && (
-          <span className="text-gray-400">
+          <span className="text-slate-400">
             {sortDirection === 'asc' ? '↑' : '↓'}
           </span>
         )}
@@ -132,8 +132,8 @@ export function CustodianDistribution({
 
   return (
     <div className="bg-white rounded-lg shadow">
-      <div className="p-6 border-b border-gray-200">
-        <h3 className="text-lg font-medium text-gray-900">
+      <div className="p-6 border-b border-slate-200">
+        <h3 className="text-lg font-medium text-slate-900">
           Custodian Distribution
         </h3>
 
@@ -164,7 +164,7 @@ export function CustodianDistribution({
                     CHART_COLORS[index % CHART_COLORS.length]
                   )}
                 />
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-slate-600">
                   {custodian.custodianName}
                 </span>
               </div>
@@ -175,52 +175,52 @@ export function CustodianDistribution({
 
       {/* Comparison Table */}
       <div data-testid="custodian-table" className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-200">
-          <thead className="bg-gray-50">
+        <table className="min-w-full divide-y divide-slate-200">
+          <thead className="bg-slate-50">
             <tr>
               <SortHeader field="name">Custodian</SortHeader>
               <SortHeader field="value">Value</SortHeader>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 %
               </th>
               <SortHeader field="apy">APY</SortHeader>
               <SortHeader field="validators">Validators</SortHeader>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 7d
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
                 30d
               </th>
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
+          <tbody className="bg-white divide-y divide-slate-200">
             {sortedData.map((custodian, idx) => (
               <tr
                 key={custodian.custodianId}
                 data-testid={`custodian-row-${idx}`}
                 onClick={() => onCustodianClick?.(custodian.custodianId)}
-                className="hover:bg-gray-50 cursor-pointer"
+                className="hover:bg-slate-50 cursor-pointer"
               >
                 <td className="px-4 py-4 whitespace-nowrap">
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-slate-900">
                     {custodian.custodianName}
                   </span>
                 </td>
-                <td className="px-4 py-4 whitespace-nowrap text-gray-900">
+                <td className="px-4 py-4 whitespace-nowrap text-slate-900 tabular-nums">
                   {(() => {
                     const { value: formatted, suffix } = formatCurrency(custodian.value, currency, ethPrice)
                     return `${formatted}${suffix ? ` ${suffix}` : ''}`
                   })()}
                 </td>
-                <td className="px-4 py-4 whitespace-nowrap text-gray-500">
+                <td className="px-4 py-4 whitespace-nowrap text-slate-500 tabular-nums">
                   {formatPercent(custodian.percentage)}
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap">
-                  <span className="text-green-600 font-medium">
+                  <span className="text-green-600 font-medium tabular-nums">
                     {(custodian.trailingApy30d * 100).toFixed(2)}%
                   </span>
                 </td>
-                <td className="px-4 py-4 whitespace-nowrap text-gray-900">
+                <td className="px-4 py-4 whitespace-nowrap text-slate-900 tabular-nums">
                   {custodian.validatorCount.toLocaleString()}
                 </td>
                 <td className="px-4 py-4 whitespace-nowrap">
@@ -240,7 +240,7 @@ export function CustodianDistribution({
 
 function ChangeIndicator({ value }: { value?: number }) {
   if (value === undefined || value === null) {
-    return <span className="text-gray-400">-</span>
+    return <span className="text-slate-400">-</span>
   }
 
   const isPositive = value >= 0
@@ -249,7 +249,7 @@ function ChangeIndicator({ value }: { value?: number }) {
   return (
     <span
       className={cn(
-        'font-medium',
+        'font-medium tabular-nums',
         isPositive ? 'text-green-600' : 'text-red-600'
       )}
     >
