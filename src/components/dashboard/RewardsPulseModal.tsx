@@ -107,33 +107,33 @@ export function RewardsPulseModal({
         } md:mx-4 max-h-[90vh] overflow-y-auto`}
       >
         {/* Header */}
-        <div className="px-6 pt-5 pb-4 border-b border-gray-200">
+        <div className="px-6 pt-5 pb-4 border-b border-slate-200">
           <div className="flex items-center justify-between">
             <div>
               <h2
                 id="rewards-modal-title"
-                className="text-xs font-medium text-gray-500 uppercase tracking-wider"
+                className="text-xs font-medium text-slate-500 uppercase tracking-wider"
               >
                 Rewards <span className="normal-case font-normal">(Last 30 Days)</span>
               </h2>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-slate-400 mt-0.5">
                 Claimable and accrued rewards
               </p>
               <div className="mt-3">
-                <span className="text-sm text-gray-500">Claimable Now</span>
+                <span className="text-sm text-slate-500">Claimable Now</span>
                 <div className="flex items-baseline gap-3 mt-1">
-                  <span className="text-3xl font-bold text-gray-900">
-                    {claimableEth} ETH
+                  <span className="text-3xl font-bold text-slate-900 tabular-nums">
+                    {claimableEth}<span className="unit-symbol">ETH</span>
                   </span>
                   <span
                     className={`text-sm font-medium ${
                       isPositiveChange ? 'text-green-600' : 'text-red-600'
-                    }`}
+                    } tabular-nums`}
                   >
                     {change24h} 24h
                   </span>
                 </div>
-                <p className="text-sm text-gray-500 mt-0.5">{claimableUsd}</p>
+                <p className="text-sm text-slate-500 mt-0.5 tabular-nums">{claimableUsd}</p>
               </div>
             </div>
           </div>
@@ -141,7 +141,7 @@ export function RewardsPulseModal({
 
         {/* Custodian Breakdown */}
         <div className="px-6 py-4">
-          <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">
+          <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
             By Custodian
           </h3>
 
@@ -171,21 +171,21 @@ export function RewardsPulseModal({
                             ),
                           }}
                         />
-                        <span className="text-sm text-gray-900">
+                        <span className="text-sm text-slate-900">
                           {custodian.custodianName}
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm font-medium text-gray-900">
-                          {custodianEth} ETH
+                        <span className="text-sm font-medium text-slate-900 tabular-nums">
+                          {custodianEth}<span className="unit-symbol">ETH</span>
                         </span>
-                        <span className="text-xs text-gray-400 ml-2">
+                        <span className="text-xs text-slate-400 ml-2 tabular-nums">
                           {percentage.toFixed(1)}%
                         </span>
                       </div>
                     </div>
                     {/* Progress bar */}
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-300"
                         style={{
@@ -201,50 +201,50 @@ export function RewardsPulseModal({
               })}
 
               {/* Total row */}
-              <div className="pt-3 border-t border-gray-200">
+              <div className="pt-3 border-t border-slate-200">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-slate-900">
                     Total Claimable
                   </span>
-                  <span className="text-sm font-bold text-gray-900">
-                    {claimableEth} ETH
+                  <span className="text-sm font-bold text-slate-900 tabular-nums">
+                    {claimableEth}<span className="unit-symbol">ETH</span>
                   </span>
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-500 text-center py-4">
+            <p className="text-sm text-slate-500 text-center py-4">
               No custodian data available
             </p>
           )}
         </div>
 
         {/* Summary Cards */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200">
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
-              <p className="text-xs text-gray-500 uppercase tracking-wider">
+              <p className="text-xs text-slate-500 uppercase tracking-wider">
                 Accrued (Pending)
               </p>
-              <p className="text-lg font-semibold text-gray-900 mt-1">
-                {accruedEth} ETH
+              <p className="text-lg font-semibold text-slate-900 mt-1 tabular-nums">
+                {accruedEth}<span className="unit-symbol">ETH</span>
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center gap-1">
+              <p className="text-xs text-slate-500 uppercase tracking-wider flex items-center justify-center gap-1">
                 Claimed This Month
                 <CheckCircle className="h-3 w-3 text-green-600" />
               </p>
-              <p className="text-lg font-semibold text-green-600 mt-1">
-                {claimedEth} ETH
+              <p className="text-lg font-semibold text-green-600 mt-1 tabular-nums">
+                {claimedEth}<span className="unit-symbol">ETH</span>
               </p>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-gray-200">
-          <p className="text-xs text-gray-400 text-center">
+        <div className="px-6 py-3 border-t border-slate-200">
+          <p className="text-xs text-slate-400 text-center">
             Updated {timeAgoText}
           </p>
         </div>

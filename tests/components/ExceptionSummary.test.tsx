@@ -49,12 +49,11 @@ describe('ExceptionSummary', () => {
     expect(screen.getByText('5')).toBeInTheDocument()
   })
 
-  it('shows most critical exceptions', () => {
+  it('shows top exception in collapsed banner', () => {
     render(<ExceptionSummary data={mockData} />)
 
-    // Should show the critical and high severity exceptions
+    // Collapsed banner shows only the top exception
     expect(screen.getByText(/Portfolio value increased/i)).toBeInTheDocument()
-    expect(screen.getByText(/abc123 stuck/i)).toBeInTheDocument()
   })
 
   it('links to exception queue', () => {
@@ -109,9 +108,31 @@ describe('ExceptionSummary', () => {
       <ExceptionSummary data={mockData} onExceptionClick={onExceptionClick} />
     )
 
-    // Click on first exception
+    // Click on first exception in collapsed banner
     fireEvent.click(screen.getByText(/Portfolio value increased/i))
 
     expect(onExceptionClick).toHaveBeenCalledWith('exception-1')
+  })
+
+  it('expands to show all exceptions when toggle clicked', () => {
+    const onExceptionClick = vi.fn()
+    render(
+      <ExceptionSummary data={mockData} onExceptionClick={onExceptionClick} />
+    )
+
+    // Initially collapsed - should not show the expanded list
+    expect(screen.queryByTestId('exceptions-list')).not.toBeInTheDocument()
+
+    // Click expand toggle
+    fireEvent.click(screen.getByTestId('expand-toggle'))
+
+    // Now should show the expanded list with all exceptions
+    expect(screen.getByTestId('exceptions-list')).toBeInTheDocument()
+    expect(screen.getByText(/abc123 stuck/i)).toBeInTheDocument()
+    expect(screen.getByText(/BitGo underperforming/i)).toBeInTheDocument()
+
+    // Click an exception in the expanded list
+    fireEvent.click(screen.getByText(/abc123 stuck/i))
+    expect(onExceptionClick).toHaveBeenCalledWith('exception-2')
   })
 })

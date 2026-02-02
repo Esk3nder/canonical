@@ -130,11 +130,11 @@ export function APYExpandedModal({
         } md:mx-4 max-h-[90vh] overflow-y-auto`}
       >
         {/* Header */}
-        <div className="px-6 pt-5 pb-4 border-b border-gray-200">
+        <div className="px-6 pt-5 pb-4 border-b border-slate-200">
           <div className="flex items-center justify-between">
             <div>
               <div className="flex items-center gap-2">
-                <h2 id="apy-modal-title" className="text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <h2 id="apy-modal-title" className="text-xs font-medium text-slate-500 uppercase tracking-wider">
                   Global Blended APY
                 </h2>
                 <div className="flex items-center gap-1.5">
@@ -145,16 +145,16 @@ export function APYExpandedModal({
                   <span className="text-xs text-green-600 font-medium">Daily</span>
                 </div>
               </div>
-              <p className="text-xs text-gray-400 mt-0.5">
+              <p className="text-xs text-slate-400 mt-0.5">
                 30-day trailing, net of operator fees
               </p>
               <div className="mt-3 flex items-baseline gap-3">
-                <span className="text-4xl font-bold text-green-600">{formattedApy}%</span>
+                <span className="text-4xl font-bold text-green-600 tabular-nums">{formattedApy}%</span>
                 {apyChange !== null && (
                   <span
                     className={`text-sm font-medium flex items-center gap-1 ${
-                      isApyPositive ? 'text-green-600' : isApyNegative ? 'text-red-600' : 'text-gray-500'
-                    }`}
+                      isApyPositive ? 'text-green-600' : isApyNegative ? 'text-red-600' : 'text-slate-500'
+                    } tabular-nums`}
                   >
                     {isApyPositive ? (
                       <TrendingUp className="w-4 h-4" />
@@ -172,15 +172,15 @@ export function APYExpandedModal({
 
           {/* Network Benchmark */}
           {formattedBenchmark && (
-            <div className="mt-3 flex items-center justify-between py-2 px-3 bg-gray-50 rounded-md">
-              <span className="text-sm text-gray-600">
+            <div className="mt-3 flex items-center justify-between py-2 px-3 bg-slate-50 rounded-md">
+              <span className="text-sm text-slate-600 tabular-nums">
                 CESR Rate: <span className="font-medium">{formattedBenchmark}%</span>
               </span>
               {benchmarkDelta !== null && (
                 <span
                   className={`text-sm font-medium ${
                     isAboveBenchmark ? 'text-green-600' : 'text-red-600'
-                  }`}
+                  } tabular-nums`}
                 >
                   {isAboveBenchmark ? '+' : ''}{benchmarkDelta.toFixed(2)}% vs benchmark
                 </span>
@@ -191,7 +191,7 @@ export function APYExpandedModal({
 
         {/* Custodian APY Breakdown */}
         <div className="px-6 py-4">
-          <h3 className="text-xs font-medium text-gray-500 uppercase tracking-wider mb-3">
+          <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
             Composition (Allocation-Weighted)
           </h3>
 
@@ -217,16 +217,16 @@ export function APYExpandedModal({
                             backgroundColor: getCustodianColor(custodian.custodianName),
                           }}
                         />
-                        <span className="text-sm text-gray-900">{custodian.custodianName}</span>
-                        <span className="text-xs text-gray-400">({allocationPct}%)</span>
+                        <span className="text-sm text-slate-900">{custodian.custodianName}</span>
+                        <span className="text-xs text-slate-400 tabular-nums">({allocationPct}%)</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm font-medium text-green-600">{custodianApy}%</span>
-                        <span className="text-xs text-gray-400 ml-2">→ {contribution}%</span>
+                        <span className="text-sm font-medium text-green-600 tabular-nums">{custodianApy}%</span>
+                        <span className="text-xs text-slate-400 ml-2 tabular-nums">→ {contribution}%</span>
                       </div>
                     </div>
                     {/* Contribution bar */}
-                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-300"
                         style={{
@@ -240,28 +240,28 @@ export function APYExpandedModal({
               })}
 
               {/* Total row */}
-              <div className="pt-3 border-t border-gray-200">
+              <div className="pt-3 border-t border-slate-200">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-900">Blended Total</span>
-                  <span className="text-sm font-bold text-green-600">{formattedApy}%</span>
+                  <span className="text-sm font-medium text-slate-900">Blended Total</span>
+                  <span className="text-sm font-bold text-green-600 tabular-nums">{formattedApy}%</span>
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-gray-500 text-center py-4">
+            <p className="text-sm text-slate-500 text-center py-4">
               No custodian data available
             </p>
           )}
         </div>
 
         {/* Performance Summary */}
-        <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
+        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200">
           <div className="grid grid-cols-2 gap-4 text-center">
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wider">vs Last Month</p>
-              <p className={`text-lg font-semibold mt-1 ${
+              <p className="text-xs text-slate-500 uppercase tracking-wider">vs Last Month</p>
+              <p className={`text-lg font-semibold mt-1 tabular-nums ${
                 apyChange !== null && apyChange > 0 ? 'text-green-600' :
-                apyChange !== null && apyChange < 0 ? 'text-red-600' : 'text-gray-600'
+                apyChange !== null && apyChange < 0 ? 'text-red-600' : 'text-slate-600'
               }`}>
                 {apyChange !== null ? (
                   <>
@@ -273,10 +273,10 @@ export function APYExpandedModal({
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500 uppercase tracking-wider">vs CESR Rate</p>
-              <p className={`text-lg font-semibold mt-1 ${
+              <p className="text-xs text-slate-500 uppercase tracking-wider">vs CESR Rate</p>
+              <p className={`text-lg font-semibold mt-1 tabular-nums ${
                 benchmarkDelta !== null && benchmarkDelta > 0 ? 'text-green-600' :
-                benchmarkDelta !== null && benchmarkDelta < 0 ? 'text-red-600' : 'text-gray-600'
+                benchmarkDelta !== null && benchmarkDelta < 0 ? 'text-red-600' : 'text-slate-600'
               }`}>
                 {benchmarkDelta !== null ? (
                   <>
@@ -291,8 +291,8 @@ export function APYExpandedModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-gray-200">
-          <p className="text-xs text-gray-400 text-center">
+        <div className="px-6 py-3 border-t border-slate-200">
+          <p className="text-xs text-slate-400 text-center">
             Updated {timeAgoText}
           </p>
         </div>

@@ -96,9 +96,9 @@ export function StateBuckets({
             key={i}
             className="bg-white rounded-lg shadow p-4 animate-pulse"
           >
-            <div className="h-3 bg-gray-200 rounded w-20 mb-2" />
-            <div className="h-6 bg-gray-200 rounded w-24 mb-1" />
-            <div className="h-3 bg-gray-200 rounded w-16" />
+            <div className="h-3 bg-slate-200 rounded w-20 mb-2" />
+            <div className="h-6 bg-slate-200 rounded w-24 mb-1" />
+            <div className="h-3 bg-slate-200 rounded w-16" />
           </div>
         ))}
       </div>
@@ -144,14 +144,14 @@ export function StateBuckets({
               </p>
             </div>
 
-            <p className="text-2xl font-bold text-gray-900">
+            <p className="text-2xl font-bold text-slate-900 tabular-nums">
               {(() => {
                 const { value: formatted, suffix } = formatCurrency(value, currency, ethPrice)
                 return `${formatted}${suffix ? ` ${suffix}` : ''}`
               })()}
             </p>
 
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-slate-500 tabular-nums">
               {formatPercent(percentage)}
             </p>
 
