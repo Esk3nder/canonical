@@ -24,11 +24,11 @@ test.describe('Dashboard Performance', () => {
     // Track API response times
     const apiTimes: Record<string, number> = {}
 
-    page.on('response', async (response) => {
-      if (response.url().includes('/api/')) {
-        const timing = response.timing()
-        if (timing) {
-          apiTimes[response.url()] = timing.responseEnd - timing.requestStart
+    page.on('requestfinished', (request) => {
+      if (request.url().includes('/api/')) {
+        const timing = request.timing()
+        if (timing.requestStart >= 0 && timing.responseEnd >= 0) {
+          apiTimes[request.url()] = timing.responseEnd - timing.requestStart
         }
       }
     })

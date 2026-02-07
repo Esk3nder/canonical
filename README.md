@@ -15,7 +15,7 @@ Institutional staking portfolio dashboard built with Next.js 14, PostgreSQL, and
 ## Prerequisites
 
 - Node.js 18+
-- Docker (recommended) or PostgreSQL 14+
+- PostgreSQL 14+
 
 ## Quick Start
 
@@ -31,23 +31,18 @@ npm run dev:setup
 
 This command will:
 1. Create `.env` from `.env.example` (if needed)
-2. Start PostgreSQL in Docker
-3. Run database migrations
+2. Create the local PostgreSQL database (if needed)
+3. Push the database schema
 4. Seed demo data (if database is empty)
 5. Start the dev server
 
 Open [http://localhost:3000](http://localhost:3000)
 
-## Local Setup (Manual PostgreSQL)
-
-<details>
-<summary>Click to expand</summary>
+## Manual Setup
 
 ### 1. Install dependencies
 
 ```bash
-git clone https://github.com/Esk3nder/canonical.git
-cd canonical
 npm install
 ```
 
@@ -63,10 +58,10 @@ createdb canonical_staking
 cp .env.example .env
 ```
 
-Edit `.env`:
+Edit `.env` if your local PostgreSQL requires credentials:
 
 ```env
-DATABASE_URL=postgresql://username:password@localhost:5432/canonical_staking
+POSTGRES_URL=postgresql://username:password@localhost:5432/canonical_staking
 ```
 
 ### 4. Push schema and seed data
@@ -82,14 +77,20 @@ npm run db:seed
 npm run dev
 ```
 
-</details>
+## Deploying to Vercel
+
+1. Push your repository to GitHub
+2. Import the project in [Vercel](https://vercel.com)
+3. Add a Vercel Postgres database in the project settings (Storage tab)
+4. Vercel automatically sets `POSTGRES_URL` and related env vars
+5. Run `npm run db:push` locally against the Vercel database to initialize the schema (set `POSTGRES_URL` to the Vercel connection string)
 
 ## Scripts
 
 | Command | Description |
 |---------|-------------|
-| `npm run dev:setup` | **One-command setup**: starts postgres, runs migrations, seeds, and starts dev server |
-| `npm run dev` | Start development server (requires postgres running) |
+| `npm run dev:setup` | **One-command setup**: creates DB, pushes schema, seeds, and starts dev server |
+| `npm run dev` | Start development server (requires PostgreSQL running) |
 | `npm run build` | Build for production |
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
@@ -100,48 +101,6 @@ npm run dev
 | `npm run db:push` | Push schema to database |
 | `npm run db:seed` | Seed demo data |
 | `npm run db:studio` | Open Drizzle Studio |
-| `npm run db:reset` | Delete database and start fresh |
-
-## Docker Deployment (Full Stack)
-
-Run the entire application with a single command:
-
-```bash
-# Clone the repository
-git clone https://github.com/Esk3nder/canonical.git
-cd canonical
-
-# Start everything (PostgreSQL + App + Migrations)
-docker compose up -d
-
-# Seed demo data (optional)
-docker compose exec app npx tsx scripts/seed.ts
-```
-
-Open [http://localhost:3000](http://localhost:3000)
-
-### Docker Commands
-
-```bash
-docker compose up -d        # Start all services
-docker compose down         # Stop all services
-docker compose logs -f app  # View app logs
-docker compose ps           # Check service status
-docker compose build        # Rebuild after code changes
-```
-
-### Development with Docker
-
-For local development with hot reload:
-
-```bash
-# Start only PostgreSQL
-docker compose up -d postgres
-
-# Run app locally
-npm install
-npm run dev
-```
 
 ## Project Structure
 
@@ -167,10 +126,11 @@ tests/
 ## Tech Stack
 
 - **Framework**: Next.js 14 (App Router)
-- **Database**: PostgreSQL with Drizzle ORM
+- **Database**: Vercel Postgres with Drizzle ORM
 - **Styling**: Tailwind CSS
 - **Testing**: Vitest + Playwright
 - **State**: TanStack Query
+- **Deployment**: Vercel
 
 ## License
 

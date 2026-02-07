@@ -3,7 +3,7 @@ import { drizzle } from 'drizzle-orm/postgres-js'
 import { eq } from 'drizzle-orm'
 import * as schema from '../src/db/schema'
 
-const connectionString = process.env.DATABASE_URL || 'postgresql://canonical:canonical_dev@localhost:5432/canonical_staking'
+const connectionString = process.env.POSTGRES_URL || 'postgresql://localhost:5432/canonical_staking'
 const client = postgres(connectionString)
 const db = drizzle(client, { schema })
 
