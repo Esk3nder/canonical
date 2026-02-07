@@ -9,10 +9,21 @@
  * - Sortable columns
  */
 
-import { useState } from 'react'
-import { formatCurrency, formatPercent } from '@/lib/format'
+import { type ReactNode, useState } from 'react'
+
 import { useCurrency } from '@/contexts/CurrencyContext'
+import { formatCurrency, formatPercent } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 interface CustodianData {
   custodianId: string
@@ -34,7 +45,6 @@ interface CustodianDistributionProps {
 type SortField = 'name' | 'value' | 'apy' | 'validators'
 type SortDirection = 'asc' | 'desc'
 
-// Colors for the allocation chart
 const CHART_COLORS = [
   'bg-blue-500',
   'bg-green-500',
@@ -55,25 +65,23 @@ export function CustodianDistribution({
 
   if (isLoading) {
     return (
-        <div data-testid="distribution-loading" className="bg-white rounded-lg shadow p-6">
-          <div className="animate-pulse">
-          <div className="h-4 bg-slate-200 rounded w-48 mb-4" />
-          <div className="h-8 bg-slate-200 rounded w-full mb-4" />
-          <div className="space-y-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-12 bg-slate-200 rounded" />
-            ))}
-          </div>
-          </div>
-        </div>
+      <Card data-testid="distribution-loading">
+        <CardContent className="space-y-4 pt-6">
+          <Skeleton className="h-4 w-48" />
+          <Skeleton className="h-8 w-full" />
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <Skeleton key={idx} className="h-12 w-full" />
+          ))}
+        </CardContent>
+      </Card>
     )
   }
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 text-center text-slate-500">
-        No custodian data available
-      </div>
+      <Card>
+        <CardContent className="py-8 text-center text-slate-500">No custodian data available</CardContent>
+      </Card>
     )
   }
 
@@ -107,45 +115,32 @@ export function CustodianDistribution({
     return sortDirection === 'asc' ? comparison : -comparison
   })
 
-  const SortHeader = ({
-    field,
-    children,
-  }: {
-    field: SortField
-    children: React.ReactNode
-  }) => (
-    <th
+  const SortHeader = ({ field, children }: { field: SortField; children: ReactNode }) => (
+    <TableHead
       role="columnheader"
       onClick={() => handleSort(field)}
-      className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider cursor-pointer hover:bg-slate-50"
+      className="cursor-pointer uppercase tracking-wider hover:bg-slate-50"
     >
       <div className="flex items-center gap-1">
         {children}
-        {sortField === field && (
-          <span className="text-slate-400">
-            {sortDirection === 'asc' ? '↑' : '↓'}
-          </span>
-        )}
+        {sortField === field && <span className="text-slate-400">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
       </div>
-    </th>
+    </TableHead>
   )
 
   return (
-    <div className="bg-white rounded-lg shadow">
-      <div className="p-6 border-b border-slate-200">
-        <h3 className="text-lg font-medium text-slate-900">
-          Custodian Distribution
-        </h3>
+    <Card>
+      <CardHeader>
+        <CardTitle>Custodian Distribution</CardTitle>
 
-        {/* Allocation Chart */}
-        <div data-testid="allocation-chart" className="mt-4">
-          <div className="flex h-8 rounded-lg overflow-hidden">
+        <div data-testid="allocation-chart" className="mt-2">
+          <div className="flex h-8 overflow-hidden rounded-lg">
             {data.map((custodian, index) => (
               <div
                 key={custodian.custodianId}
                 className={cn(
                   CHART_COLORS[index % CHART_COLORS.length],
-                  'transition-all hover:opacity-80 cursor-pointer'
+                  'cursor-pointer transition-all hover:opacity-80'
                 )}
                 style={{ width: `${custodian.percentage * 100}%` }}
                 title={`${custodian.custodianName}: ${formatPercent(custodian.percentage)}`}
@@ -154,87 +149,72 @@ export function CustodianDistribution({
             ))}
           </div>
 
-          {/* Legend */}
           <div className="mt-3 flex flex-wrap gap-4">
             {data.map((custodian, index) => (
               <div key={custodian.custodianId} className="flex items-center gap-2">
-                <div
-                  className={cn(
-                    'w-3 h-3 rounded-full',
-                    CHART_COLORS[index % CHART_COLORS.length]
-                  )}
-                />
-                <span className="text-sm text-slate-600">
-                  {custodian.custodianName}
-                </span>
+                <div className={cn('h-3 w-3 rounded-full', CHART_COLORS[index % CHART_COLORS.length])} />
+                <span className="text-sm text-slate-600">{custodian.custodianName}</span>
               </div>
             ))}
           </div>
         </div>
-      </div>
+      </CardHeader>
 
-      {/* Comparison Table */}
-      <div data-testid="custodian-table" className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <SortHeader field="name">Custodian</SortHeader>
-              <SortHeader field="value">Value</SortHeader>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                %
-              </th>
-              <SortHeader field="apy">APY</SortHeader>
-              <SortHeader field="validators">Validators</SortHeader>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                7d
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                30d
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
-            {sortedData.map((custodian, idx) => (
-              <tr
-                key={custodian.custodianId}
-                data-testid={`custodian-row-${idx}`}
-                onClick={() => onCustodianClick?.(custodian.custodianId)}
-                className="hover:bg-slate-50 cursor-pointer"
-              >
-                <td className="px-4 py-4 whitespace-nowrap">
-                  <span className="font-medium text-slate-900">
-                    {custodian.custodianName}
-                  </span>
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap text-slate-900 tabular-nums">
-                  {(() => {
-                    const { value: formatted, suffix } = formatCurrency(custodian.value, currency, ethPrice)
-                    return `${formatted}${suffix ? ` ${suffix}` : ''}`
-                  })()}
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap text-slate-500 tabular-nums">
-                  {formatPercent(custodian.percentage)}
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap">
-                  <span className="text-green-600 font-medium tabular-nums">
-                    {(custodian.trailingApy30d * 100).toFixed(2)}%
-                  </span>
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap text-slate-900 tabular-nums">
-                  {custodian.validatorCount.toLocaleString()}
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap">
-                  <ChangeIndicator value={custodian.change7d} />
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap">
-                  <ChangeIndicator value={custodian.change30d} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+      <CardContent className="p-0">
+        <div data-testid="custodian-table" className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <SortHeader field="name">Custodian</SortHeader>
+                <SortHeader field="value">Value</SortHeader>
+                <TableHead>%</TableHead>
+                <SortHeader field="apy">APY</SortHeader>
+                <SortHeader field="validators">Validators</SortHeader>
+                <TableHead>7d</TableHead>
+                <TableHead>30d</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedData.map((custodian, idx) => (
+                <TableRow
+                  key={custodian.custodianId}
+                  data-testid={`custodian-row-${idx}`}
+                  onClick={() => onCustodianClick?.(custodian.custodianId)}
+                  className="cursor-pointer"
+                >
+                  <TableCell>
+                    <span className="font-medium text-slate-900">{custodian.custodianName}</span>
+                  </TableCell>
+                  <TableCell className="tabular-nums text-slate-900">
+                    {(() => {
+                      const { value: formatted, suffix } = formatCurrency(custodian.value, currency, ethPrice)
+                      return `${formatted}${suffix ? ` ${suffix}` : ''}`
+                    })()}
+                  </TableCell>
+                  <TableCell className="tabular-nums text-slate-500">
+                    {formatPercent(custodian.percentage)}
+                  </TableCell>
+                  <TableCell>
+                    <span className="tabular-nums font-medium text-green-600">
+                      {(custodian.trailingApy30d * 100).toFixed(2)}%
+                    </span>
+                  </TableCell>
+                  <TableCell className="tabular-nums text-slate-900">
+                    {custodian.validatorCount.toLocaleString()}
+                  </TableCell>
+                  <TableCell>
+                    <ChangeIndicator value={custodian.change7d} />
+                  </TableCell>
+                  <TableCell>
+                    <ChangeIndicator value={custodian.change30d} />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
@@ -247,12 +227,7 @@ function ChangeIndicator({ value }: { value?: number }) {
   const formatted = `${isPositive ? '+' : ''}${(value * 100).toFixed(2)}%`
 
   return (
-    <span
-      className={cn(
-        'font-medium tabular-nums',
-        isPositive ? 'text-green-600' : 'text-red-600'
-      )}
-    >
+    <span className={cn('tabular-nums font-medium', isPositive ? 'text-green-600' : 'text-red-600')}>
       {formatted}
     </span>
   )

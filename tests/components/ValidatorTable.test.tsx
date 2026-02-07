@@ -83,7 +83,7 @@ describe('ValidatorTable', () => {
     expect(onPageChange).toHaveBeenCalledWith(2)
   })
 
-  it('supports filtering by state', () => {
+  it('supports filtering by state', async () => {
     const onFilterChange = vi.fn()
     render(
       <ValidatorTable
@@ -93,9 +93,9 @@ describe('ValidatorTable', () => {
       />
     )
 
-    // Select a filter
-    const filterSelect = screen.getByTestId('state-filter')
-    fireEvent.change(filterSelect, { target: { value: 'active' } })
+    const trigger = screen.getByTestId('state-filter-trigger')
+    fireEvent.click(trigger)
+    fireEvent.click(await screen.findByRole('option', { name: 'Active' }))
 
     expect(onFilterChange).toHaveBeenCalledWith({ stakeState: 'active' })
   })

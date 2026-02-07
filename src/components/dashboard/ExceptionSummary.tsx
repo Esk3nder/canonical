@@ -9,8 +9,20 @@
  */
 
 import { useState } from 'react'
+import { ChevronRight } from 'lucide-react'
+
 import { formatDateTime } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { Badge, type BadgeProps } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface ExceptionItem {
   id: string
@@ -54,27 +66,27 @@ const BANNER_COLORS: Record<string, string> = {
   none: 'bg-green-50 border-green-200',
 }
 
-const COUNT_COLORS: Record<string, string> = {
-  critical: 'bg-red-600 text-white',
-  high: 'bg-orange-500 text-white',
-  medium: 'bg-yellow-500 text-white',
-  low: 'bg-blue-500 text-white',
-  none: 'bg-slate-500 text-white',
-}
-
-const SEVERITY_BADGE_COLORS: Record<string, string> = {
-  critical: 'bg-red-100 text-red-800 border-red-200',
-  high: 'bg-orange-100 text-orange-800 border-orange-200',
-  medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  low: 'bg-blue-100 text-blue-800 border-blue-200',
-}
-
 function getHighestSeverity(bySeverity: ExceptionSummaryData['bySeverity']): string {
   if (bySeverity.critical > 0) return 'critical'
   if (bySeverity.high > 0) return 'high'
   if (bySeverity.medium > 0) return 'medium'
   if (bySeverity.low > 0) return 'low'
   return 'none'
+}
+
+function getSeverityVariant(severity: string): BadgeProps['variant'] {
+  if (severity === 'critical') return 'critical'
+  if (severity === 'high') return 'high'
+  if (severity === 'medium') return 'medium'
+  return 'info'
+}
+
+function getCountVariant(severity: string): BadgeProps['variant'] {
+  if (severity === 'critical') return 'critical'
+  if (severity === 'high') return 'high'
+  if (severity === 'medium') return 'medium'
+  if (severity === 'low') return 'low'
+  return 'neutral'
 }
 
 export function ExceptionSummary({
@@ -87,12 +99,12 @@ export function ExceptionSummary({
 
   if (isLoading) {
     return (
-      <div data-testid="summary-loading" className="bg-white rounded-lg shadow px-4 py-3">
-        <div className="animate-pulse flex items-center gap-4">
-          <div className="h-6 w-6 bg-slate-200 rounded-full" />
-          <div className="h-4 bg-slate-200 rounded w-48" />
+      <Card data-testid="summary-loading" className="px-4 py-3">
+        <div className="flex items-center gap-4">
+          <Skeleton className="h-6 w-6 rounded-full" />
+          <Skeleton className="h-4 w-48" />
         </div>
-      </div>
+      </Card>
     )
   }
 
@@ -100,7 +112,7 @@ export function ExceptionSummary({
     return (
       <div className={cn('rounded-lg border px-4 py-3', BANNER_COLORS.none)}>
         <div className="flex items-center gap-3">
-          <span className="text-green-600 text-lg">✓</span>
+          <span className="text-lg text-green-600">✓</span>
           <span className="text-sm text-green-800">No open exceptions</span>
         </div>
       </div>
@@ -112,155 +124,135 @@ export function ExceptionSummary({
   const topException = data.recent[0]
 
   return (
-    <div
+    <Collapsible
       data-testid="exception-summary"
-      className={cn('rounded-lg border overflow-hidden', BANNER_COLORS[highestSeverity])}
+      open={isExpanded}
+      onOpenChange={setIsExpanded}
+      className={cn('overflow-hidden rounded-lg border', BANNER_COLORS[highestSeverity])}
     >
-      {/* Compact banner row */}
-      <div className="px-4 py-3 flex items-center gap-4">
-        {/* Expand/collapse toggle */}
-        <button
-          data-testid="expand-toggle"
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="flex-shrink-0 text-slate-500 hover:text-slate-700"
-          aria-expanded={isExpanded}
-          aria-label={isExpanded ? 'Collapse exceptions' : 'Expand exceptions'}
-        >
-          <svg
-            className={cn('w-4 h-4 transition-transform', isExpanded && 'rotate-90')}
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+      <div className="flex items-center gap-4 px-4 py-3">
+        <CollapsibleTrigger asChild>
+          <Button
+            data-testid="expand-toggle"
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7 text-slate-500 hover:text-slate-700"
+            aria-expanded={isExpanded}
+            aria-label={isExpanded ? 'Collapse exceptions' : 'Expand exceptions'}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-          </svg>
-        </button>
+            <ChevronRight
+              className={cn('h-4 w-4 transition-transform', isExpanded && 'rotate-90')}
+            />
+          </Button>
+        </CollapsibleTrigger>
 
-        {/* Count badge */}
-        <span
+        <Badge
           data-testid="exception-count"
-          className={cn(
-            'flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center text-sm font-bold tabular-nums',
-            COUNT_COLORS[highestSeverity]
-          )}
+          variant={getCountVariant(highestSeverity)}
+          className="h-7 w-7 flex-shrink-0 justify-center rounded-full p-0 text-sm font-bold tabular-nums"
         >
           {data.total}
-        </span>
+        </Badge>
 
-        {/* Severity breakdown */}
         <div data-testid="severity-breakdown" className="flex items-center gap-2 text-xs tabular-nums">
           {bySeverity.critical > 0 && (
             <span className="flex items-center gap-1">
-              <span className={cn('w-2 h-2 rounded-full', SEVERITY_DOT_COLORS.critical)} />
+              <span className={cn('h-2 w-2 rounded-full', SEVERITY_DOT_COLORS.critical)} />
               {bySeverity.critical} Critical
             </span>
           )}
           {bySeverity.high > 0 && (
             <span className="flex items-center gap-1">
-              <span className={cn('w-2 h-2 rounded-full', SEVERITY_DOT_COLORS.high)} />
+              <span className={cn('h-2 w-2 rounded-full', SEVERITY_DOT_COLORS.high)} />
               {bySeverity.high} High
             </span>
           )}
           {bySeverity.medium > 0 && (
             <span className="flex items-center gap-1">
-              <span className={cn('w-2 h-2 rounded-full', SEVERITY_DOT_COLORS.medium)} />
+              <span className={cn('h-2 w-2 rounded-full', SEVERITY_DOT_COLORS.medium)} />
               {bySeverity.medium} Medium
             </span>
           )}
           {bySeverity.low > 0 && (
             <span className="flex items-center gap-1">
-              <span className={cn('w-2 h-2 rounded-full', SEVERITY_DOT_COLORS.low)} />
+              <span className={cn('h-2 w-2 rounded-full', SEVERITY_DOT_COLORS.low)} />
               {bySeverity.low} Low
             </span>
           )}
         </div>
 
-        {/* Separator */}
-        <span className="text-slate-300">|</span>
+        <Separator orientation="vertical" className="h-5" />
 
         {!isExpanded ? (
           topException ? (
             <button
               onClick={() => onExceptionClick?.(topException.id)}
-              className="flex-1 min-w-0 text-left group"
+              className="group min-w-0 flex-1 text-left"
             >
-              <span className="text-sm text-slate-700 truncate block group-hover:text-slate-900">
+              <span className="block truncate text-sm text-slate-700 group-hover:text-slate-900">
                 {topException.title}
               </span>
             </button>
           ) : (
-            <span className="flex-1 text-sm text-slate-600">
-              No recent exceptions available
-            </span>
+            <span className="flex-1 text-sm text-slate-600">No recent exceptions available</span>
           )
         ) : (
           <span className="flex-1 text-sm font-medium text-slate-700">Open Exceptions</span>
         )}
 
-        {/* New badge */}
         {!isExpanded && topException?.isNew && (
-          <span
-            data-testid="exception-new-badge"
-            className="flex-shrink-0 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded"
-          >
+          <Badge data-testid="exception-new-badge" variant="info">
             New
-          </span>
+          </Badge>
         )}
 
-        {/* View All */}
-        <button
+        <Button
           data-testid="view-all-exceptions"
+          variant="link"
+          className="h-auto p-0 text-sm"
           onClick={onViewAll}
-          className="flex-shrink-0 text-sm text-blue-600 hover:text-blue-800 font-medium"
         >
           View All →
-        </button>
+        </Button>
       </div>
 
-      {/* Expanded exceptions list */}
-      {isExpanded && (
-        <div data-testid="exceptions-list" className="border-t border-slate-200 bg-white divide-y divide-slate-100">
+      <CollapsibleContent>
+        <div
+          data-testid="exceptions-list"
+          className="divide-y divide-slate-100 border-t border-slate-200 bg-white"
+        >
           {data.recent.map((exception, index) => (
             <div
               key={exception.id}
               onClick={() => onExceptionClick?.(exception.id)}
-              className="px-4 py-3 hover:bg-slate-50 cursor-pointer"
+              className="cursor-pointer px-4 py-3 hover:bg-slate-50"
             >
               <div className="flex items-center gap-3">
                 <span
                   className={cn(
-                    'w-2 h-2 rounded-full flex-shrink-0',
+                    'h-2 w-2 flex-shrink-0 rounded-full',
                     SEVERITY_DOT_COLORS[exception.severity]
                   )}
                 />
-                <div className="flex-1 min-w-0">
+                <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-medium text-slate-900 truncate">
-                      {exception.title}
-                    </p>
+                    <p className="truncate text-sm font-medium text-slate-900">{exception.title}</p>
                     {exception.isNew && index === 0 && (
-                      <span className="px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-800 rounded">
+                      <Badge data-testid="exception-new-badge" variant="info">
                         New
-                      </span>
+                      </Badge>
                     )}
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5 tabular-nums">
+                  <p className="mt-0.5 text-xs tabular-nums text-slate-500">
                     {formatDateTime(exception.detectedAt)}
                   </p>
                 </div>
-                <span
-                  className={cn(
-                    'px-2 py-0.5 text-xs font-medium rounded border',
-                    SEVERITY_BADGE_COLORS[exception.severity]
-                  )}
-                >
-                  {exception.severity}
-                </span>
+                <Badge variant={getSeverityVariant(exception.severity)}>{exception.severity}</Badge>
               </div>
             </div>
           ))}
         </div>
-      )}
-    </div>
+      </CollapsibleContent>
+    </Collapsible>
   )
 }

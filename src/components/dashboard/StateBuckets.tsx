@@ -11,9 +11,12 @@
  * - Withdrawable (ready for treasury)
  */
 
-import { formatCurrency, formatPercent } from '@/lib/format'
 import { useCurrency } from '@/contexts/CurrencyContext'
+import { formatCurrency, formatPercent } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface StateBucketsData {
   deposited: string
@@ -90,16 +93,15 @@ export function StateBuckets({
 
   if (isLoading) {
     return (
-      <div data-testid="buckets-loading" className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <div
-            key={i}
-            className="bg-white rounded-lg shadow p-4 animate-pulse"
-          >
-            <div className="h-3 bg-slate-200 rounded w-20 mb-2" />
-            <div className="h-6 bg-slate-200 rounded w-24 mb-1" />
-            <div className="h-3 bg-slate-200 rounded w-16" />
-          </div>
+      <div data-testid="buckets-loading" className="grid grid-cols-2 gap-4 md:grid-cols-5">
+        {Array.from({ length: 5 }).map((_, idx) => (
+          <Card key={idx}>
+            <CardContent className="space-y-2 p-4">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-6 w-24" />
+              <Skeleton className="h-3 w-16" />
+            </CardContent>
+          </Card>
         ))}
       </div>
     )
@@ -116,51 +118,51 @@ export function StateBuckets({
     return Number(BigInt(value)) / Number(total)
   }
 
-  // Check for anomaly: deposited + entryQueue (pre-active) above threshold
-  const preActivePercentage = calculatePercentage(data.deposited) + calculatePercentage(data.entryQueue)
+  const preActivePercentage =
+    calculatePercentage(data.deposited) + calculatePercentage(data.entryQueue)
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+    <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
       {BUCKET_CONFIG.map((bucket) => {
         const value = data[bucket.key as keyof StateBucketsData]
         const percentage = calculatePercentage(value)
-        const isAnomaly = (bucket.key === 'deposited' || bucket.key === 'entryQueue') && preActivePercentage > anomalyThreshold
+        const isAnomaly =
+          (bucket.key === 'deposited' || bucket.key === 'entryQueue') &&
+          preActivePercentage > anomalyThreshold
 
         return (
-          <div
+          <Card
             key={bucket.key}
             data-testid={`bucket-${bucket.key}`}
             onClick={() => onBucketClick?.(bucket.stateKey || bucket.key)}
             className={cn(
-              'rounded-lg shadow p-4 cursor-pointer transition-all hover:shadow-md',
+              'cursor-pointer border transition-all hover:shadow-md',
               bucket.bgColor,
-              isAnomaly && 'border-2 border-amber-500'
+              isAnomaly && 'border-amber-500'
             )}
           >
-            <div className="flex items-center gap-2 mb-2">
-              <div className={cn('w-3 h-3 rounded-full', bucket.color)} />
-              <p className={cn('text-sm font-medium', bucket.textColor)}>
-                {bucket.label}
+            <CardContent className="p-4">
+              <div className="mb-2 flex items-center gap-2">
+                <div className={cn('h-3 w-3 rounded-full', bucket.color)} />
+                <p className={cn('text-sm font-medium', bucket.textColor)}>{bucket.label}</p>
+              </div>
+
+              <p className="tabular-nums text-2xl font-bold text-slate-900">
+                {(() => {
+                  const { value: formatted, suffix } = formatCurrency(value, currency, ethPrice)
+                  return `${formatted}${suffix ? ` ${suffix}` : ''}`
+                })()}
               </p>
-            </div>
 
-            <p className="text-2xl font-bold text-slate-900 tabular-nums">
-              {(() => {
-                const { value: formatted, suffix } = formatCurrency(value, currency, ethPrice)
-                return `${formatted}${suffix ? ` ${suffix}` : ''}`
-              })()}
-            </p>
+              <p className="tabular-nums text-sm text-slate-500">{formatPercent(percentage)}</p>
 
-            <p className="text-sm text-slate-500 tabular-nums">
-              {formatPercent(percentage)}
-            </p>
-
-            {isAnomaly && (
-              <p className="mt-1 text-xs text-amber-600 font-medium">
-                Above threshold
-              </p>
-            )}
-          </div>
+              {isAnomaly && (
+                <Badge variant="warning" className="mt-2">
+                  Above threshold
+                </Badge>
+              )}
+            </CardContent>
+          </Card>
         )
       })}
     </div>

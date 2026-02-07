@@ -15,7 +15,12 @@ import {
   type ValidatorWithContext,
   type RewardEvent,
 } from '@/services/rollup'
-import type { StakeState, MonthlyStatement, ValidatorPerformance } from '@/domain/types'
+import type {
+  StakeState,
+  MonthlyStatement,
+  ValidatorPerformance,
+  ValidatorStatus,
+} from '@/domain/types'
 
 const METHODOLOGY_VERSION = '1.0.0'
 
@@ -112,7 +117,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         pubkey: v.pubkey,
         operatorName: v.operatorName,
         custodianName: v.custodianName,
-        status: v.status as any,
+        status: v.status as ValidatorStatus,
         stakeState: v.stakeState,
         balance: v.balance,
         effectiveBalance: v.effectiveBalance,

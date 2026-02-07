@@ -23,7 +23,12 @@ export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
       queryClient = postgres(getConnectionString())
       dbInstance = drizzle(queryClient, { schema })
     }
-    return (dbInstance as any)[prop]
+
+    if (typeof prop === 'symbol') {
+      return Reflect.get(dbInstance as object, prop)
+    }
+
+    return dbInstance[prop as keyof typeof dbInstance]
   },
 })
 

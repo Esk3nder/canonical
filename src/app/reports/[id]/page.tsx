@@ -15,6 +15,7 @@ import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { formatEther, formatPercent } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface ReportDetail {
   id: string
@@ -144,12 +145,12 @@ export default function ReportDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-6xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-48 mb-4" />
-            <div className="h-4 bg-gray-200 rounded w-96 mb-8" />
-            <div className="grid grid-cols-3 gap-4 mb-8">
+          <div className="space-y-4">
+            <Skeleton className="mb-4 h-8 w-48" />
+            <Skeleton className="mb-8 h-4 w-96" />
+            <div className="mb-8 grid grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-24 bg-gray-200 rounded" />
+                <Skeleton key={i} className="h-24 w-full" />
               ))}
             </div>
           </div>

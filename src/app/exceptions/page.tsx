@@ -12,11 +12,28 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
+
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Badge, type BadgeProps } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type ExceptionStatus = 'new' | 'investigating' | 'resolved'
 type ExceptionSeverity = 'low' | 'medium' | 'high' | 'critical'
-type ExceptionType = 'portfolio_value_change' | 'validator_count_change' | 'in_transit_stuck' | 'rewards_anomaly' | 'performance_divergence'
+type ExceptionType =
+  | 'portfolio_value_change'
+  | 'validator_count_change'
+  | 'in_transit_stuck'
+  | 'rewards_anomaly'
+  | 'performance_divergence'
 
 interface ExceptionData {
   id: string
@@ -54,19 +71,6 @@ const SEVERITY_OPTIONS: { value: ExceptionSeverity | 'all'; label: string }[] = 
   { value: 'low', label: 'Low' },
 ]
 
-const STATUS_STYLES: Record<ExceptionStatus, string> = {
-  new: 'bg-red-100 text-red-800',
-  investigating: 'bg-yellow-100 text-yellow-800',
-  resolved: 'bg-green-100 text-green-800',
-}
-
-const SEVERITY_STYLES: Record<ExceptionSeverity, string> = {
-  critical: 'bg-red-600 text-white',
-  high: 'bg-orange-500 text-white',
-  medium: 'bg-yellow-500 text-white',
-  low: 'bg-gray-400 text-white',
-}
-
 const TYPE_LABELS: Record<ExceptionType, string> = {
   portfolio_value_change: 'Portfolio Value Change',
   validator_count_change: 'Validator Count Change',
@@ -75,10 +79,22 @@ const TYPE_LABELS: Record<ExceptionType, string> = {
   performance_divergence: 'Performance Divergence',
 }
 
+function getStatusVariant(status: ExceptionStatus): BadgeProps['variant'] {
+  if (status === 'new') return 'danger'
+  if (status === 'investigating') return 'warning'
+  return 'success'
+}
+
+function getSeverityVariant(severity: ExceptionSeverity): BadgeProps['variant'] {
+  if (severity === 'critical') return 'critical'
+  if (severity === 'high') return 'high'
+  if (severity === 'medium') return 'medium'
+  return 'neutral'
+}
+
 export default function ExceptionsPage() {
   const router = useRouter()
 
-  // State
   const [exceptions, setExceptions] = useState<ExceptionData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -86,11 +102,9 @@ export default function ExceptionsPage() {
   const [page, setPage] = useState(1)
   const pageSize = 20
 
-  // Filters
   const [statusFilter, setStatusFilter] = useState<ExceptionStatus | 'all'>('all')
   const [severityFilter, setSeverityFilter] = useState<ExceptionSeverity | 'all'>('all')
 
-  // Stats
   const [stats, setStats] = useState({
     total: 0,
     new: 0,
@@ -123,7 +137,6 @@ export default function ExceptionsPage() {
 
   const fetchStats = useCallback(async () => {
     try {
-      // Fetch counts for each status
       const [newRes, invRes, resRes] = await Promise.all([
         fetch('/api/exceptions?status=new&pageSize=1'),
         fetch('/api/exceptions?status=investigating&pageSize=1'),
@@ -148,12 +161,10 @@ export default function ExceptionsPage() {
     }
   }, [])
 
-  // Fetch exceptions
   useEffect(() => {
     fetchExceptions()
   }, [fetchExceptions])
 
-  // Fetch stats on mount
   useEffect(() => {
     fetchStats()
   }, [fetchStats])
@@ -168,10 +179,9 @@ export default function ExceptionsPage() {
 
       if (!res.ok) throw new Error('Failed to update status')
 
-      // Refresh data
       await Promise.all([fetchExceptions(), fetchStats()])
-    } catch (error) {
-      console.error('Failed to update exception status:', error)
+    } catch (updateError) {
+      console.error('Failed to update exception status:', updateError)
       alert('Failed to update exception status')
     }
   }
@@ -190,136 +200,134 @@ export default function ExceptionsPage() {
   return (
     <div>
       <div className="max-w-6xl">
-        {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">Exception Queue</h1>
-          <p className="text-gray-600">Monitor and resolve portfolio anomalies</p>
+          <h1 className="text-2xl font-bold text-slate-900">Exception Queue</h1>
+          <p className="text-slate-600">Monitor and resolve portfolio anomalies</p>
         </div>
 
-        {/* Stats Cards */}
-        <div data-testid="exception-stats" className="grid grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4">
-            <div className="text-sm text-gray-500">Total</div>
-            <div className="text-2xl font-bold">{stats.total}</div>
-          </div>
-          <div className="bg-red-50 rounded-lg shadow p-4 border-l-4 border-red-500">
-            <div className="text-sm text-red-700">New</div>
-            <div className="text-2xl font-bold text-red-800">{stats.new}</div>
-          </div>
-          <div className="bg-yellow-50 rounded-lg shadow p-4 border-l-4 border-yellow-500">
-            <div className="text-sm text-yellow-700">Investigating</div>
-            <div className="text-2xl font-bold text-yellow-800">{stats.investigating}</div>
-          </div>
-          <div className="bg-green-50 rounded-lg shadow p-4 border-l-4 border-green-500">
-            <div className="text-sm text-green-700">Resolved</div>
-            <div className="text-2xl font-bold text-green-800">{stats.resolved}</div>
-          </div>
+        <div data-testid="exception-stats" className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
+          <Card>
+            <CardContent className="p-4">
+              <div className="text-sm text-slate-500">Total</div>
+              <div className="text-2xl font-bold">{stats.total}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-red-200 bg-red-50">
+            <CardContent className="p-4">
+              <div className="text-sm text-red-700">New</div>
+              <div className="text-2xl font-bold text-red-800">{stats.new}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-yellow-200 bg-yellow-50">
+            <CardContent className="p-4">
+              <div className="text-sm text-yellow-700">Investigating</div>
+              <div className="text-2xl font-bold text-yellow-800">{stats.investigating}</div>
+            </CardContent>
+          </Card>
+          <Card className="border-green-200 bg-green-50">
+            <CardContent className="p-4">
+              <div className="text-sm text-green-700">Resolved</div>
+              <div className="text-2xl font-bold text-green-800">{stats.resolved}</div>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow p-4 mb-6">
-          <div className="flex gap-4">
+        <Card className="mb-6">
+          <CardContent className="flex flex-wrap gap-4 pt-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
-              <select
-                data-testid="status-filter"
+              <label className="mb-1 block text-sm font-medium text-slate-700">Status</label>
+              <Select
                 value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value as ExceptionStatus | 'all')
+                onValueChange={(value) => {
+                  setStatusFilter(value as ExceptionStatus | 'all')
                   setPage(1)
                 }}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               >
-                {STATUS_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+                <SelectTrigger data-testid="status-filter" className="w-[200px]">
+                  <SelectValue placeholder="All" />
+                </SelectTrigger>
+                <SelectContent>
+                  {STATUS_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Severity</label>
-              <select
-                data-testid="severity-filter"
+              <label className="mb-1 block text-sm font-medium text-slate-700">Severity</label>
+              <Select
                 value={severityFilter}
-                onChange={(e) => {
-                  setSeverityFilter(e.target.value as ExceptionSeverity | 'all')
+                onValueChange={(value) => {
+                  setSeverityFilter(value as ExceptionSeverity | 'all')
                   setPage(1)
                 }}
-                className="px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               >
-                {SEVERITY_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>{opt.label}</option>
-                ))}
-              </select>
+                <SelectTrigger data-testid="severity-filter" className="w-[220px]">
+                  <SelectValue placeholder="All Severities" />
+                </SelectTrigger>
+                <SelectContent>
+                  {SEVERITY_OPTIONS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
-        {/* Exception List */}
         {loading ? (
-          <div className="bg-white rounded-lg shadow p-8">
-            <div className="animate-pulse space-y-4">
-              {[1, 2, 3].map((i) => (
-                <div key={i} className="h-20 bg-gray-200 rounded" />
+          <Card>
+            <CardContent className="space-y-4 p-8">
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <Skeleton key={idx} className="h-20 w-full" />
               ))}
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-red-700">
-            <p className="font-medium">Error loading exceptions</p>
-            <p className="text-sm">{error}</p>
-          </div>
+          <Alert variant="destructive">
+            <AlertTitle>Error loading exceptions</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         ) : exceptions.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <div className="text-gray-400 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No exceptions found</h3>
-            <p className="text-gray-500">
-              {statusFilter !== 'all' || severityFilter !== 'all'
-                ? 'Try adjusting your filters.'
-                : 'All systems operating normally.'}
-            </p>
-          </div>
+          <Card>
+            <CardContent className="py-8 text-center">
+              <h3 className="mb-1 text-lg font-medium text-slate-900">No exceptions found</h3>
+              <p className="text-slate-500">
+                {statusFilter !== 'all' || severityFilter !== 'all'
+                  ? 'Try adjusting your filters.'
+                  : 'All systems operating normally.'}
+              </p>
+            </CardContent>
+          </Card>
         ) : (
           <div data-testid="exception-list" className="space-y-4">
             {exceptions.map((exception) => (
-              <div
-                key={exception.id}
-                data-testid={`exception-${exception.id}`}
-                className="bg-white rounded-lg shadow overflow-hidden"
-              >
-                <div className="p-4">
-                  <div className="flex items-start justify-between">
+              <Card key={exception.id} data-testid={`exception-${exception.id}`}>
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between gap-4">
                     <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className={cn(
-                          'px-2 py-0.5 text-xs font-medium rounded',
-                          SEVERITY_STYLES[exception.severity]
-                        )}>
+                      <div className="mb-1 flex flex-wrap items-center gap-2">
+                        <Badge variant={getSeverityVariant(exception.severity)}>
                           {exception.severity.toUpperCase()}
-                        </span>
-                        <span className={cn(
-                          'px-2 py-0.5 text-xs font-medium rounded-full',
-                          STATUS_STYLES[exception.status]
-                        )}>
-                          {exception.status}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          {TYPE_LABELS[exception.type]}
-                        </span>
+                        </Badge>
+                        <Badge variant={getStatusVariant(exception.status)}>{exception.status}</Badge>
+                        <span className="text-xs text-slate-500">{TYPE_LABELS[exception.type]}</span>
                       </div>
+
                       <h3
-                        className="font-medium text-gray-900 cursor-pointer hover:text-blue-600"
+                        className="cursor-pointer font-medium text-slate-900 hover:text-blue-600"
                         onClick={() => router.push(`/exceptions/${exception.id}`)}
                       >
                         {exception.title}
                       </h3>
-                      <p className="text-sm text-gray-600 mt-1 line-clamp-2">
-                        {exception.description}
-                      </p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+
+                      <p className="mt-1 line-clamp-2 text-sm text-slate-600">{exception.description}</p>
+
+                      <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
                         <span>Detected: {formatDate(exception.detectedAt)}</span>
                         {exception.evidenceLinks.length > 0 && (
                           <span data-testid="evidence-link" className="text-blue-600">
@@ -328,60 +336,68 @@ export default function ExceptionsPage() {
                         )}
                       </div>
                     </div>
-                    <div className="flex items-center gap-2 ml-4">
+
+                    <div className="flex items-center gap-2">
                       {exception.status !== 'resolved' && (
                         <>
                           {exception.status === 'new' && (
-                            <button
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="border-yellow-300 bg-yellow-50 text-yellow-800 hover:bg-yellow-100"
                               onClick={() => handleStatusUpdate(exception.id, 'investigating')}
-                              className="px-3 py-1 text-sm bg-yellow-100 text-yellow-800 rounded hover:bg-yellow-200"
                             >
                               Investigate
-                            </button>
+                            </Button>
                           )}
-                          <button
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="border-green-300 bg-green-50 text-green-800 hover:bg-green-100"
                             onClick={() => handleStatusUpdate(exception.id, 'resolved')}
-                            className="px-3 py-1 text-sm bg-green-100 text-green-800 rounded hover:bg-green-200"
                           >
                             Resolve
-                          </button>
+                          </Button>
                         </>
                       )}
-                      <button
+
+                      <Button
+                        size="sm"
+                        variant="ghost"
                         onClick={() => router.push(`/exceptions/${exception.id}`)}
-                        className="px-3 py-1 text-sm text-blue-600 hover:bg-blue-50 rounded"
                       >
                         View
-                      </button>
+                      </Button>
                     </div>
                   </div>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             ))}
           </div>
         )}
 
-        {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-6 flex items-center justify-between">
-            <div className="text-sm text-gray-500">
+            <div className="text-sm text-slate-500">
               Showing {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} of {total}
             </div>
             <div className="flex gap-2">
-              <button
-                onClick={() => setPage(p => Math.max(1, p - 1))}
+              <Button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
-                className="px-3 py-1 border rounded disabled:opacity-50"
+                variant="outline"
+                size="sm"
               >
                 Previous
-              </button>
-              <button
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              </Button>
+              <Button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
-                className="px-3 py-1 border rounded disabled:opacity-50"
+                variant="outline"
+                size="sm"
               >
                 Next
-              </button>
+              </Button>
             </div>
           </div>
         )}

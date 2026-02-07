@@ -13,6 +13,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 
 type ExceptionStatus = 'new' | 'investigating' | 'resolved'
 type ExceptionSeverity = 'low' | 'medium' | 'high' | 'critical'
@@ -161,10 +162,10 @@ export default function ExceptionDetailPage() {
     return (
       <div className="min-h-screen bg-gray-50 p-8">
         <div className="max-w-4xl mx-auto">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-48 mb-4" />
-            <div className="h-4 bg-gray-200 rounded w-96 mb-8" />
-            <div className="h-64 bg-gray-200 rounded" />
+          <div className="space-y-4">
+            <Skeleton className="mb-4 h-8 w-48" />
+            <Skeleton className="mb-8 h-4 w-96" />
+            <Skeleton className="h-64 w-full" />
           </div>
         </div>
       </div>
