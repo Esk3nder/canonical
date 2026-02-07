@@ -24,6 +24,8 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
   onRowClick?: (row: TData) => void
+  getRowTestId?: (row: TData, index: number) => string | undefined
+  initialSorting?: SortingState
   isLoading?: boolean
   loadingRows?: number
   emptyMessage?: string
@@ -33,11 +35,13 @@ export function DataTable<TData, TValue>({
   columns,
   data,
   onRowClick,
+  getRowTestId,
+  initialSorting = [],
   isLoading,
   loadingRows = 5,
   emptyMessage = 'No results.',
 }: DataTableProps<TData, TValue>) {
-  const [sorting, setSorting] = useState<SortingState>([])
+  const [sorting, setSorting] = useState<SortingState>(initialSorting)
 
   const table = useReactTable({
     data,
@@ -75,9 +79,10 @@ export function DataTable<TData, TValue>({
             </TableRow>
           ))
         ) : table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
+          table.getRowModel().rows.map((row, index) => (
             <TableRow
               key={row.id}
+              data-testid={getRowTestId?.(row.original, index)}
               className={onRowClick ? 'cursor-pointer' : undefined}
               onClick={() => onRowClick?.(row.original)}
             >

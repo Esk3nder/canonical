@@ -9,7 +9,9 @@ import { useCurrency } from '@/contexts/CurrencyContext'
 import { formatCurrency } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { DataTable } from '@/components/ui/data-table'
 import { Skeleton } from '@/components/ui/skeleton'
+import { type ColumnDef } from '@tanstack/react-table'
 import Image from 'next/image'
 
 interface CustodianData {
@@ -92,8 +94,90 @@ export function CustodianTable({ data, isLoading, onCustodianClick }: CustodianT
       </Card>
     )
   }
+  const columns: ColumnDef<CustodianData>[] = [
+    {
+      id: 'avatar',
+      header: () => <span className="block w-11" />,
+      enableSorting: false,
+      cell: ({ row }) => {
+        const custodian = row.original
+        const brand = getPartnerBrand(custodian.custodianName)
 
-  const sorted = [...data].sort((a, b) => Number(BigInt(b.value) - BigInt(a.value)))
+        if (brand.logo) {
+          return (
+            <Image
+              src={brand.logo}
+              alt={custodian.custodianName}
+              width={44}
+              height={44}
+              className="h-11 w-11 flex-shrink-0 rounded-lg object-cover shadow-sm"
+            />
+          )
+        }
+
+        return (
+          <div
+            className={cn(
+              'flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg text-base font-bold shadow-sm',
+              brand.bg,
+              brand.text
+            )}
+          >
+            {brand.initials}
+          </div>
+        )
+      },
+    },
+    {
+      accessorKey: 'custodianName',
+      header: () => <span className="text-xs uppercase tracking-wide text-slate-400">Partner</span>,
+      cell: ({ row }) => {
+        const custodian = row.original
+        return (
+          <div className="min-w-0">
+            <div className="truncate text-sm font-semibold text-slate-900">{custodian.custodianName}</div>
+            <div className="text-xs text-slate-400">
+              {custodian.validatorCount.toLocaleString()} validators
+            </div>
+          </div>
+        )
+      },
+    },
+    {
+      id: 'value',
+      accessorKey: 'value',
+      header: () => (
+        <span className="block w-24 text-right text-xs uppercase tracking-wide text-slate-400">Stake</span>
+      ),
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = BigInt(rowA.getValue<string>(columnId))
+        const b = BigInt(rowB.getValue<string>(columnId))
+        if (a === b) return 0
+        return a > b ? 1 : -1
+      },
+      cell: ({ row }) => {
+        const { value: formatted, suffix } = formatCurrency(row.original.value, currency, ethPrice)
+        return (
+          <div className="w-24 text-right text-sm font-medium tabular-nums text-slate-900">
+            {formatted}
+            {suffix ? ` ${suffix}` : ''}
+          </div>
+        )
+      },
+    },
+    {
+      id: 'trailingApy30d',
+      accessorKey: 'trailingApy30d',
+      header: () => (
+        <span className="block w-20 text-right text-xs uppercase tracking-wide text-slate-400">30d APY</span>
+      ),
+      cell: ({ row }) => (
+        <div className="w-20 text-right text-sm font-medium tabular-nums text-emerald-600">
+          {(row.original.trailingApy30d * 100).toFixed(2)}%
+        </div>
+      ),
+    },
+  ]
 
   return (
     <Card data-testid="custodian-table" className="h-full border-slate-200 bg-white">
@@ -103,67 +187,13 @@ export function CustodianTable({ data, isLoading, onCustodianClick }: CustodianT
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-0">
-        <div className="grid grid-cols-[auto,1fr,auto,auto] gap-4 border-b border-slate-100 px-3 py-2 text-xs uppercase tracking-wide text-slate-400">
-          <span className="w-11" />
-          <span>Partner</span>
-          <span className="w-24 text-right">Stake</span>
-          <span className="w-20 text-right">30d APY</span>
-        </div>
-
-        <div className="divide-y divide-slate-50">
-          {sorted.map((custodian, idx) => {
-            const { value: formatted, suffix } = formatCurrency(custodian.value, currency, ethPrice)
-            const brand = getPartnerBrand(custodian.custodianName)
-
-            return (
-              <div
-                key={custodian.custodianId}
-                data-testid={`custodian-row-${idx}`}
-                onClick={() => onCustodianClick?.(custodian.custodianId)}
-                className={cn(
-                  'grid grid-cols-[auto,1fr,auto,auto] items-center gap-4 px-3 py-3',
-                  'cursor-pointer transition-colors hover:bg-slate-50'
-                )}
-              >
-                {brand.logo ? (
-                  <Image
-                    src={brand.logo}
-                    alt={custodian.custodianName}
-                    width={44}
-                    height={44}
-                    className="h-11 w-11 flex-shrink-0 rounded-lg object-cover shadow-sm"
-                  />
-                ) : (
-                  <div
-                    className={cn(
-                      'flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-lg text-base font-bold shadow-sm',
-                      brand.bg,
-                      brand.text
-                    )}
-                  >
-                    {brand.initials}
-                  </div>
-                )}
-
-                <div className="min-w-0">
-                  <div className="truncate text-sm font-semibold text-slate-900">{custodian.custodianName}</div>
-                  <div className="text-xs text-slate-400">
-                    {custodian.validatorCount.toLocaleString()} validators
-                  </div>
-                </div>
-
-                <div className="w-24 text-right text-sm font-medium tabular-nums text-slate-900">
-                  {formatted}
-                  {suffix ? ` ${suffix}` : ''}
-                </div>
-
-                <div className="w-20 text-right text-sm font-medium tabular-nums text-emerald-600">
-                  {(custodian.trailingApy30d * 100).toFixed(2)}%
-                </div>
-              </div>
-            )
-          })}
-        </div>
+        <DataTable
+          columns={columns}
+          data={data}
+          initialSorting={[{ id: 'value', desc: true }]}
+          onRowClick={(row) => onCustodianClick?.(row.custodianId)}
+          getRowTestId={(_, index) => `custodian-row-${index}`}
+        />
       </CardContent>
     </Card>
   )
