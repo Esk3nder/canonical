@@ -16,12 +16,12 @@ import { useCurrency } from '@/contexts/CurrencyContext'
 import { formatEthChange, formatEther, formatUSD } from '@/lib/format'
 import { getCustodianColor } from '@/lib/custodian-colors'
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog'
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet'
 import type { RewardsPulseData } from './RewardsPulseCard'
 
 interface RewardsPulseModalProps {
@@ -57,7 +57,7 @@ export function RewardsPulseModal({ isOpen, onClose, data }: RewardsPulseModalPr
       : `${Math.floor(secondsAgo / 3600)}h ago`
 
   return (
-    <Dialog
+    <Sheet
       open={isOpen}
       onOpenChange={(open) => {
         if (!open) {
@@ -65,17 +65,17 @@ export function RewardsPulseModal({ isOpen, onClose, data }: RewardsPulseModalPr
         }
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-slate-200 bg-white p-0 data-[state=closed]:animate-modal-out data-[state=open]:animate-modal-in">
-        <DialogHeader className="space-y-0 border-b border-slate-200 px-6 pb-4 pt-5">
-          <DialogTitle
+      <SheetContent side="right" className="w-[400px] overflow-y-auto p-0 sm:w-[540px]">
+        <SheetHeader className="space-y-0 border-b border-slate-200 px-6 pb-4 pt-5">
+          <SheetTitle
             id="rewards-modal-title"
             className="text-xs font-medium uppercase tracking-wider text-slate-500"
           >
             Rewards <span className="normal-case font-normal">(Last 30 Days)</span>
-          </DialogTitle>
-          <DialogDescription className="mt-0.5 text-xs text-slate-400">
+          </SheetTitle>
+          <SheetDescription className="mt-0.5 text-xs text-slate-400">
             Claimable and accrued rewards
-          </DialogDescription>
+          </SheetDescription>
           <div className="mt-3">
             <span className="text-sm text-slate-500">Claimable Now</span>
             <div className="mt-1 flex items-baseline gap-3">
@@ -93,7 +93,7 @@ export function RewardsPulseModal({ isOpen, onClose, data }: RewardsPulseModalPr
             </div>
             <p className="tabular-nums mt-0.5 text-sm text-slate-500">{claimableUsd}</p>
           </div>
-        </DialogHeader>
+        </SheetHeader>
 
         <div className="px-6 py-4">
           <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-slate-500">By Custodian</h3>
@@ -181,7 +181,7 @@ export function RewardsPulseModal({ isOpen, onClose, data }: RewardsPulseModalPr
         <div className="px-6 py-3">
           <p className="text-center text-xs text-slate-400">Updated {timeAgoText}</p>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   )
 }

@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from '@/components/ui/select'
 import { Skeleton } from '@/components/ui/skeleton'
+import { DataTablePagination } from '@/components/ui/data-table-pagination'
 
 type ExceptionStatus = 'new' | 'investigating' | 'resolved'
 type ExceptionSeverity = 'low' | 'medium' | 'high' | 'critical'
@@ -376,31 +377,15 @@ export default function ExceptionsPage() {
           </div>
         )}
 
-        {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-between">
-            <div className="text-sm text-slate-500">
-              Showing {(page - 1) * pageSize + 1} - {Math.min(page * pageSize, total)} of {total}
-            </div>
-            <div className="flex gap-2">
-              <Button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}
-                variant="outline"
-                size="sm"
-              >
-                Previous
-              </Button>
-              <Button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}
-                variant="outline"
-                size="sm"
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
+        <div className="mt-6">
+          <DataTablePagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            pageSize={pageSize}
+            onPageChange={setPage}
+          />
+        </div>
       </div>
     </div>
   )

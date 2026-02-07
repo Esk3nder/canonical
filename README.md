@@ -5,9 +5,10 @@ Institutional staking portfolio dashboard built with Next.js 14, PostgreSQL, and
 ## Features
 
 - Portfolio overview with KPIs (total value, APY, validator count)
-- State buckets visualization (active, in-transit, rewards, exiting)
-- Custodian distribution and comparison
+- Stake lifecycle visualization (active, in-transit, rewards, exiting)
+- Custodian distribution table with reconciliation
 - Validator performance tracking
+- Rewards pulse monitoring with ETH/USD currency toggle
 - Exception detection and workflow management
 - Report generation (CSV, PDF export)
 - Drilldown pages for custodians and validators
@@ -95,6 +96,8 @@ npm run dev
 | `npm run start` | Start production server |
 | `npm run lint` | Run ESLint |
 | `npm run test` | Run unit tests (Vitest) |
+| `npm run test:ui` | Run tests with Vitest UI |
+| `npm run test:coverage` | Run tests with coverage report |
 | `npm run test:e2e` | Run E2E tests (Playwright) |
 | `npm run db:generate` | Generate Drizzle migrations |
 | `npm run db:migrate` | Apply migrations |
@@ -107,18 +110,24 @@ npm run dev
 ```
 src/
 ├── app/                    # Next.js App Router
-│   ├── api/               # API routes
+│   ├── api/               # API routes (portfolio, validators, custodians, rewards, exceptions, reports)
 │   ├── custodians/        # Custodian detail pages
 │   ├── validators/        # Validator detail pages
 │   ├── exceptions/        # Exception queue
+│   ├── rewards/           # Rewards pulse page
 │   └── reports/           # Report generation UI
-├── components/dashboard/  # Dashboard components
+├── components/
+│   ├── dashboard/         # Dashboard components (KPIs, charts, tables)
+│   └── ui/                # shadcn/ui primitives
+├── contexts/              # React contexts (currency toggle)
 ├── db/                    # Schema and client
-├── services/              # Business logic
+├── domain/                # Shared TypeScript types
+├── services/              # Business logic (rollup, reconciliation, export)
 └── lib/                   # Utilities
 tests/
 ├── api/                   # API tests
 ├── components/            # Component tests
+├── db/                    # Schema tests
 ├── services/              # Service tests
 └── e2e/                   # End-to-end tests
 ```
@@ -126,8 +135,9 @@ tests/
 ## Tech Stack
 
 - **Framework**: Next.js 14 (App Router)
-- **Database**: Vercel Postgres with Drizzle ORM
-- **Styling**: Tailwind CSS
+- **Database**: PostgreSQL with Drizzle ORM (Vercel Postgres in production)
+- **UI**: shadcn/ui + Tailwind CSS + Geist Sans font
+- **Charts**: Recharts
 - **Testing**: Vitest + Playwright
 - **State**: TanStack Query
 - **Deployment**: Vercel

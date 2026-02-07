@@ -15,7 +15,6 @@ import { useRouter } from 'next/navigation'
 import { shortenHex } from '@/lib/format'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
@@ -26,6 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { DataTablePagination } from '@/components/ui/data-table-pagination'
 
 interface RewardData {
   id: string
@@ -212,35 +212,15 @@ export default function RewardsPage() {
               </Table>
             </div>
 
-            {totalPages > 1 && (
-              <div className="flex items-center justify-between border-t border-slate-200 px-4 py-3">
-                <div className="text-sm text-slate-500">
-                  Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of{' '}
-                  {total}
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
-                    disabled={page <= 1}
-                    variant="outline"
-                    size="sm"
-                  >
-                    Previous
-                  </Button>
-                  <span className="text-sm text-slate-700">
-                    Page {page} of {totalPages}
-                  </span>
-                  <Button
-                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                    disabled={page >= totalPages}
-                    variant="outline"
-                    size="sm"
-                  >
-                    Next
-                  </Button>
-                </div>
-              </div>
-            )}
+            <div className="border-t border-slate-200 px-4 py-3">
+              <DataTablePagination
+                page={page}
+                totalPages={totalPages}
+                total={total}
+                pageSize={pageSize}
+                onPageChange={setPage}
+              />
+            </div>
           </Card>
         )}
       </div>
