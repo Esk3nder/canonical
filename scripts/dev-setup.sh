@@ -3,23 +3,28 @@ set -e
 
 echo "Setting up local development environment..."
 
-# Create .env if it doesn't exist
-if [ ! -f .env ]; then
+# Resolve env file: .env.local takes precedence (matches Next.js behavior)
+ENV_FILE=".env"
+[ -f .env.local ] && ENV_FILE=".env.local"
+
+# Create .env if no env file exists
+if [ ! -f .env ] && [ ! -f .env.local ]; then
   echo "Creating .env from .env.example..."
   cp .env.example .env
+  ENV_FILE=".env"
 else
-  echo ".env already exists, skipping..."
+  echo "Using $ENV_FILE..."
 fi
 
-# Load env vars
-set -a
-source .env
-set +a
+# Safely read POSTGRES_URL from env file (no source, no shell expansion)
+POSTGRES_URL=$(grep '^POSTGRES_URL=' "$ENV_FILE" | cut -d= -f2- | sed "s/^['\"]//;s/['\"]$//")
 
 if [ -z "$POSTGRES_URL" ]; then
-  echo "ERROR: POSTGRES_URL is not set in .env"
+  echo "ERROR: POSTGRES_URL is not set in $ENV_FILE"
   exit 1
 fi
+
+export POSTGRES_URL
 
 # Check for psql
 if ! command -v psql &> /dev/null; then
@@ -32,8 +37,8 @@ fi
 
 # Extract database name from POSTGRES_URL (last path segment, strip query params)
 DB_NAME=$(echo "$POSTGRES_URL" | sed 's|.*/||' | sed 's|\?.*||')
-# Build a maintenance URL by replacing the DB name with 'postgres'
-MAINTENANCE_URL=$(echo "$POSTGRES_URL" | sed "s|/${DB_NAME}|/postgres|")
+# Build a maintenance URL by replacing only the final path segment with 'postgres'
+MAINTENANCE_URL=$(echo "$POSTGRES_URL" | sed -E "s|/[^/?]+(\?.*)?$|/postgres\1|")
 
 if [ -z "$DB_NAME" ]; then
   echo "ERROR: Could not parse database name from POSTGRES_URL"
