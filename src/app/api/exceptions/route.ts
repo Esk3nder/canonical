@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { exceptions } from '@/db/schema'
 import { eq, desc, count, and, SQL } from 'drizzle-orm'
-import type { ExceptionStatus } from '@/domain/types'
+import type { ExceptionStatus, ExceptionType } from '@/domain/types'
 
 export async function GET(request: NextRequest) {
   try {
@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     if (type) {
-      conditions.push(eq(exceptions.type, type as any))
+      conditions.push(eq(exceptions.type, type as ExceptionType))
     }
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined

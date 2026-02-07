@@ -12,6 +12,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { cn } from '@/lib/utils'
+import { Skeleton } from '@/components/ui/skeleton'
 
 interface ReportData {
   id: string
@@ -284,9 +285,9 @@ export default function ReportsPage() {
         {/* Reports List */}
         {loading ? (
           <div className="bg-white rounded-lg shadow p-8">
-            <div className="animate-pulse space-y-4">
+            <div className="space-y-4">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="h-16 bg-gray-200 rounded" />
+                <Skeleton key={i} className="h-16 w-full" />
               ))}
             </div>
           </div>

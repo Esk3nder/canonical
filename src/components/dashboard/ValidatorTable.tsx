@@ -12,8 +12,27 @@
  */
 
 import { useState } from 'react'
+
 import { formatEther, shortenHex } from '@/lib/format'
-import { cn } from '@/lib/utils'
+import { Badge, type BadgeProps } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
 
 interface ValidatorData {
   id: string
@@ -38,15 +57,15 @@ interface ValidatorTableProps {
   onRowClick?: (validatorId: string) => void
 }
 
-const STATUS_COLORS: Record<string, string> = {
-  active: 'bg-green-100 text-green-800',
-  pending: 'bg-yellow-100 text-yellow-800',
-  slashed: 'bg-red-100 text-red-800',
-  exited: 'bg-slate-100 text-slate-800',
+const STATUS_VARIANTS: Record<string, BadgeProps['variant']> = {
+  active: 'active',
+  pending: 'pending',
+  slashed: 'slashed',
+  exited: 'exited',
 }
 
 const STATE_OPTIONS = [
-  { value: '', label: 'All States' },
+  { value: 'all', label: 'All States' },
   { value: 'deposited', label: 'Deposited' },
   { value: 'pending_activation', label: 'Entry Queue' },
   { value: 'active', label: 'Active' },
@@ -64,172 +83,144 @@ export function ValidatorTable({
   onFilterChange,
   onRowClick,
 }: ValidatorTableProps) {
-  const [stateFilter, setStateFilter] = useState('')
+  const [stateFilter, setStateFilter] = useState('all')
 
   if (isLoading) {
     return (
-      <div data-testid="table-loading" className="bg-white rounded-lg shadow p-6">
-        <div className="animate-pulse space-y-4">
-          <div className="h-10 bg-slate-200 rounded w-full" />
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="h-12 bg-slate-200 rounded w-full" />
+      <Card data-testid="table-loading">
+        <CardContent className="space-y-4 pt-6">
+          <Skeleton className="h-10 w-full" />
+          {Array.from({ length: 5 }).map((_, idx) => (
+            <Skeleton key={idx} className="h-12 w-full" />
           ))}
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     )
   }
 
   if (!data || data.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow p-6 text-center text-slate-500">
-        No validators found
-      </div>
+      <Card>
+        <CardContent className="py-8 text-center text-slate-500">
+          No validators found
+        </CardContent>
+      </Card>
     )
   }
 
   const totalPages = Math.ceil(total / pageSize)
 
   const handleFilterChange = (value: string) => {
-    setStateFilter(value)
-    onFilterChange?.({ stakeState: value || undefined })
+    const nextValue = value || 'all'
+    setStateFilter(nextValue)
+    onFilterChange?.({ stakeState: nextValue === 'all' ? undefined : nextValue })
   }
 
   return (
-    <div className="bg-white rounded-lg shadow">
-      {/* Header with filters */}
-      <div className="p-4 border-b border-slate-200 flex items-center justify-between">
-        <h3 className="text-lg font-medium text-slate-900">Validators</h3>
-        <div className="flex items-center gap-4">
-          <select
-            data-testid="state-filter"
-            value={stateFilter}
-            onChange={(e) => handleFilterChange(e.target.value)}
-            className="border border-slate-300 rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
+    <Card>
+      <CardHeader className="flex-row items-center justify-between space-y-0">
+        <CardTitle>Validators</CardTitle>
+        <Select value={stateFilter} onValueChange={handleFilterChange}>
+          <SelectTrigger data-testid="state-filter-trigger" className="w-[180px]">
+            <SelectValue placeholder="Filter by state" />
+          </SelectTrigger>
+          <SelectContent>
             {STATE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
+              <SelectItem key={opt.value} value={opt.value}>
                 {opt.label}
-              </option>
+              </SelectItem>
             ))}
-          </select>
-        </div>
-      </div>
+          </SelectContent>
+        </Select>
+      </CardHeader>
 
-      {/* Table */}
-      <div data-testid="validator-table" className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-slate-200">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Validator
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Operator
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Custodian
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Status
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                Balance
-              </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">
-                APY
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-slate-200">
-            {data.map((validator) => (
-              <tr
-                key={validator.id}
-                onClick={() => onRowClick?.(validator.id)}
-                className="hover:bg-slate-50 cursor-pointer"
-                role="row"
-              >
-                <td className="px-4 py-4 whitespace-nowrap">
-                  <code className="text-sm font-mono text-slate-900">
-                    {shortenHex(validator.pubkey, 6)}
-                  </code>
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-900">
-                  {validator.operatorName}
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-500">
-                  {validator.custodianName}
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap">
-                  <span
-                    className={cn(
-                      'px-2 py-1 text-xs font-medium rounded-full',
-                      STATUS_COLORS[validator.status] || 'bg-slate-100 text-slate-800'
+      <CardContent className="p-0">
+        <div data-testid="validator-table" className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="hover:bg-transparent">
+                <TableHead>Validator</TableHead>
+                <TableHead>Operator</TableHead>
+                <TableHead>Custodian</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Balance</TableHead>
+                <TableHead>APY</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {data.map((validator) => (
+                <TableRow
+                  key={validator.id}
+                  onClick={() => onRowClick?.(validator.id)}
+                  className="cursor-pointer"
+                  role="row"
+                >
+                  <TableCell>
+                    <code className="font-mono text-sm text-slate-900">
+                      {shortenHex(validator.pubkey, 6)}
+                    </code>
+                  </TableCell>
+                  <TableCell className="text-slate-900">{validator.operatorName}</TableCell>
+                  <TableCell className="text-slate-500">{validator.custodianName}</TableCell>
+                  <TableCell>
+                    <Badge variant={STATUS_VARIANTS[validator.status] ?? 'secondary'}>
+                      {validator.status}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="tabular-nums font-medium text-slate-900">
+                    {formatEther(validator.balance)}<span className="unit-symbol">ETH</span>
+                  </TableCell>
+                  <TableCell>
+                    {validator.trailingApy30d !== undefined &&
+                    validator.trailingApy30d > 0 ? (
+                      <span className="tabular-nums font-medium text-green-600">
+                        {(validator.trailingApy30d * 100).toFixed(2)}%
+                      </span>
+                    ) : (
+                      <span className="text-slate-400">-</span>
                     )}
-                  >
-                    {validator.status}
-                  </span>
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap text-sm text-slate-900 font-medium tabular-nums">
-                  {formatEther(validator.balance)}<span className="unit-symbol">ETH</span>
-                </td>
-                <td className="px-4 py-4 whitespace-nowrap">
-                  {validator.trailingApy30d !== undefined && validator.trailingApy30d > 0 ? (
-                    <span className="text-green-600 font-medium tabular-nums">
-                      {(validator.trailingApy30d * 100).toFixed(2)}%
-                    </span>
-                  ) : (
-                    <span className="text-slate-400">-</span>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div
-          data-testid="pagination"
-          className="px-4 py-3 border-t border-slate-200 flex items-center justify-between"
-        >
-          <div className="text-sm text-slate-500 tabular-nums">
-            Showing {(page - 1) * pageSize + 1} to{' '}
-            {Math.min(page * pageSize, total)} of {total} validators
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              data-testid="prev-page"
-              onClick={() => onPageChange?.(page - 1)}
-              disabled={page <= 1}
-              className={cn(
-                'px-3 py-1 border rounded text-sm',
-                page <= 1
-                  ? 'border-slate-200 text-slate-400 cursor-not-allowed'
-                  : 'border-slate-300 text-slate-700 hover:bg-slate-50'
-              )}
-            >
-              Previous
-            </button>
-            <span className="text-sm text-slate-700 tabular-nums">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              data-testid="next-page"
-              onClick={() => onPageChange?.(page + 1)}
-              disabled={page >= totalPages}
-              className={cn(
-                'px-3 py-1 border rounded text-sm',
-                page >= totalPages
-                  ? 'border-slate-200 text-slate-400 cursor-not-allowed'
-                  : 'border-slate-300 text-slate-700 hover:bg-slate-50'
-              )}
-            >
-              Next
-            </button>
-          </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
-      )}
-    </div>
+
+        {totalPages > 1 && (
+          <div
+            data-testid="pagination"
+            className="flex items-center justify-between border-t border-slate-200 px-4 py-3"
+          >
+            <div className="tabular-nums text-sm text-slate-500">
+              Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of{' '}
+              {total} validators
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                data-testid="prev-page"
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange?.(page - 1)}
+                disabled={page <= 1}
+              >
+                Previous
+              </Button>
+              <span className="tabular-nums text-sm text-slate-700">
+                Page {page} of {totalPages}
+              </span>
+              <Button
+                data-testid="next-page"
+                variant="outline"
+                size="sm"
+                onClick={() => onPageChange?.(page + 1)}
+                disabled={page >= totalPages}
+              >
+                Next
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   )
 }

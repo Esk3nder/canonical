@@ -1,7 +1,7 @@
 'use client'
 
-import { useCurrency, Currency } from '@/contexts/CurrencyContext'
-import { cn } from '@/lib/utils'
+import { type Currency, useCurrency } from '@/contexts/CurrencyContext'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 
 export function CurrencyToggle() {
   const { currency, setCurrency } = useCurrency()
@@ -9,21 +9,27 @@ export function CurrencyToggle() {
   const options: Currency[] = ['ETH', 'USD']
 
   return (
-    <div className="inline-flex rounded-lg bg-slate-100 p-1">
+    <ToggleGroup
+      type="single"
+      value={currency}
+      onValueChange={(value) => {
+        if (value) {
+          setCurrency(value as Currency)
+        }
+      }}
+      className="rounded-lg bg-slate-100 p-1"
+      aria-label="Display currency"
+    >
       {options.map((option) => (
-        <button
+        <ToggleGroupItem
           key={option}
-          onClick={() => setCurrency(option)}
-          className={cn(
-            'px-3 py-1 text-sm font-medium rounded-md transition-colors',
-            currency === option
-              ? 'bg-slate-800 text-white'
-              : 'text-slate-600 hover:text-slate-900'
-          )}
+          value={option}
+          className="h-8 rounded-md px-3 text-sm font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-900 data-[state=on]:bg-slate-800 data-[state=on]:text-white"
+          aria-label={`Show ${option}`}
         >
           {option}
-        </button>
+        </ToggleGroupItem>
       ))}
-    </div>
+    </ToggleGroup>
   )
 }

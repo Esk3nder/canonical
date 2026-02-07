@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import { GeistSans } from 'geist/font/sans'
 import './globals.css'
-import { CurrencyProvider } from '@/contexts/CurrencyContext'
 import { CurrencyToggle } from '@/components/CurrencyToggle'
 import { Sidebar } from '@/components/Sidebar'
+import { Button } from '@/components/ui/button'
+import { CurrencyProvider } from '@/contexts/CurrencyContext'
 
 export const metadata: Metadata = {
   title: 'Canonical Staking Portfolio',
@@ -20,42 +21,30 @@ export default function RootLayout({
       <body className={GeistSans.className}>
         <CurrencyProvider>
           <div className="min-h-screen bg-slate-50">
-            {/* Top Navigation */}
-            <nav className="fixed top-0 left-0 right-0 z-10 bg-white border-b border-slate-200">
+            <nav className="fixed left-0 right-0 top-0 z-10 border-b border-slate-200 bg-white">
               <div className="px-4 sm:px-6 lg:px-8">
-                <div className="flex justify-between h-16">
+                <div className="flex h-16 justify-between">
                   <div className="flex items-center">
-                    <span className="text-xl font-bold text-slate-900">
-                      Canonical
-                    </span>
-                    <span className="ml-2 text-sm text-slate-500">
-                      Staking Portfolio
-                    </span>
+                    <span className="text-xl font-bold text-slate-900">Canonical</span>
+                    <span className="ml-2 text-sm text-slate-500">Staking Portfolio</span>
                   </div>
-                  <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
                     <CurrencyToggle />
-                    <a href="/about" className="text-sm text-slate-600 hover:text-slate-900">
-                      About Us
-                    </a>
-                    <a
-                      href="/signin"
-                      className="text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-md transition-colors"
-                    >
-                      Sign In
-                    </a>
+                    <Button variant="ghost" asChild>
+                      <a href="/about">About Us</a>
+                    </Button>
+                    <Button asChild>
+                      <a href="/signin">Sign In</a>
+                    </Button>
                   </div>
                 </div>
               </div>
             </nav>
 
-            {/* Left Sidebar */}
             <Sidebar />
 
-            {/* Main Content */}
             <main className="pl-56 pt-16">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {children}
-              </div>
+              <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">{children}</div>
             </main>
           </div>
         </CurrencyProvider>

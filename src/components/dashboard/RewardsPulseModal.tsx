@@ -10,10 +10,18 @@
  * - Claimed This Month
  */
 
-import { useEffect, useCallback, useState } from 'react'
-import { formatEther, formatUSD, formatEthChange } from '@/lib/format'
-import { useCurrency } from '@/contexts/CurrencyContext'
 import { CheckCircle } from 'lucide-react'
+
+import { useCurrency } from '@/contexts/CurrencyContext'
+import { formatEthChange, formatEther, formatUSD } from '@/lib/format'
+import { getCustodianColor } from '@/lib/custodian-colors'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
 import type { RewardsPulseData } from './RewardsPulseCard'
 
 interface RewardsPulseModalProps {
@@ -22,42 +30,9 @@ interface RewardsPulseModalProps {
   data: RewardsPulseData
 }
 
-export function RewardsPulseModal({
-  isOpen,
-  onClose,
-  data,
-}: RewardsPulseModalProps) {
+export function RewardsPulseModal({ isOpen, onClose, data }: RewardsPulseModalProps) {
   const { ethPrice } = useCurrency()
-  const [isClosing, setIsClosing] = useState(false)
 
-  const handleClose = useCallback(() => {
-    setIsClosing(true)
-    setTimeout(() => {
-      setIsClosing(false)
-      onClose()
-    }, 150)
-  }, [onClose])
-
-  useEffect(() => {
-    const handleEscape = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        handleClose()
-      }
-    }
-
-    if (isOpen) {
-      document.addEventListener('keydown', handleEscape)
-      document.body.style.overflow = 'hidden'
-      return () => {
-        document.removeEventListener('keydown', handleEscape)
-        document.body.style.overflow = ''
-      }
-    }
-  }, [isOpen, handleClose])
-
-  if (!isOpen) return null
-
-  // Format values
   const claimableEth = formatEther(data.claimableNow)
   const claimableUsd = formatUSD(data.claimableNow, ethPrice)
   const change24h = formatEthChange(data.claimable24hChange)
@@ -66,15 +41,12 @@ export function RewardsPulseModal({
   const accruedEth = formatEther(data.accrued)
   const claimedEth = formatEther(data.claimedThisMonth)
 
-  // Calculate total claimable for percentages
   const totalClaimable = BigInt(data.claimableNow)
 
-  // Sort custodians by amount descending
-  const sortedCustodians = [...data.custodianBreakdown].sort(
-    (a, b) => Number(BigInt(b.amount) - BigInt(a.amount))
+  const sortedCustodians = [...data.custodianBreakdown].sort((a, b) =>
+    Number(BigInt(b.amount) - BigInt(a.amount))
   )
 
-  // Time since update
   const updatedAt = new Date(data.asOfTimestamp)
   const secondsAgo = Math.floor((Date.now() - updatedAt.getTime()) / 1000)
   const timeAgoText =
@@ -85,65 +57,46 @@ export function RewardsPulseModal({
       : `${Math.floor(secondsAgo / 3600)}h ago`
 
   return (
-    <div
-      className={`fixed inset-0 z-50 flex items-center justify-center p-4 md:p-0 ${
-        isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'
-      }`}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="rewards-modal-title"
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose()
+        }
+      }}
     >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/30"
-        onClick={handleClose}
-        aria-hidden="true"
-      />
-
-      {/* Modal Content */}
-      <div
-        className={`relative w-full max-w-lg bg-white rounded-lg shadow-xl overflow-hidden ${
-          isClosing ? 'animate-modal-out' : 'animate-modal-in'
-        } md:mx-4 max-h-[90vh] overflow-y-auto`}
-      >
-        {/* Header */}
-        <div className="px-6 pt-5 pb-4 border-b border-slate-200">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2
-                id="rewards-modal-title"
-                className="text-xs font-medium text-slate-500 uppercase tracking-wider"
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-slate-200 bg-white p-0 data-[state=closed]:animate-modal-out data-[state=open]:animate-modal-in">
+        <DialogHeader className="space-y-0 border-b border-slate-200 px-6 pb-4 pt-5">
+          <DialogTitle
+            id="rewards-modal-title"
+            className="text-xs font-medium uppercase tracking-wider text-slate-500"
+          >
+            Rewards <span className="normal-case font-normal">(Last 30 Days)</span>
+          </DialogTitle>
+          <DialogDescription className="mt-0.5 text-xs text-slate-400">
+            Claimable and accrued rewards
+          </DialogDescription>
+          <div className="mt-3">
+            <span className="text-sm text-slate-500">Claimable Now</span>
+            <div className="mt-1 flex items-baseline gap-3">
+              <span className="tabular-nums text-3xl font-bold text-slate-900">
+                {claimableEth}
+                <span className="unit-symbol">ETH</span>
+              </span>
+              <span
+                className={`tabular-nums text-sm font-medium ${
+                  isPositiveChange ? 'text-green-600' : 'text-red-600'
+                }`}
               >
-                Rewards <span className="normal-case font-normal">(Last 30 Days)</span>
-              </h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Claimable and accrued rewards
-              </p>
-              <div className="mt-3">
-                <span className="text-sm text-slate-500">Claimable Now</span>
-                <div className="flex items-baseline gap-3 mt-1">
-                  <span className="text-3xl font-bold text-slate-900 tabular-nums">
-                    {claimableEth}<span className="unit-symbol">ETH</span>
-                  </span>
-                  <span
-                    className={`text-sm font-medium ${
-                      isPositiveChange ? 'text-green-600' : 'text-red-600'
-                    } tabular-nums`}
-                  >
-                    {change24h} 24h
-                  </span>
-                </div>
-                <p className="text-sm text-slate-500 mt-0.5 tabular-nums">{claimableUsd}</p>
-              </div>
+                {change24h} 24h
+              </span>
             </div>
+            <p className="tabular-nums mt-0.5 text-sm text-slate-500">{claimableUsd}</p>
           </div>
-        </div>
+        </DialogHeader>
 
-        {/* Custodian Breakdown */}
         <div className="px-6 py-4">
-          <h3 className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-3">
-            By Custodian
-          </h3>
+          <h3 className="mb-3 text-xs font-medium uppercase tracking-wider text-slate-500">By Custodian</h3>
 
           {sortedCustodians.length > 0 ? (
             <div className="space-y-3">
@@ -151,48 +104,36 @@ export function RewardsPulseModal({
                 const custodianEth = formatEther(custodian.amount)
                 const percentage =
                   totalClaimable > 0n
-                    ? Number(
-                        (BigInt(custodian.amount) * 10000n) / totalClaimable
-                      ) / 100
+                    ? Number((BigInt(custodian.amount) * 10000n) / totalClaimable) / 100
                     : 0
-
-                // Bar width based on percentage
                 const barWidth = Math.max(percentage, 2)
 
                 return (
                   <div key={custodian.custodianId}>
-                    <div className="flex items-center justify-between mb-1">
+                    <div className="mb-1 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <div
-                          className="w-2 h-2 rounded-full flex-shrink-0"
-                          style={{
-                            backgroundColor: getCustodianColor(
-                              custodian.custodianName
-                            ),
-                          }}
+                          className="h-2 w-2 flex-shrink-0 rounded-full"
+                          style={{ backgroundColor: getCustodianColor(custodian.custodianName) }}
                         />
-                        <span className="text-sm text-slate-900">
-                          {custodian.custodianName}
-                        </span>
+                        <span className="text-sm text-slate-900">{custodian.custodianName}</span>
                       </div>
                       <div className="text-right">
-                        <span className="text-sm font-medium text-slate-900 tabular-nums">
-                          {custodianEth}<span className="unit-symbol">ETH</span>
+                        <span className="tabular-nums text-sm font-medium text-slate-900">
+                          {custodianEth}
+                          <span className="unit-symbol">ETH</span>
                         </span>
-                        <span className="text-xs text-slate-400 ml-2 tabular-nums">
+                        <span className="tabular-nums ml-2 text-xs text-slate-400">
                           {percentage.toFixed(1)}%
                         </span>
                       </div>
                     </div>
-                    {/* Progress bar */}
-                    <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-100">
                       <div
                         className="h-full rounded-full transition-all duration-300"
                         style={{
                           width: `${barWidth}%`,
-                          backgroundColor: getCustodianColor(
-                            custodian.custodianName
-                          ),
+                          backgroundColor: getCustodianColor(custodian.custodianName),
                         }}
                       />
                     </div>
@@ -200,68 +141,47 @@ export function RewardsPulseModal({
                 )
               })}
 
-              {/* Total row */}
-              <div className="pt-3 border-t border-slate-200">
+              <div className="border-t border-slate-200 pt-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-slate-900">
-                    Total Claimable
-                  </span>
-                  <span className="text-sm font-bold text-slate-900 tabular-nums">
-                    {claimableEth}<span className="unit-symbol">ETH</span>
+                  <span className="text-sm font-medium text-slate-900">Total Claimable</span>
+                  <span className="tabular-nums text-sm font-bold text-slate-900">
+                    {claimableEth}
+                    <span className="unit-symbol">ETH</span>
                   </span>
                 </div>
               </div>
             </div>
           ) : (
-            <p className="text-sm text-slate-500 text-center py-4">
-              No custodian data available
-            </p>
+            <p className="py-4 text-center text-sm text-slate-500">No custodian data available</p>
           )}
         </div>
 
-        {/* Summary Cards */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200">
+        <div className="border-y border-slate-200 bg-slate-50 px-6 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center">
-              <p className="text-xs text-slate-500 uppercase tracking-wider">
-                Accrued (Pending)
-              </p>
-              <p className="text-lg font-semibold text-slate-900 mt-1 tabular-nums">
-                {accruedEth}<span className="unit-symbol">ETH</span>
+              <p className="text-xs uppercase tracking-wider text-slate-500">Accrued (Pending)</p>
+              <p className="tabular-nums mt-1 text-lg font-semibold text-slate-900">
+                {accruedEth}
+                <span className="unit-symbol">ETH</span>
               </p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-slate-500 uppercase tracking-wider flex items-center justify-center gap-1">
+              <p className="flex items-center justify-center gap-1 text-xs uppercase tracking-wider text-slate-500">
                 Claimed This Month
                 <CheckCircle className="h-3 w-3 text-green-600" />
               </p>
-              <p className="text-lg font-semibold text-green-600 mt-1 tabular-nums">
-                {claimedEth}<span className="unit-symbol">ETH</span>
+              <p className="tabular-nums mt-1 text-lg font-semibold text-green-600">
+                {claimedEth}
+                <span className="unit-symbol">ETH</span>
               </p>
             </div>
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-6 py-3 border-t border-slate-200">
-          <p className="text-xs text-slate-400 text-center">
-            Updated {timeAgoText}
-          </p>
+        <div className="px-6 py-3">
+          <p className="text-center text-xs text-slate-400">Updated {timeAgoText}</p>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
-}
-
-// Color mapping for custodians (matches the dashboard chart)
-function getCustodianColor(name: string): string {
-  const colors: Record<string, string> = {
-    'Coinbase Prime': '#2563eb', // blue
-    'Anchorage Digital': '#16a34a', // green
-    'BitGo': '#9333ea', // purple
-    'Fireblocks': '#ea580c', // orange
-    'Copper': '#0891b2', // cyan
-    Figment: '#f59e0b', // amber
-  }
-  return colors[name] || '#6b7280' // default gray
 }

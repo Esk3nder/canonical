@@ -13,10 +13,15 @@
  */
 
 import { useState } from 'react'
-import { formatEther, formatUSD, formatEthChange } from '@/lib/format'
-import { useCurrency } from '@/contexts/CurrencyContext'
-import { RewardsPulseModal } from './RewardsPulseModal'
 import { CheckCircle } from 'lucide-react'
+
+import { useCurrency } from '@/contexts/CurrencyContext'
+import { formatEthChange, formatEther, formatUSD } from '@/lib/format'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Card, CardContent } from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { RewardsPulseModal } from './RewardsPulseModal'
 
 interface CustodianReward {
   custodianId: string
@@ -45,26 +50,22 @@ export function RewardsPulseCard({ data, isLoading, error }: RewardsPulseCardPro
 
   if (isLoading) {
     return (
-      <div
-        data-testid="rewards-pulse-loading"
-        className="bg-slate-900 rounded-lg shadow p-6 animate-pulse"
-      >
-        <div className="h-4 bg-slate-700 rounded w-32 mb-4" />
-        <div className="h-8 bg-slate-700 rounded w-24 mb-2" />
-        <div className="h-4 bg-slate-700 rounded w-40" />
-      </div>
+      <Card data-testid="rewards-pulse-loading" className="border-slate-800 bg-slate-900">
+        <CardContent className="space-y-3 pt-6">
+          <Skeleton className="h-4 w-32 bg-slate-700" />
+          <Skeleton className="h-8 w-24 bg-slate-700" />
+          <Skeleton className="h-4 w-40 bg-slate-700" />
+        </CardContent>
+      </Card>
     )
   }
 
   if (error) {
     return (
-      <div
-        data-testid="rewards-pulse-error"
-        className="bg-red-50 border border-red-200 rounded-lg p-6 text-red-700"
-      >
-        <p className="font-medium">Error loading rewards data</p>
-        <p className="text-sm">{error}</p>
-      </div>
+      <Alert data-testid="rewards-pulse-error" variant="destructive">
+        <AlertTitle>Error loading rewards data</AlertTitle>
+        <AlertDescription>{error}</AlertDescription>
+      </Alert>
     )
   }
 
@@ -72,7 +73,6 @@ export function RewardsPulseCard({ data, isLoading, error }: RewardsPulseCardPro
     return null
   }
 
-  // Format values
   const claimableEth = formatEther(data.claimableNow)
   const claimableUsd = formatUSD(data.claimableNow, ethPrice)
   const change24h = formatEthChange(data.claimable24hChange)
@@ -81,7 +81,6 @@ export function RewardsPulseCard({ data, isLoading, error }: RewardsPulseCardPro
   const accruedEth = formatEther(data.accrued)
   const claimedEth = formatEther(data.claimedThisMonth)
 
-  // Get top 3 custodians sorted by amount
   const topCustodians = [...data.custodianBreakdown]
     .sort((a, b) => Number(BigInt(b.amount) - BigInt(a.amount)))
     .slice(0, 3)
@@ -94,79 +93,65 @@ export function RewardsPulseCard({ data, isLoading, error }: RewardsPulseCardPro
     <>
       <button
         onClick={() => setIsExpanded(true)}
-        className="w-full bg-slate-900 rounded-lg shadow p-6 text-left transition-all duration-200 hover:shadow-lg hover:scale-[1.01] cursor-pointer active:scale-[0.99] focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+        className="w-full rounded-lg border border-slate-800 bg-slate-900 p-6 text-left shadow transition-all duration-200 hover:scale-[1.01] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.99]"
       >
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xs font-medium text-slate-400 uppercase tracking-wider">
-            Rewards Pulse
-          </h3>
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="text-xs font-medium uppercase tracking-wider text-slate-400">Rewards Pulse</h3>
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-2 w-2">
-              <span className="animate-pulse-live absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-green-600" />
+              <span className="absolute inline-flex h-full w-full animate-pulse-live rounded-full bg-green-500 opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-600" />
             </span>
-            <span className="text-xs text-green-500 font-medium">Live</span>
+            <span className="text-xs font-medium text-green-500">Live</span>
           </div>
         </div>
 
-        {/* Claimable Now */}
         <div className="mb-4">
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-400">Claimable Now</span>
             <span
-              className={`text-sm font-medium ${
+              className={`tabular-nums text-sm font-medium ${
                 isPositiveChange ? 'text-green-500' : 'text-red-400'
-              } tabular-nums`}
+              }`}
             >
               {change24h} 24h
             </span>
           </div>
-          <p
-            data-testid="claimable-now"
-            className="text-3xl font-bold text-white mt-1 tabular-nums"
-          >
-            {claimableEth}<span className="unit-symbol">ETH</span>
+          <p data-testid="claimable-now" className="mt-1 tabular-nums text-3xl font-bold text-white">
+            {claimableEth}
+            <span className="unit-symbol">ETH</span>
           </p>
-          <p className="text-sm text-slate-500 tabular-nums">{claimableUsd}</p>
+          <p className="tabular-nums text-sm text-slate-500">{claimableUsd}</p>
         </div>
 
-        {/* Top Custodians */}
         {topCustodians.length > 0 && (
-          <p className="text-xs text-slate-500 mb-4 tabular-nums">
-            Top: {topCustodianText}
-          </p>
+          <p className="tabular-nums mb-4 text-xs text-slate-500">Top: {topCustodianText}</p>
         )}
 
-        {/* Divider */}
-        <div className="border-t border-slate-700 my-4" />
+        <Separator className="my-4 bg-slate-700" />
 
-        {/* Accrued & Claimed */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-400">Accrued (pending)</span>
-            <span className="text-sm font-medium text-white tabular-nums">
-              {accruedEth}<span className="unit-symbol">ETH</span>
+            <span className="tabular-nums text-sm font-medium text-white">
+              {accruedEth}
+              <span className="unit-symbol">ETH</span>
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400 flex items-center gap-1">
+            <span className="flex items-center gap-1 text-sm text-slate-400">
               Claimed This Month
               <CheckCircle className="h-3 w-3 text-green-500" />
             </span>
-            <span className="text-sm font-medium text-green-500 tabular-nums">
-              {claimedEth}<span className="unit-symbol">ETH</span>
+            <span className="tabular-nums text-sm font-medium text-green-500">
+              {claimedEth}
+              <span className="unit-symbol">ETH</span>
             </span>
           </div>
         </div>
       </button>
 
-      {/* Expanded Modal */}
-      <RewardsPulseModal
-        isOpen={isExpanded}
-        onClose={() => setIsExpanded(false)}
-        data={data}
-      />
+      <RewardsPulseModal isOpen={isExpanded} onClose={() => setIsExpanded(false)} data={data} />
     </>
   )
 }
