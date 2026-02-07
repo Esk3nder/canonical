@@ -16,8 +16,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:push": "drizzle-kit push",
     "db:studio": "drizzle-kit studio",
-    "db:seed": "npx tsx scripts/seed.ts",
-    "db:reset": "docker rm -f canonical-postgres && docker volume rm montpellier_postgres_data && npm run dev:setup"
+    "db:seed": "npx tsx scripts/seed.ts"
   },
   "dependencies": {
     "@radix-ui/react-collapsible": "^1.1.12",
