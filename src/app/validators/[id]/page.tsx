@@ -2,9 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import { AlertCircle } from 'lucide-react'
 import { formatEther, formatPercent, formatDateTime, shortenHex } from '@/lib/format'
-import { cn } from '@/lib/utils'
+import { PageBreadcrumb } from '@/components/shared/page-breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
 
 interface ValidatorData {
   id: string
@@ -45,16 +50,6 @@ interface EventData {
   }>
 }
 
-const EVENT_TYPE_COLORS: Record<string, string> = {
-  deposit: 'bg-blue-100 text-blue-800',
-  activation: 'bg-green-100 text-green-800',
-  reward: 'bg-purple-100 text-purple-800',
-  penalty: 'bg-red-100 text-red-800',
-  exit_initiated: 'bg-orange-100 text-orange-800',
-  exit_completed: 'bg-gray-100 text-gray-800',
-  withdrawal: 'bg-cyan-100 text-cyan-800',
-}
-
 export default function ValidatorDetailPage() {
   const router = useRouter()
   const params = useParams()
@@ -70,7 +65,6 @@ export default function ValidatorDetailPage() {
       try {
         setLoading(true)
 
-        // Fetch validator details
         const res = await fetch(`/api/validators/${validatorId}`)
         if (!res.ok) {
           if (res.status === 404) {
@@ -83,7 +77,6 @@ export default function ValidatorDetailPage() {
         const json = await res.json()
         setData(json.data)
 
-        // Fetch events
         const eventsRes = await fetch(`/api/validators/${validatorId}/events?pageSize=20`)
         if (eventsRes.ok) {
           const eventsJson = await eventsRes.json()
@@ -103,18 +96,16 @@ export default function ValidatorDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="space-y-4">
-            <Skeleton className="mb-4 h-8 w-64" />
-            <Skeleton className="mb-8 h-4 w-96" />
-            <div className="mb-8 grid grid-cols-2 gap-4">
-              {[1, 2, 3, 4].map((i) => (
-                <Skeleton key={i} className="h-24 w-full" />
-              ))}
-            </div>
-            <Skeleton className="h-64 w-full" />
+      <div className="max-w-4xl mx-auto">
+        <div className="space-y-4">
+          <Skeleton className="mb-4 h-8 w-64" />
+          <Skeleton className="mb-8 h-4 w-96" />
+          <div className="mb-8 grid grid-cols-2 gap-4">
+            {[1, 2, 3, 4].map((i) => (
+              <Skeleton key={i} className="h-24 w-full" />
+            ))}
           </div>
+          <Skeleton className="h-64 w-full" />
         </div>
       </div>
     )
@@ -122,176 +113,166 @@ export default function ValidatorDetailPage() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-4xl mx-auto">
-          <button
-            data-testid="back-button"
-            onClick={() => router.back()}
-            className="mb-4 text-blue-600 hover:text-blue-800"
-          >
-            ← Back
-          </button>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h2 className="text-lg font-medium text-red-800">Error</h2>
-            <p className="text-red-600">{error || 'Failed to load validator'}</p>
-          </div>
-        </div>
+      <div className="max-w-4xl mx-auto">
+        <Button
+          data-testid="back-button"
+          variant="link"
+          onClick={() => router.back()}
+          className="mb-4 px-0"
+        >
+          &larr; Back
+        </Button>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error || 'Failed to load validator'}</AlertDescription>
+        </Alert>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-4xl mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <button
-            data-testid="back-button"
-            onClick={() => router.back()}
-            className="mb-4 text-blue-600 hover:text-blue-800 text-sm"
-          >
-            ← Back
-          </button>
-          <div className="flex items-center gap-3">
-            <h1 data-testid="validator-pubkey" className="text-xl font-bold text-gray-900 font-mono">
-              {shortenHex(data.pubkey, 10)}
-            </h1>
-            <span
-              className={cn(
-                'px-2 py-1 text-xs font-medium rounded-full',
-                data.status === 'active'
-                  ? 'bg-green-100 text-green-800'
-                  : data.status === 'slashed'
-                  ? 'bg-red-100 text-red-800'
-                  : 'bg-gray-100 text-gray-800'
-              )}
-            >
-              {data.status}
-            </span>
-          </div>
-          <p className="text-gray-500 mt-1">
-            State: {data.stakeState.replace('_', ' ')}
-          </p>
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="mb-8">
+        <div className="mb-4">
+          <PageBreadcrumb
+            items={[
+              { label: 'Overview', href: '/', testId: 'back-button' },
+              { label: 'Validators', href: '/validators' },
+              { label: shortenHex(data.pubkey, 10) },
+            ]}
+          />
         </div>
+        <div className="flex items-center gap-3">
+          <h1 data-testid="validator-pubkey" className="text-xl font-bold font-mono">
+            {shortenHex(data.pubkey, 10)}
+          </h1>
+          <Badge
+            variant={
+              data.status === 'active' ? 'default' : data.status === 'slashed' ? 'destructive' : 'secondary'
+            }
+          >
+            {data.status}
+          </Badge>
+        </div>
+        <p className="text-muted-foreground mt-1">
+          State: {data.stakeState.replace('_', ' ')}
+        </p>
+      </div>
 
-        {/* Context */}
-        <div data-testid="validator-context" className="bg-white rounded-lg shadow p-6 mb-6">
-          <h2 className="text-sm font-medium text-gray-500 uppercase mb-4">Context</h2>
+      {/* Context */}
+      <Card data-testid="validator-context" className="mb-6">
+        <CardHeader>
+          <CardTitle className="text-sm font-medium text-muted-foreground uppercase">Context</CardTitle>
+        </CardHeader>
+        <CardContent>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-gray-500">Custodian</p>
+              <p className="text-xs text-muted-foreground">Custodian</p>
               <p
-                className="text-blue-600 hover:underline cursor-pointer"
+                className="text-primary hover:underline cursor-pointer"
                 onClick={() => router.push(`/custodians/${data.custodianId}`)}
               >
                 {data.custodianName}
               </p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Operator</p>
-              <p className="text-gray-900">{data.operatorName}</p>
+              <p className="text-xs text-muted-foreground">Operator</p>
+              <p>{data.operatorName}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Activation Epoch</p>
-              <p className="text-gray-900">{data.activationEpoch ?? '-'}</p>
+              <p className="text-xs text-muted-foreground">Activation Epoch</p>
+              <p>{data.activationEpoch ?? '-'}</p>
             </div>
             <div>
-              <p className="text-xs text-gray-500">Withdrawal Credential</p>
-              <code className="text-xs text-gray-600">
+              <p className="text-xs text-muted-foreground">Withdrawal Credential</p>
+              <code className="text-xs text-muted-foreground">
                 {shortenHex(data.withdrawalCredential, 8)}
               </code>
             </div>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Metrics */}
-        <div data-testid="validator-metrics" className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-xs text-gray-500 uppercase">Balance</p>
-            <p className="text-xl font-bold text-gray-900">
-              {formatEther(data.balance)} ETH
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-xs text-gray-500 uppercase">30d APY</p>
-            <p className="text-xl font-bold text-green-600">
-              {formatPercent(data.trailingApy30d)}
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-xs text-gray-500 uppercase">Total Rewards</p>
-            <p className="text-xl font-bold text-purple-600">
-              {formatEther(data.rewardsTotal)} ETH
-            </p>
-          </div>
-          <div className="bg-white rounded-lg shadow p-4">
-            <p className="text-xs text-gray-500 uppercase">Penalties</p>
-            <p className="text-xl font-bold text-red-600">
-              {formatEther(data.penalties)} ETH
-            </p>
-          </div>
-        </div>
+      {/* Metrics */}
+      <div data-testid="validator-metrics" className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+        <Card>
+          <CardContent className="pt-4">
+            <p className="text-xs text-muted-foreground uppercase">Balance</p>
+            <p className="text-xl font-bold">{formatEther(data.balance)} ETH</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <p className="text-xs text-muted-foreground uppercase">30d APY</p>
+            <p className="text-xl font-bold text-green-600">{formatPercent(data.trailingApy30d)}</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <p className="text-xs text-muted-foreground uppercase">Total Rewards</p>
+            <p className="text-xl font-bold text-purple-600">{formatEther(data.rewardsTotal)} ETH</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent className="pt-4">
+            <p className="text-xs text-muted-foreground uppercase">Penalties</p>
+            <p className="text-xl font-bold text-red-600">{formatEther(data.penalties)} ETH</p>
+          </CardContent>
+        </Card>
+      </div>
 
-        {/* Event Timeline */}
-        <div data-testid="event-timeline" className="bg-white rounded-lg shadow">
-          <div className="p-6 border-b border-gray-200">
-            <h2 className="text-lg font-medium text-gray-900">Event History</h2>
-          </div>
-          <div className="divide-y divide-gray-100">
-            {events.map((event) => (
-              <div key={event.id} className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <span
-                      className={cn(
-                        'px-2 py-1 text-xs font-medium rounded',
-                        EVENT_TYPE_COLORS[event.eventType] || 'bg-gray-100 text-gray-800'
-                      )}
-                    >
-                      {event.eventType.replace('_', ' ')}
-                    </span>
-                    <div>
-                      <p className="text-sm text-gray-900">
-                        {event.amount !== '0' && `${formatEther(event.amount)} ETH`}
-                        {event.epoch && ` • Epoch ${event.epoch}`}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        {formatDateTime(event.timestamp)}
-                        {event.finalized && ' • Finalized'}
-                      </p>
-                    </div>
+      {/* Event Timeline */}
+      <Card data-testid="event-timeline">
+        <CardHeader className="border-b">
+          <CardTitle className="text-lg">Event History</CardTitle>
+        </CardHeader>
+        <div className="divide-y">
+          {events.map((event) => (
+            <div key={event.id} className="p-4">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <Badge variant="outline">
+                    {event.eventType.replace('_', ' ')}
+                  </Badge>
+                  <div>
+                    <p className="text-sm">
+                      {event.amount !== '0' && `${formatEther(event.amount)} ETH`}
+                      {event.epoch && ` \u00b7 Epoch ${event.epoch}`}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatDateTime(event.timestamp)}
+                      {event.finalized && ' \u00b7 Finalized'}
+                    </p>
                   </div>
-                  {/* Evidence Links */}
-                  {event.evidenceLinks && event.evidenceLinks.length > 0 && (
-                    <div data-testid="evidence-links" className="flex gap-2">
-                      {event.evidenceLinks.map((link, idx) => (
-                        <a
-                          key={idx}
-                          href={link.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-xs text-blue-600 hover:underline"
-                        >
-                          {link.label}
-                        </a>
-                      ))}
-                    </div>
-                  )}
                 </div>
+                {event.evidenceLinks && event.evidenceLinks.length > 0 && (
+                  <div data-testid="evidence-links" className="flex gap-2">
+                    {event.evidenceLinks.map((link, idx) => (
+                      <a
+                        key={idx}
+                        href={link.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary hover:underline"
+                      >
+                        {link.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
-            ))}
-            {events.length === 0 && (
-              <div className="p-8 text-center text-gray-500">
-                No events recorded
-              </div>
-            )}
-          </div>
+            </div>
+          ))}
+          {events.length === 0 && (
+            <div className="p-8 text-center text-muted-foreground">No events recorded</div>
+          )}
         </div>
+      </Card>
 
-        {/* Last Activity */}
-        <div className="mt-4 text-center text-sm text-gray-400">
-          Last activity: {formatDateTime(data.lastActivityTimestamp)}
-        </div>
+      {/* Last Activity */}
+      <div className="mt-4 text-center text-sm text-muted-foreground">
+        Last activity: {formatDateTime(data.lastActivityTimestamp)}
       </div>
     </div>
   )

@@ -15,7 +15,6 @@ import { useState } from 'react'
 
 import { formatEther, shortenHex } from '@/lib/format'
 import { Badge, type BadgeProps } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Select,
@@ -33,6 +32,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { DataTablePagination } from '@/components/ui/data-table-pagination'
 
 interface ValidatorData {
   id: string
@@ -186,40 +186,15 @@ export function ValidatorTable({
           </Table>
         </div>
 
-        {totalPages > 1 && (
-          <div
-            data-testid="pagination"
-            className="flex items-center justify-between border-t border-slate-200 px-4 py-3"
-          >
-            <div className="tabular-nums text-sm text-slate-500">
-              Showing {(page - 1) * pageSize + 1} to {Math.min(page * pageSize, total)} of{' '}
-              {total} validators
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                data-testid="prev-page"
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange?.(page - 1)}
-                disabled={page <= 1}
-              >
-                Previous
-              </Button>
-              <span className="tabular-nums text-sm text-slate-700">
-                Page {page} of {totalPages}
-              </span>
-              <Button
-                data-testid="next-page"
-                variant="outline"
-                size="sm"
-                onClick={() => onPageChange?.(page + 1)}
-                disabled={page >= totalPages}
-              >
-                Next
-              </Button>
-            </div>
-          </div>
-        )}
+        <div className="border-t border-slate-200 px-4 py-3">
+          <DataTablePagination
+            page={page}
+            totalPages={totalPages}
+            total={total}
+            pageSize={pageSize}
+            onPageChange={(p) => onPageChange?.(p)}
+          />
+        </div>
       </CardContent>
     </Card>
   )

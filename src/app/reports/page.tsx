@@ -11,8 +11,28 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { cn } from '@/lib/utils'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table'
+import { AlertCircle, FileText } from 'lucide-react'
 
 interface ReportData {
   id: string
@@ -40,11 +60,11 @@ const FORMAT_OPTIONS = [
   { value: 'pdf', label: 'PDF', description: 'Print-ready document' },
 ]
 
-const STATUS_STYLES: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  generating: 'bg-blue-100 text-blue-800',
-  completed: 'bg-green-100 text-green-800',
-  failed: 'bg-red-100 text-red-800',
+const STATUS_VARIANTS: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+  pending: 'secondary',
+  generating: 'default',
+  completed: 'outline',
+  failed: 'destructive',
 }
 
 export default function ReportsPage() {
@@ -182,208 +202,181 @@ export default function ReportsPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Reports</h1>
-            <p className="text-gray-600">Generate and download monthly statements</p>
+            <h1 className="text-2xl font-bold">Reports</h1>
+            <p className="text-muted-foreground">Generate and download monthly statements</p>
           </div>
-          <button
-            data-testid="generate-button"
-            onClick={() => setShowGenerateForm(true)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
+          <Button data-testid="generate-button" onClick={() => setShowGenerateForm(true)}>
             Generate Report
-          </button>
+          </Button>
         </div>
 
         {/* Generate Form Modal */}
-        {showGenerateForm && (
-          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
-              <h2 className="text-lg font-semibold mb-4">Generate New Report</h2>
+        <Dialog open={showGenerateForm} onOpenChange={setShowGenerateForm}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle>Generate New Report</DialogTitle>
+            </DialogHeader>
 
-              <form onSubmit={handleGenerate}>
-                {/* Period Selection */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Report Period
-                  </label>
-                  <div className="flex gap-2">
-                    <input
-                      data-testid="period-start"
-                      type="date"
-                      value={form.periodStart}
-                      onChange={(e) => setForm({ ...form, periodStart: e.target.value })}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                    <span className="self-center text-gray-500">to</span>
-                    <input
-                      data-testid="period-end"
-                      type="date"
-                      value={form.periodEnd}
-                      onChange={(e) => setForm({ ...form, periodEnd: e.target.value })}
-                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
-                      required
-                    />
-                  </div>
+            <form onSubmit={handleGenerate}>
+              {/* Period Selection */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Report Period</label>
+                <div className="flex gap-2">
+                  <input
+                    data-testid="period-start"
+                    type="date"
+                    value={form.periodStart}
+                    onChange={(e) => setForm({ ...form, periodStart: e.target.value })}
+                    className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    required
+                  />
+                  <span className="self-center text-muted-foreground">to</span>
+                  <input
+                    data-testid="period-end"
+                    type="date"
+                    value={form.periodEnd}
+                    onChange={(e) => setForm({ ...form, periodEnd: e.target.value })}
+                    className="flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                    required
+                  />
                 </div>
+              </div>
 
-                {/* Format Selection */}
-                <div className="mb-4">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Export Format
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {FORMAT_OPTIONS.map((opt) => (
-                      <button
-                        key={opt.value}
-                        type="button"
-                        onClick={() => setForm({ ...form, format: opt.value as 'json' | 'csv' | 'pdf' })}
-                        className={cn(
-                          'px-3 py-2 border rounded-md text-sm transition-colors',
-                          form.format === opt.value
-                            ? 'border-blue-500 bg-blue-50 text-blue-700'
-                            : 'border-gray-300 hover:border-gray-400'
-                        )}
-                      >
-                        <div className="font-medium">{opt.label}</div>
-                        <div className="text-xs text-gray-500">{opt.description}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              {/* Format Selection */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium mb-1">Export Format</label>
+                <RadioGroup
+                  value={form.format}
+                  onValueChange={(value) => setForm({ ...form, format: value as 'json' | 'csv' | 'pdf' })}
+                  className="grid grid-cols-3 gap-2"
+                >
+                  {FORMAT_OPTIONS.map((opt) => (
+                    <label
+                      key={opt.value}
+                      className={`flex cursor-pointer flex-col items-center rounded-md border p-3 text-sm transition-colors ${
+                        form.format === opt.value
+                          ? 'border-primary bg-primary/5 text-primary'
+                          : 'border-input hover:border-muted-foreground'
+                      }`}
+                    >
+                      <RadioGroupItem value={opt.value} className="sr-only" />
+                      <span className="font-medium">{opt.label}</span>
+                      <span className="text-xs text-muted-foreground">{opt.description}</span>
+                    </label>
+                  ))}
+                </RadioGroup>
+              </div>
 
-                {/* Error */}
-                {generateError && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
-                    {generateError}
-                  </div>
-                )}
+              {/* Error */}
+              {generateError && (
+                <Alert variant="destructive" className="mb-4">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertTitle>Error</AlertTitle>
+                  <AlertDescription>{generateError}</AlertDescription>
+                </Alert>
+              )}
 
-                {/* Actions */}
-                <div className="flex gap-2 justify-end">
-                  <button
-                    type="button"
-                    onClick={() => setShowGenerateForm(false)}
-                    className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-md transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    data-testid="submit-generate"
-                    type="submit"
-                    disabled={generating}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                  >
-                    {generating ? 'Generating...' : 'Generate'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        )}
+              <DialogFooter>
+                <Button type="button" variant="outline" onClick={() => setShowGenerateForm(false)}>
+                  Cancel
+                </Button>
+                <Button data-testid="submit-generate" type="submit" disabled={generating}>
+                  {generating ? 'Generating...' : 'Generate'}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
 
         {/* Reports List */}
         {loading ? (
-          <div className="bg-white rounded-lg shadow p-8">
-            <div className="space-y-4">
-              {[1, 2, 3].map((i) => (
-                <Skeleton key={i} className="h-16 w-full" />
-              ))}
-            </div>
-          </div>
+          <Card>
+            <CardContent className="p-8">
+              <div className="space-y-4">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-16 w-full" />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-red-700">
-            <p className="font-medium">Error loading reports</p>
-            <p className="text-sm">{error}</p>
-          </div>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Error loading reports</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
         ) : reports.length === 0 ? (
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <div className="text-gray-400 mb-4">
-              <svg className="w-16 h-16 mx-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-1">No reports yet</h3>
-            <p className="text-gray-500 mb-4">Generate your first monthly statement to get started.</p>
-            <button
-              onClick={() => setShowGenerateForm(true)}
-              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Generate Report
-            </button>
-          </div>
+          <Card>
+            <CardContent className="p-8 text-center">
+              <FileText className="mx-auto h-16 w-16 text-muted-foreground/50" />
+              <h3 className="mt-4 text-lg font-medium">No reports yet</h3>
+              <p className="mt-1 text-muted-foreground">Generate your first monthly statement to get started.</p>
+              <Button className="mt-4" onClick={() => setShowGenerateForm(true)}>
+                Generate Report
+              </Button>
+            </CardContent>
+          </Card>
         ) : (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Period
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Format
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Generated
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody data-testid="report-list" className="bg-white divide-y divide-gray-200">
+          <Card>
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead>Period</TableHead>
+                  <TableHead>Format</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Generated</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody data-testid="report-list">
                 {reports.map((report) => (
-                  <tr key={report.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">
+                  <TableRow key={report.id}>
+                    <TableCell>
+                      <div className="font-medium">
                         {formatPeriod(report.periodStart, report.periodEnd)}
                       </div>
-                      <div className="text-sm text-gray-500">
+                      <div className="text-sm text-muted-foreground">
                         {formatDate(report.periodStart)} - {formatDate(report.periodEnd)}
                       </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="uppercase text-sm font-medium text-gray-600">
-                        {report.format}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={cn(
-                        'px-2 py-1 text-xs font-medium rounded-full',
-                        STATUS_STYLES[report.status] || 'bg-gray-100 text-gray-800'
-                      )}>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-sm font-medium uppercase">{report.format}</span>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={STATUS_VARIANTS[report.status] || 'secondary'}>
                         {report.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
                       {report.generatedAt ? formatDate(report.generatedAt) : '-'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    </TableCell>
+                    <TableCell>
                       <div className="flex gap-2">
-                        <button
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="h-auto p-0"
                           onClick={() => router.push(`/reports/${report.id}`)}
-                          className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                         >
                           View
-                        </button>
+                        </Button>
                         {report.status === 'completed' && (
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-auto p-0 text-green-600 hover:text-green-800"
                             onClick={() => handleDownload(report)}
-                            className="text-green-600 hover:text-green-800 text-sm font-medium"
                           >
                             Download
-                          </button>
+                          </Button>
                         )}
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableBody>
+            </Table>
+          </Card>
         )}
       </div>
     </div>

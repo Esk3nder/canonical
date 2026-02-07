@@ -12,8 +12,15 @@
 
 import { useCallback, useEffect, useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { cn } from '@/lib/utils'
+import { AlertCircle, ChevronRight } from 'lucide-react'
+import { PageBreadcrumb } from '@/components/shared/page-breadcrumb'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Textarea } from '@/components/ui/textarea'
+import { Separator } from '@/components/ui/separator'
 
 type ExceptionStatus = 'new' | 'investigating' | 'resolved'
 type ExceptionSeverity = 'low' | 'medium' | 'high' | 'critical'
@@ -42,17 +49,17 @@ interface ExceptionDetail {
   updatedAt: string
 }
 
-const STATUS_STYLES: Record<ExceptionStatus, string> = {
-  new: 'bg-red-100 text-red-800 border-red-200',
-  investigating: 'bg-yellow-100 text-yellow-800 border-yellow-200',
-  resolved: 'bg-green-100 text-green-800 border-green-200',
+const SEVERITY_VARIANTS: Record<ExceptionSeverity, 'destructive' | 'secondary'> = {
+  critical: 'destructive',
+  high: 'destructive',
+  medium: 'secondary',
+  low: 'secondary',
 }
 
-const SEVERITY_STYLES: Record<ExceptionSeverity, string> = {
-  critical: 'bg-red-600 text-white',
-  high: 'bg-orange-500 text-white',
-  medium: 'bg-yellow-500 text-white',
-  low: 'bg-gray-400 text-white',
+const STATUS_VARIANTS: Record<ExceptionStatus, 'destructive' | 'secondary' | 'default'> = {
+  new: 'destructive',
+  investigating: 'secondary',
+  resolved: 'default',
 }
 
 const TYPE_LABELS: Record<ExceptionType, string> = {
@@ -160,13 +167,11 @@ export default function ExceptionDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-4xl mx-auto">
-          <div className="space-y-4">
-            <Skeleton className="mb-4 h-8 w-48" />
-            <Skeleton className="mb-8 h-4 w-96" />
-            <Skeleton className="h-64 w-full" />
-          </div>
+      <div className="max-w-4xl mx-auto">
+        <div className="space-y-4">
+          <Skeleton className="mb-4 h-8 w-48" />
+          <Skeleton className="mb-8 h-4 w-96" />
+          <Skeleton className="h-64 w-full" />
         </div>
       </div>
     )
@@ -174,198 +179,172 @@ export default function ExceptionDetailPage() {
 
   if (error || !exception) {
     return (
-      <div className="min-h-screen bg-gray-50 p-8">
-        <div className="max-w-4xl mx-auto">
-          <button
-            onClick={() => router.push('/exceptions')}
-            className="mb-4 text-blue-600 hover:text-blue-800"
-          >
-            &larr; Back to Exception Queue
-          </button>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h2 className="text-lg font-medium text-red-800">Error</h2>
-            <p className="text-red-600">{error || 'Failed to load exception'}</p>
-          </div>
-        </div>
+      <div className="max-w-4xl mx-auto">
+        <Button variant="link" onClick={() => router.push('/exceptions')} className="mb-4 px-0">
+          &larr; Back to Exception Queue
+        </Button>
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error || 'Failed to load exception'}</AlertDescription>
+        </Alert>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="mb-6">
+        <PageBreadcrumb
+          items={[
+            { label: 'Exceptions', href: '/exceptions' },
+            { label: exception.title },
+          ]}
+        />
+      </div>
+
+      {/* Exception Card */}
+      <Card data-testid="exception-detail">
         {/* Header */}
-        <div className="mb-6">
-          <button
-            onClick={() => router.push('/exceptions')}
-            className="text-blue-600 hover:text-blue-800 text-sm mb-2"
-          >
-            &larr; Back to Exception Queue
-          </button>
-        </div>
-
-        {/* Exception Card */}
-        <div data-testid="exception-detail" className="bg-white rounded-lg shadow overflow-hidden">
-          {/* Header */}
-          <div className={cn(
-            'p-4 border-b',
-            STATUS_STYLES[exception.status]
-          )}>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className={cn(
-                  'px-3 py-1 text-sm font-bold rounded',
-                  SEVERITY_STYLES[exception.severity]
-                )}>
-                  {exception.severity.toUpperCase()}
-                </span>
-                <span className="font-medium capitalize">{exception.status}</span>
-              </div>
-              <div className="text-sm opacity-75">
-                {TYPE_LABELS[exception.type]}
-              </div>
+        <CardHeader className="border-b">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Badge variant={SEVERITY_VARIANTS[exception.severity]}>
+                {exception.severity.toUpperCase()}
+              </Badge>
+              <Badge variant={STATUS_VARIANTS[exception.status]}>
+                {exception.status}
+              </Badge>
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {TYPE_LABELS[exception.type]}
             </div>
           </div>
+        </CardHeader>
 
-          {/* Content */}
-          <div className="p-6">
-            <h1 className="text-xl font-bold text-gray-900 mb-2">{exception.title}</h1>
-            <p className="text-gray-600 mb-4">{exception.description}</p>
+        {/* Content */}
+        <CardContent className="pt-6">
+          <h1 className="text-xl font-bold mb-2">{exception.title}</h1>
+          <p className="text-muted-foreground mb-4">{exception.description}</p>
 
-            {/* Type Explanation */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="text-sm font-medium text-gray-700 mb-1">What this means</h3>
-              <p className="text-sm text-gray-600">{TYPE_DESCRIPTIONS[exception.type]}</p>
+          {/* Type Explanation */}
+          <Alert className="mb-6">
+            <AlertTitle className="text-sm font-medium">What this means</AlertTitle>
+            <AlertDescription>{TYPE_DESCRIPTIONS[exception.type]}</AlertDescription>
+          </Alert>
+
+          {/* Metadata */}
+          <div className="grid grid-cols-2 gap-4 mb-6">
+            <div>
+              <div className="text-sm text-muted-foreground">Detected</div>
+              <div className="font-medium">{formatDateTime(exception.detectedAt)}</div>
             </div>
-
-            {/* Metadata */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <div className="text-sm text-gray-500">Detected</div>
-                <div className="font-medium">{formatDateTime(exception.detectedAt)}</div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-500">Last Updated</div>
-                <div className="font-medium">{formatDateTime(exception.updatedAt)}</div>
-              </div>
-              {exception.resolvedAt && (
-                <>
-                  <div>
-                    <div className="text-sm text-gray-500">Resolved</div>
-                    <div className="font-medium">{formatDateTime(exception.resolvedAt)}</div>
-                  </div>
-                  <div>
-                    <div className="text-sm text-gray-500">Resolved By</div>
-                    <div className="font-medium">{exception.resolvedBy || 'Unknown'}</div>
-                  </div>
-                </>
-              )}
+            <div>
+              <div className="text-sm text-muted-foreground">Last Updated</div>
+              <div className="font-medium">{formatDateTime(exception.updatedAt)}</div>
             </div>
-
-            {/* Resolution */}
-            {exception.resolution && (
-              <div className="mb-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Resolution</h3>
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-green-800">{exception.resolution}</p>
+            {exception.resolvedAt && (
+              <>
+                <div>
+                  <div className="text-sm text-muted-foreground">Resolved</div>
+                  <div className="font-medium">{formatDateTime(exception.resolvedAt)}</div>
                 </div>
-              </div>
-            )}
-
-            {/* Evidence Links */}
-            {exception.evidenceLinks.length > 0 && (
-              <div data-testid="evidence-links" className="mb-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-2">Evidence</h3>
-                <div className="space-y-2">
-                  {exception.evidenceLinks.map((link, idx) => (
-                    <a
-                      key={idx}
-                      href={getEvidenceUrl(link)}
-                      onClick={(e) => {
-                        if (!link.url) {
-                          e.preventDefault()
-                          router.push(getEvidenceUrl(link))
-                        }
-                      }}
-                      className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <span className={cn(
-                        'px-2 py-0.5 text-xs font-medium rounded',
-                        link.type === 'validator' ? 'bg-blue-100 text-blue-800' :
-                        link.type === 'custodian' ? 'bg-purple-100 text-purple-800' :
-                        link.type === 'event' ? 'bg-orange-100 text-orange-800' :
-                        'bg-gray-100 text-gray-800'
-                      )}>
-                        {link.type}
-                      </span>
-                      <span className="text-blue-600">{link.label}</span>
-                      <svg className="w-4 h-4 text-gray-400 ml-auto" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </a>
-                  ))}
+                <div>
+                  <div className="text-sm text-muted-foreground">Resolved By</div>
+                  <div className="font-medium">{exception.resolvedBy || 'Unknown'}</div>
                 </div>
-              </div>
+              </>
             )}
+          </div>
 
-            {/* Actions */}
-            {exception.status !== 'resolved' && (
-              <div className="border-t pt-6">
-                <h3 className="text-sm font-medium text-gray-700 mb-3">Actions</h3>
+          {/* Resolution */}
+          {exception.resolution && (
+            <div className="mb-6">
+              <h3 className="text-sm font-medium mb-2">Resolution</h3>
+              <Alert>
+                <AlertDescription className="text-green-800">
+                  {exception.resolution}
+                </AlertDescription>
+              </Alert>
+            </div>
+          )}
 
-                {showResolveForm ? (
-                  <div className="space-y-3">
-                    <textarea
-                      value={resolution}
-                      onChange={(e) => setResolution(e.target.value)}
-                      placeholder="Describe how this exception was resolved..."
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                      rows={3}
-                    />
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleStatusUpdate('resolved', resolution)}
-                        disabled={updating}
-                        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 disabled:opacity-50"
-                      >
-                        {updating ? 'Saving...' : 'Mark as Resolved'}
-                      </button>
-                      <button
-                        onClick={() => setShowResolveForm(false)}
-                        className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </div>
-                ) : (
+          {/* Evidence Links */}
+          {exception.evidenceLinks.length > 0 && (
+            <div data-testid="evidence-links" className="mb-6">
+              <h3 className="text-sm font-medium mb-2">Evidence</h3>
+              <div className="space-y-2">
+                {exception.evidenceLinks.map((link, idx) => (
+                  <a
+                    key={idx}
+                    href={getEvidenceUrl(link)}
+                    onClick={(e) => {
+                      if (!link.url) {
+                        e.preventDefault()
+                        router.push(getEvidenceUrl(link))
+                      }
+                    }}
+                    className="flex items-center gap-3 p-3 rounded-lg border hover:bg-accent transition-colors"
+                  >
+                    <Badge variant="outline">{link.type}</Badge>
+                    <span className="text-primary">{link.label}</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground ml-auto" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Actions */}
+          {exception.status !== 'resolved' && (
+            <>
+              <Separator className="mb-6" />
+              <h3 className="text-sm font-medium mb-3">Actions</h3>
+
+              {showResolveForm ? (
+                <div className="space-y-3">
+                  <Textarea
+                    value={resolution}
+                    onChange={(e) => setResolution(e.target.value)}
+                    placeholder="Describe how this exception was resolved..."
+                    rows={3}
+                  />
                   <div className="flex gap-2">
-                    {exception.status === 'new' && (
-                      <button
-                        onClick={() => handleStatusUpdate('investigating')}
-                        disabled={updating}
-                        className="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 disabled:opacity-50"
-                      >
-                        Start Investigation
-                      </button>
-                    )}
-                    <button
-                      onClick={() => setShowResolveForm(true)}
-                      className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700"
+                    <Button
+                      onClick={() => handleStatusUpdate('resolved', resolution)}
+                      disabled={updating}
                     >
-                      Resolve Exception
-                    </button>
+                      {updating ? 'Saving...' : 'Mark as Resolved'}
+                    </Button>
+                    <Button variant="outline" onClick={() => setShowResolveForm(false)}>
+                      Cancel
+                    </Button>
                   </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  {exception.status === 'new' && (
+                    <Button
+                      variant="secondary"
+                      onClick={() => handleStatusUpdate('investigating')}
+                      disabled={updating}
+                    >
+                      Start Investigation
+                    </Button>
+                  )}
+                  <Button onClick={() => setShowResolveForm(true)}>
+                    Resolve Exception
+                  </Button>
+                </div>
+              )}
+            </>
+          )}
+        </CardContent>
+      </Card>
 
-        {/* ID Footer */}
-        <div className="mt-4 text-center text-sm text-gray-400">
-          Exception ID: {exception.id}
-        </div>
+      {/* ID Footer */}
+      <div className="mt-4 text-center text-sm text-muted-foreground">
+        Exception ID: {exception.id}
       </div>
     </div>
   )
