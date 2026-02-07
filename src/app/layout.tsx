@@ -30,9 +30,6 @@ export default function RootLayout({
                   </div>
                   <div className="flex items-center space-x-2">
                     <CurrencyToggle />
-                    <Button variant="ghost" asChild>
-                      <a href="/about">About Us</a>
-                    </Button>
                     <Button asChild>
                       <a href="/signin">Sign In</a>
                     </Button>
