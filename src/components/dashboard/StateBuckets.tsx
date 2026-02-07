@@ -16,6 +16,7 @@ import { formatCurrency, formatPercent } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { Progress } from '@/components/ui/progress'
 import { Skeleton } from '@/components/ui/skeleton'
 
 interface StateBucketsData {
@@ -41,6 +42,7 @@ const BUCKET_CONFIG = [
     label: 'Deposited',
     description: 'ETH received, awaiting validator creation',
     color: 'bg-slate-500',
+    progressColor: 'bg-slate-500',
     textColor: 'text-slate-700',
     bgColor: 'bg-slate-50',
   },
@@ -50,6 +52,7 @@ const BUCKET_CONFIG = [
     label: 'Entry Queue',
     description: 'Validator created, awaiting activation',
     color: 'bg-amber-500',
+    progressColor: 'bg-amber-500',
     textColor: 'text-amber-700',
     bgColor: 'bg-amber-50',
   },
@@ -59,6 +62,7 @@ const BUCKET_CONFIG = [
     label: 'Active',
     description: 'Currently staking and earning rewards',
     color: 'bg-emerald-500',
+    progressColor: 'bg-emerald-500',
     textColor: 'text-emerald-700',
     bgColor: 'bg-emerald-50',
   },
@@ -68,6 +72,7 @@ const BUCKET_CONFIG = [
     label: 'Exiting',
     description: 'Exit initiated, in withdrawal queue',
     color: 'bg-orange-500',
+    progressColor: 'bg-orange-500',
     textColor: 'text-orange-700',
     bgColor: 'bg-orange-50',
   },
@@ -77,6 +82,7 @@ const BUCKET_CONFIG = [
     label: 'Withdrawable',
     description: 'Ready for treasury withdrawal',
     color: 'bg-blue-500',
+    progressColor: 'bg-blue-500',
     textColor: 'text-blue-700',
     bgColor: 'bg-blue-50',
   },
@@ -155,6 +161,11 @@ export function StateBuckets({
               </p>
 
               <p className="tabular-nums text-sm text-slate-500">{formatPercent(percentage)}</p>
+              <Progress
+                value={percentage * 100}
+                className="mt-2 h-1.5"
+                indicatorClassName={bucket.progressColor}
+              />
 
               {isAnomaly && (
                 <Badge variant="warning" className="mt-2">

@@ -10,11 +10,14 @@
  */
 
 import { type ReactNode, useState } from 'react'
+import { Bar, BarChart, XAxis, YAxis } from 'recharts'
 
 import { useCurrency } from '@/contexts/CurrencyContext'
+import { getCustodianColor } from '@/lib/custodian-colors'
 import { formatCurrency, formatPercent } from '@/lib/format'
 import { cn } from '@/lib/utils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { ChartContainer, ChartTooltip, ChartTooltipContent, type ChartConfig } from '@/components/ui/chart'
 import { Skeleton } from '@/components/ui/skeleton'
 import {
   Table,
@@ -44,15 +47,6 @@ interface CustodianDistributionProps {
 
 type SortField = 'name' | 'value' | 'apy' | 'validators'
 type SortDirection = 'asc' | 'desc'
-
-const CHART_COLORS = [
-  'bg-blue-500',
-  'bg-green-500',
-  'bg-purple-500',
-  'bg-orange-500',
-  'bg-pink-500',
-  'bg-cyan-500',
-]
 
 export function CustodianDistribution({
   data,
@@ -128,31 +122,72 @@ export function CustodianDistribution({
     </TableHead>
   )
 
+  const chartConfig = data.reduce<ChartConfig>((config, custodian) => {
+    config[custodian.custodianId] = {
+      label: custodian.custodianName,
+      color: getCustodianColor(custodian.custodianName),
+    }
+    return config
+  }, {})
+
+  const chartData = [
+    data.reduce<Record<string, number | string>>(
+      (row, custodian) => {
+        row[custodian.custodianId] = custodian.percentage * 100
+        return row
+      },
+      { allocation: 'Allocation' }
+    ),
+  ]
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Custodian Distribution</CardTitle>
 
         <div data-testid="allocation-chart" className="mt-2">
-          <div className="flex h-8 overflow-hidden rounded-lg">
-            {data.map((custodian, index) => (
-              <div
-                key={custodian.custodianId}
-                className={cn(
-                  CHART_COLORS[index % CHART_COLORS.length],
-                  'cursor-pointer transition-all hover:opacity-80'
-                )}
-                style={{ width: `${custodian.percentage * 100}%` }}
-                title={`${custodian.custodianName}: ${formatPercent(custodian.percentage)}`}
-                onClick={() => onCustodianClick?.(custodian.custodianId)}
+          <ChartContainer config={chartConfig} className="h-12 w-full aspect-auto">
+            <BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 0, bottom: 0, left: 0 }}>
+              <XAxis type="number" hide domain={[0, 100]} />
+              <YAxis type="category" dataKey="allocation" hide />
+              <ChartTooltip
+                cursor={false}
+                content={
+                  <ChartTooltipContent
+                    formatter={(value, name) => (
+                      <div className="flex w-full items-center justify-between gap-3">
+                        <span className="text-muted-foreground">
+                          {chartConfig[String(name)]?.label ?? String(name)}
+                        </span>
+                        <span className="font-mono font-medium tabular-nums text-foreground">
+                          {formatPercent(Number(value) / 100)}
+                        </span>
+                      </div>
+                    )}
+                  />
+                }
               />
-            ))}
-          </div>
+              {data.map((custodian) => (
+                <Bar
+                  key={custodian.custodianId}
+                  dataKey={custodian.custodianId}
+                  stackId="allocation"
+                  fill={`var(--color-${custodian.custodianId})`}
+                  radius={6}
+                  onClick={() => onCustodianClick?.(custodian.custodianId)}
+                  className="cursor-pointer"
+                />
+              ))}
+            </BarChart>
+          </ChartContainer>
 
           <div className="mt-3 flex flex-wrap gap-4">
-            {data.map((custodian, index) => (
+            {data.map((custodian) => (
               <div key={custodian.custodianId} className="flex items-center gap-2">
-                <div className={cn('h-3 w-3 rounded-full', CHART_COLORS[index % CHART_COLORS.length])} />
+                <div
+                  className="h-3 w-3 rounded-full"
+                  style={{ backgroundColor: getCustodianColor(custodian.custodianName) }}
+                />
                 <span className="text-sm text-slate-600">{custodian.custodianName}</span>
               </div>
             ))}
