@@ -1,12 +1,12 @@
 const CUSTODIAN_COLORS: Record<string, string> = {
-  'Coinbase Prime': '#2563eb',
-  'Anchorage Digital': '#16a34a',
-  BitGo: '#9333ea',
-  Fireblocks: '#ea580c',
-  Copper: '#0891b2',
-  Figment: '#f59e0b',
+  'Coinbase Prime': '#20808D',
+  'Anchorage Digital': '#2E565E',
+  BitGo: '#1FB8CD',
+  Fireblocks: '#BF505C',
+  Copper: '#A84B2F',
+  Figment: '#707C36',
 }
 
 export function getCustodianColor(name: string): string {
-  return CUSTODIAN_COLORS[name] ?? '#6b7280'
+  return CUSTODIAN_COLORS[name] ?? '#13343B'
 }

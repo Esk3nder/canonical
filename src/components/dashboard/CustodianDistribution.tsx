@@ -74,7 +74,7 @@ export function CustodianDistribution({
   if (!data || data.length === 0) {
     return (
       <Card>
-        <CardContent className="py-8 text-center text-slate-500">No custodian data available</CardContent>
+        <CardContent className="py-8 text-center text-muted-foreground">No custodian data available</CardContent>
       </Card>
     )
   }
@@ -113,11 +113,11 @@ export function CustodianDistribution({
     <TableHead
       role="columnheader"
       onClick={() => handleSort(field)}
-      className="cursor-pointer uppercase tracking-wider hover:bg-slate-50"
+      className="cursor-pointer uppercase tracking-wider hover:bg-muted"
     >
       <div className="flex items-center gap-1">
         {children}
-        {sortField === field && <span className="text-slate-400">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
+        {sortField === field && <span className="text-muted-foreground">{sortDirection === 'asc' ? '↑' : '↓'}</span>}
       </div>
     </TableHead>
   )
@@ -188,7 +188,7 @@ export function CustodianDistribution({
                   className="h-3 w-3 rounded-full"
                   style={{ backgroundColor: getCustodianColor(custodian.custodianName) }}
                 />
-                <span className="text-sm text-slate-600">{custodian.custodianName}</span>
+                <span className="text-sm text-muted-foreground">{custodian.custodianName}</span>
               </div>
             ))}
           </div>
@@ -218,23 +218,23 @@ export function CustodianDistribution({
                   className="cursor-pointer"
                 >
                   <TableCell>
-                    <span className="font-medium text-slate-900">{custodian.custodianName}</span>
+                    <span className="font-medium text-foreground">{custodian.custodianName}</span>
                   </TableCell>
-                  <TableCell className="tabular-nums text-slate-900">
+                  <TableCell className="tabular-nums text-foreground">
                     {(() => {
                       const { value: formatted, suffix } = formatCurrency(custodian.value, currency, ethPrice)
                       return `${formatted}${suffix ? ` ${suffix}` : ''}`
                     })()}
                   </TableCell>
-                  <TableCell className="tabular-nums text-slate-500">
+                  <TableCell className="tabular-nums text-muted-foreground">
                     {formatPercent(custodian.percentage)}
                   </TableCell>
                   <TableCell>
-                    <span className="tabular-nums font-medium text-green-600">
+                    <span className="tabular-nums font-medium text-success">
                       {(custodian.trailingApy30d * 100).toFixed(2)}%
                     </span>
                   </TableCell>
-                  <TableCell className="tabular-nums text-slate-900">
+                  <TableCell className="tabular-nums text-foreground">
                     {custodian.validatorCount.toLocaleString()}
                   </TableCell>
                   <TableCell>
@@ -255,14 +255,14 @@ export function CustodianDistribution({
 
 function ChangeIndicator({ value }: { value?: number }) {
   if (value === undefined || value === null) {
-    return <span className="text-slate-400">-</span>
+    return <span className="text-muted-foreground">-</span>
   }
 
   const isPositive = value >= 0
   const formatted = `${isPositive ? '+' : ''}${(value * 100).toFixed(2)}%`
 
   return (
-    <span className={cn('tabular-nums font-medium', isPositive ? 'text-green-600' : 'text-red-600')}>
+    <span className={cn('tabular-nums font-medium', isPositive ? 'text-success' : 'text-destructive')}>
       {formatted}
     </span>
   )

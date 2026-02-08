@@ -2,7 +2,7 @@
  * Portfolio API
  * GET /api/portfolio - Returns portfolio summary
  */
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { validators, operators, custodians, stakeEvents, dailySnapshots } from '@/db/schema'
 import { eq, desc } from 'drizzle-orm'
@@ -48,8 +48,12 @@ function serializePortfolioSummary(
   }
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const daysParam = searchParams.get('days')
+    const windowDays: number | null = daysParam === 'all' ? null : (daysParam ? Number(daysParam) : 30)
+
     // Fetch all validators with their operator and custodian context
     const validatorRows = await db
       .select({
@@ -82,8 +86,11 @@ export async function GET() {
       effectiveBalance: BigInt(v.effectiveBalance),
     }))
 
-    // Fetch reward events from the last 60 days (for current + previous month APY)
-    const sixtyDaysAgo = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000)
+    // Fetch reward events (need 2x window for current + previous period comparison)
+    let rewardDateFilter: Date | null = null
+    if (windowDays !== null) {
+      rewardDateFilter = new Date(Date.now() - windowDays * 2 * 24 * 60 * 60 * 1000)
+    }
     const rewardRows = await db
       .select({
         validatorId: stakeEvents.validatorId,
@@ -95,7 +102,7 @@ export async function GET() {
 
     // Transform to RewardEvent and filter by date
     const rewardEvents: RewardEvent[] = rewardRows
-      .filter((r) => r.timestamp >= sixtyDaysAgo)
+      .filter((r) => rewardDateFilter === null || r.timestamp >= rewardDateFilter)
       .map((r) => ({
         validatorId: r.validatorId,
         amount: BigInt(r.amount),
@@ -103,7 +110,7 @@ export async function GET() {
       }))
 
     // Create portfolio summary
-    const summary = createPortfolioSummary(validatorsWithContext, rewardEvents)
+    const summary = createPortfolioSummary(validatorsWithContext, rewardEvents, windowDays)
 
     // Get the most recent snapshot for 24h change calculation
     const previousSnapshots = await db

@@ -138,7 +138,8 @@ export function calculateTrailingApy(
  */
 export function rollupValidatorsToCustodian(
   validators: ValidatorWithContext[],
-  rewardEvents: RewardEvent[] = []
+  rewardEvents: RewardEvent[] = [],
+  windowDays?: number | null
 ): CustodianAllocation[] {
   // Group validators by custodian
   const custodianMap = new Map<
@@ -178,11 +179,21 @@ export function rollupValidatorsToCustodian(
     )
 
     const now = new Date()
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+    let windowStart: Date
+    if (windowDays === null) {
+      const earliest = custodianRewards.reduce(
+        (min, e) => (e.timestamp < min ? e.timestamp : min),
+        now
+      )
+      windowStart = custodianRewards.length > 0 ? earliest : new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000)
+    } else {
+      const effectiveDays = windowDays ?? 30
+      windowStart = new Date(now.getTime() - effectiveDays * 24 * 60 * 60 * 1000)
+    }
     const trailingApy30d = calculateTrailingApy(
       custodianRewards,
       data.totalValue,
-      thirtyDaysAgo,
+      windowStart,
       now
     )
 
@@ -261,29 +272,35 @@ export const NETWORK_BENCHMARK_APY = 0.038 // 3.8%
  */
 export function createPortfolioSummary(
   validators: ValidatorWithContext[],
-  rewardEvents: RewardEvent[]
+  rewardEvents: RewardEvent[],
+  windowDays?: number | null
 ): PortfolioSummary {
   // Calculate state buckets (lifecycle stages only, no rewards)
   const stateBuckets = aggregateByStateBucket(validators)
 
   const now = new Date()
-  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-  const sixtyDaysAgo = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+  const effectiveDays = windowDays === null ? null : (windowDays ?? 30)
 
-  // Roll up to custodian level
-  const custodianBreakdown = rollupValidatorsToCustodian(validators, rewardEvents)
+  // Roll up to custodian level (pass windowDays through)
+  const custodianBreakdown = rollupValidatorsToCustodian(validators, rewardEvents, windowDays)
 
   // Roll up to portfolio level
   const portfolioRollup = rollupCustodiansToPortfolio(custodianBreakdown)
 
-  // Calculate previous month APY (days 31-60)
+  // Calculate previous period APY (preceding window of equal length)
   const totalValue = portfolioRollup.totalValue
-  const previousMonthApy = calculateTrailingApy(
-    rewardEvents,
-    totalValue,
-    sixtyDaysAgo,
-    thirtyDaysAgo
-  )
+  let previousMonthApy: number | undefined
+  if (effectiveDays !== null) {
+    const windowStart = new Date(now.getTime() - effectiveDays * 24 * 60 * 60 * 1000)
+    const previousWindowEnd = windowStart
+    const previousWindowStart = new Date(windowStart.getTime() - effectiveDays * 24 * 60 * 60 * 1000)
+    previousMonthApy = calculateTrailingApy(
+      rewardEvents,
+      totalValue,
+      previousWindowStart,
+      previousWindowEnd
+    )
+  }
 
   return {
     totalValue: portfolioRollup.totalValue,

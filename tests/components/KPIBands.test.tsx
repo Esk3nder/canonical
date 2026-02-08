@@ -42,11 +42,11 @@ describe('KPIBands', () => {
     expect(screen.getByText(/Global Blended APY/i)).toBeInTheDocument()
   })
 
-  it('renders month-over-month change', () => {
+  it('renders period-over-period change', () => {
     render(<KPIBands data={mockData} isLoading={false} />, { wrapper: TestWrapper })
 
     expect(screen.getByTestId('apy-change')).toBeInTheDocument()
-    expect(screen.getByText(/vs last month/i)).toBeInTheDocument()
+    expect(screen.getByText(/vs prev 30d/i)).toBeInTheDocument()
   })
 
   it('renders network benchmark (CESR)', () => {
@@ -90,7 +90,7 @@ describe('KPIBands', () => {
     render(<KPIBands data={mockData} isLoading={false} />, { wrapper: TestWrapper })
 
     const apyChange = screen.getByTestId('apy-change')
-    expect(apyChange).toHaveClass('text-green-600')
+    expect(apyChange).toHaveClass('text-success')
   })
 
   it('shows negative APY change in red', () => {
@@ -102,6 +102,6 @@ describe('KPIBands', () => {
     render(<KPIBands data={dataWithNegativeChange} isLoading={false} />, { wrapper: TestWrapper })
 
     const apyChange = screen.getByTestId('apy-change')
-    expect(apyChange).toHaveClass('text-red-600')
+    expect(apyChange).toHaveClass('text-destructive')
   })
 })

@@ -50,11 +50,11 @@ export function RewardsPulseCard({ data, isLoading, error }: RewardsPulseCardPro
 
   if (isLoading) {
     return (
-      <Card data-testid="rewards-pulse-loading" className="border-slate-800 bg-slate-900">
+      <Card data-testid="rewards-pulse-loading" className="border-border bg-card">
         <CardContent className="space-y-3 pt-6">
-          <Skeleton className="h-4 w-32 bg-slate-700" />
-          <Skeleton className="h-8 w-24 bg-slate-700" />
-          <Skeleton className="h-4 w-40 bg-slate-700" />
+          <Skeleton className="h-4 w-32 bg-secondary" />
+          <Skeleton className="h-8 w-24 bg-secondary" />
+          <Skeleton className="h-4 w-40 bg-secondary" />
         </CardContent>
       </Card>
     )
@@ -93,57 +93,57 @@ export function RewardsPulseCard({ data, isLoading, error }: RewardsPulseCardPro
     <>
       <button
         onClick={() => setIsExpanded(true)}
-        className="w-full rounded-lg border border-slate-800 bg-slate-900 p-6 text-left shadow transition-all duration-200 hover:scale-[1.01] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 active:scale-[0.99]"
+        className="w-full rounded-lg border border-border bg-card p-6 text-left shadow transition-all duration-200 hover:scale-[1.01] hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:scale-[0.99]"
       >
         <div className="mb-4 flex items-center justify-between">
-          <h3 className="text-xs font-medium uppercase tracking-wider text-slate-400">Rewards Pulse</h3>
+          <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Rewards Pulse</h3>
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-pulse-live rounded-full bg-green-500 opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-green-600" />
+              <span className="absolute inline-flex h-full w-full animate-pulse-live rounded-full bg-success opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-success" />
             </span>
-            <span className="text-xs font-medium text-green-500">Live</span>
+            <span className="text-xs font-medium text-success">Live</span>
           </div>
         </div>
 
         <div className="mb-4">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Claimable Now</span>
+            <span className="text-sm text-muted-foreground">Claimable Now</span>
             <span
               className={`tabular-nums text-sm font-medium ${
-                isPositiveChange ? 'text-green-500' : 'text-red-400'
+                isPositiveChange ? 'text-success' : 'text-destructive'
               }`}
             >
               {change24h} 24h
             </span>
           </div>
-          <p data-testid="claimable-now" className="mt-1 tabular-nums text-3xl font-bold text-white">
+          <p data-testid="claimable-now" className="mt-1 tabular-nums text-3xl font-bold text-foreground">
             {claimableEth}
             <span className="unit-symbol">ETH</span>
           </p>
-          <p className="tabular-nums text-sm text-slate-500">{claimableUsd}</p>
+          <p className="tabular-nums text-sm text-muted-foreground">{claimableUsd}</p>
         </div>
 
         {topCustodians.length > 0 && (
-          <p className="tabular-nums mb-4 text-xs text-slate-500">Top: {topCustodianText}</p>
+          <p className="tabular-nums mb-4 text-xs text-muted-foreground">Top: {topCustodianText}</p>
         )}
 
-        <Separator className="my-4 bg-slate-700" />
+        <Separator className="my-4 bg-secondary" />
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-400">Accrued (pending)</span>
-            <span className="tabular-nums text-sm font-medium text-white">
+            <span className="text-sm text-muted-foreground">Accrued (pending)</span>
+            <span className="tabular-nums text-sm font-medium text-foreground">
               {accruedEth}
               <span className="unit-symbol">ETH</span>
             </span>
           </div>
           <div className="flex items-center justify-between">
-            <span className="flex items-center gap-1 text-sm text-slate-400">
+            <span className="flex items-center gap-1 text-sm text-muted-foreground">
               Claimed This Month
-              <CheckCircle className="h-3 w-3 text-green-500" />
+              <CheckCircle className="h-3 w-3 text-success" />
             </span>
-            <span className="tabular-nums text-sm font-medium text-green-500">
+            <span className="tabular-nums text-sm font-medium text-success">
               {claimedEth}
               <span className="unit-symbol">ETH</span>
             </span>

@@ -101,7 +101,7 @@ export function ValidatorTable({
   if (!data || data.length === 0) {
     return (
       <Card>
-        <CardContent className="py-8 text-center text-slate-500">
+        <CardContent className="py-8 text-center text-muted-foreground">
           No validators found
         </CardContent>
       </Card>
@@ -156,28 +156,28 @@ export function ValidatorTable({
                   role="row"
                 >
                   <TableCell>
-                    <code className="font-mono text-sm text-slate-900">
+                    <code className="font-mono text-sm text-foreground">
                       {shortenHex(validator.pubkey, 6)}
                     </code>
                   </TableCell>
-                  <TableCell className="text-slate-900">{validator.operatorName}</TableCell>
-                  <TableCell className="text-slate-500">{validator.custodianName}</TableCell>
+                  <TableCell className="text-foreground">{validator.operatorName}</TableCell>
+                  <TableCell className="text-muted-foreground">{validator.custodianName}</TableCell>
                   <TableCell>
                     <Badge variant={STATUS_VARIANTS[validator.status] ?? 'secondary'}>
                       {validator.status}
                     </Badge>
                   </TableCell>
-                  <TableCell className="tabular-nums font-medium text-slate-900">
+                  <TableCell className="tabular-nums font-medium text-foreground">
                     {formatEther(validator.balance)}<span className="unit-symbol">ETH</span>
                   </TableCell>
                   <TableCell>
                     {validator.trailingApy30d !== undefined &&
                     validator.trailingApy30d > 0 ? (
-                      <span className="tabular-nums font-medium text-green-600">
+                      <span className="tabular-nums font-medium text-success">
                         {(validator.trailingApy30d * 100).toFixed(2)}%
                       </span>
                     ) : (
-                      <span className="text-slate-400">-</span>
+                      <span className="text-muted-foreground">-</span>
                     )}
                   </TableCell>
                 </TableRow>
@@ -186,7 +186,7 @@ export function ValidatorTable({
           </Table>
         </div>
 
-        <div className="border-t border-slate-200 px-4 py-3">
+        <div className="border-t border-border px-4 py-3">
           <DataTablePagination
             page={page}
             totalPages={totalPages}

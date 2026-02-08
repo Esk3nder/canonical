@@ -41,50 +41,50 @@ const BUCKET_CONFIG = [
     stateKey: 'deposited',
     label: 'Deposited',
     description: 'ETH received, awaiting validator creation',
-    color: 'bg-slate-500',
-    progressColor: 'bg-slate-500',
-    textColor: 'text-slate-700',
-    bgColor: 'bg-slate-50',
+    color: 'bg-muted-foreground',
+    progressColor: 'bg-muted-foreground',
+    textColor: 'text-foreground',
+    bgColor: 'bg-muted',
   },
   {
     key: 'entryQueue',
     stateKey: 'pending_activation',
     label: 'Entry Queue',
     description: 'Validator created, awaiting activation',
-    color: 'bg-amber-500',
-    progressColor: 'bg-amber-500',
-    textColor: 'text-amber-700',
-    bgColor: 'bg-amber-50',
+    color: 'bg-apricot',
+    progressColor: 'bg-apricot',
+    textColor: 'text-terra-cotta',
+    bgColor: 'bg-apricot/10',
   },
   {
     key: 'active',
     stateKey: 'active',
     label: 'Active',
     description: 'Currently staking and earning rewards',
-    color: 'bg-emerald-500',
-    progressColor: 'bg-emerald-500',
-    textColor: 'text-emerald-700',
-    bgColor: 'bg-emerald-50',
+    color: 'bg-primary',
+    progressColor: 'bg-primary',
+    textColor: 'text-primary',
+    bgColor: 'bg-turquoise-100',
   },
   {
     key: 'exiting',
     stateKey: 'exiting',
     label: 'Exiting',
     description: 'Exit initiated, in withdrawal queue',
-    color: 'bg-orange-500',
-    progressColor: 'bg-orange-500',
-    textColor: 'text-orange-700',
-    bgColor: 'bg-orange-50',
+    color: 'bg-terra-cotta',
+    progressColor: 'bg-terra-cotta',
+    textColor: 'text-terra-cotta',
+    bgColor: 'bg-terra-cotta/10',
   },
   {
     key: 'withdrawable',
     stateKey: 'withdrawable',
     label: 'Withdrawable',
     description: 'Ready for treasury withdrawal',
-    color: 'bg-blue-500',
-    progressColor: 'bg-blue-500',
-    textColor: 'text-blue-700',
-    bgColor: 'bg-blue-50',
+    color: 'bg-plex-blue',
+    progressColor: 'bg-plex-blue',
+    textColor: 'text-plex-blue',
+    bgColor: 'bg-sky/20',
   },
 ]
 
@@ -144,7 +144,7 @@ export function StateBuckets({
             className={cn(
               'cursor-pointer border transition-all hover:shadow-md',
               bucket.bgColor,
-              isAnomaly && 'border-amber-500'
+              isAnomaly && 'border-apricot'
             )}
           >
             <CardContent className="p-4">
@@ -153,14 +153,14 @@ export function StateBuckets({
                 <p className={cn('text-sm font-medium', bucket.textColor)}>{bucket.label}</p>
               </div>
 
-              <p className="tabular-nums text-2xl font-bold text-slate-900">
+              <p className="tabular-nums text-2xl font-bold text-foreground">
                 {(() => {
                   const { value: formatted, suffix } = formatCurrency(value, currency, ethPrice)
                   return `${formatted}${suffix ? ` ${suffix}` : ''}`
                 })()}
               </p>
 
-              <p className="tabular-nums text-sm text-slate-500">{formatPercent(percentage)}</p>
+              <p className="tabular-nums text-sm text-muted-foreground">{formatPercent(percentage)}</p>
               <Progress
                 value={percentage * 100}
                 className="mt-2 h-1.5"

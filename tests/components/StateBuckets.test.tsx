@@ -73,10 +73,10 @@ describe('StateBuckets', () => {
     )
 
     const depositedBucket = screen.getByTestId('bucket-deposited')
-    expect(depositedBucket).toHaveClass('border-amber-500')
+    expect(depositedBucket).toHaveClass('border-apricot')
 
     const entryQueueBucket = screen.getByTestId('bucket-entryQueue')
-    expect(entryQueueBucket).toHaveClass('border-amber-500')
+    expect(entryQueueBucket).toHaveClass('border-apricot')
   })
 
   it('shows loading state', () => {

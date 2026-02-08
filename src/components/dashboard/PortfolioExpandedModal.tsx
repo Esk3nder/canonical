@@ -104,24 +104,24 @@ export function PortfolioExpandedModal({
         }
       }}
     >
-      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-slate-200 bg-white p-0 data-[state=closed]:animate-modal-out data-[state=open]:animate-modal-in">
-        <DialogHeader className="space-y-0 border-b border-slate-200 px-6 pb-4 pt-5">
+      <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto border-border bg-card p-0 data-[state=closed]:animate-modal-out data-[state=open]:animate-modal-in">
+        <DialogHeader className="space-y-0 border-b border-border px-6 pb-4 pt-5">
           <div className="flex items-center justify-between pr-8">
             <div>
-              <DialogTitle id="portfolio-modal-title" className="text-xs uppercase tracking-wider text-slate-500">
+              <DialogTitle id="portfolio-modal-title" className="text-xs uppercase tracking-wider text-muted-foreground">
                 Portfolio Composition
               </DialogTitle>
               <div className="mt-2">
-                <span className="tabular-nums text-2xl font-bold text-slate-900">
+                <span className="tabular-nums text-2xl font-bold text-foreground">
                   {totalEth}
                   <span className="unit-symbol">ETH</span>
                 </span>
-                <span className="tabular-nums ml-2 text-lg text-slate-500">· {totalUsd}</span>
+                <span className="tabular-nums ml-2 text-lg text-muted-foreground">· {totalUsd}</span>
               </div>
               {change24hEth && (
                 <p
                   className={`tabular-nums mt-1 text-sm font-medium ${
-                    change24hIsPositive ? 'text-green-600' : 'text-red-600'
+                    change24hIsPositive ? 'text-success' : 'text-destructive'
                   }`}
                 >
                   {change24hIsPositive ? '+' : ''}
@@ -135,10 +135,10 @@ export function PortfolioExpandedModal({
             </div>
             <div className="flex items-center gap-1.5">
               <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-pulse-live rounded-full bg-green-500 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-green-600" />
+                <span className="absolute inline-flex h-full w-full animate-pulse-live rounded-full bg-primary opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-primary" />
               </span>
-              <span className="text-xs font-medium text-green-600">Live</span>
+              <span className="text-xs font-medium text-success">Live</span>
             </div>
           </div>
         </DialogHeader>
@@ -168,16 +168,16 @@ export function PortfolioExpandedModal({
                             className="h-2 w-2 flex-shrink-0 rounded-full"
                             style={{ backgroundColor: getCustodianColor(custodian.custodianName) }}
                           />
-                          <span className="text-slate-900">{custodian.custodianName}</span>
+                          <span className="text-foreground">{custodian.custodianName}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="tabular-nums py-2 text-right text-slate-900">
+                      <TableCell className="tabular-nums py-2 text-right text-foreground">
                         {custodianEth}
                       </TableCell>
-                      <TableCell className="tabular-nums py-2 text-right text-slate-500">
+                      <TableCell className="tabular-nums py-2 text-right text-muted-foreground">
                         {percentFormatted}%
                       </TableCell>
-                      <TableCell className="tabular-nums py-2 text-right text-green-600">
+                      <TableCell className="tabular-nums py-2 text-right text-success">
                         {custodianApy}%
                       </TableCell>
                     </TableRow>
@@ -186,34 +186,34 @@ export function PortfolioExpandedModal({
               </TableBody>
             </Table>
           ) : (
-            <p className="py-4 text-center text-sm text-slate-500">No custodian data available</p>
+            <p className="py-4 text-center text-sm text-muted-foreground">No custodian data available</p>
           )}
         </div>
 
-        <div className="border-y border-slate-200 bg-slate-50 px-6 py-4">
+        <div className="border-y border-border bg-muted px-6 py-4">
           <div className="mb-2 flex items-center justify-between">
-            <h3 className="text-xs font-medium uppercase tracking-wider text-slate-500">Stake Status</h3>
-            <span className="tabular-nums text-sm font-medium text-slate-900">
+            <h3 className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Stake Status</h3>
+            <span className="tabular-nums text-sm font-medium text-foreground">
               {earningRatio.toFixed(1)}% Active
             </span>
           </div>
 
-          <div className="flex h-2 overflow-hidden rounded-full bg-slate-200">
-            <div className="bg-green-500 transition-all duration-300" style={{ width: `${earningRatio}%` }} />
+          <div className="flex h-2 overflow-hidden rounded-full bg-muted">
+            <div className="bg-primary transition-all duration-300" style={{ width: `${earningRatio}%` }} />
             <div
-              className="bg-orange-400 transition-all duration-300"
+              className="bg-apricot transition-all duration-300"
               style={{ width: `${100 - earningRatio}%` }}
             />
           </div>
 
-          <div className="mt-2 flex items-center justify-between text-xs text-slate-600">
+          <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
             <span className="tabular-nums">
-              <span className="mr-1 inline-block h-2 w-2 rounded bg-green-500" />
+              <span className="mr-1 inline-block h-2 w-2 rounded bg-primary" />
               {formatNumber(Number(activeBigInt) / 1e18, 2)}
               <span className="unit-symbol">ETH</span> earning
             </span>
             <span className="tabular-nums">
-              <span className="mr-1 inline-block h-2 w-2 rounded bg-orange-400" />
+              <span className="mr-1 inline-block h-2 w-2 rounded bg-apricot" />
               {formatNumber(Number(nonEarningBigInt) / 1e18, 2)}
               <span className="unit-symbol">ETH</span> pending
             </span>
@@ -221,7 +221,7 @@ export function PortfolioExpandedModal({
         </div>
 
         <div className="px-6 py-3">
-          <p className="text-center text-xs text-slate-400">Updated {timeAgoText}</p>
+          <p className="text-center text-xs text-muted-foreground">Updated {timeAgoText}</p>
         </div>
       </DialogContent>
     </Dialog>

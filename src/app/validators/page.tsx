@@ -146,14 +146,14 @@ function ValidatorsContent() {
     <div>
       <div className="max-w-6xl">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-900">Validators</h1>
-          <p className="text-slate-600">Monitor all validators in your portfolio</p>
+          <h1 className="text-2xl font-bold text-foreground">Validators</h1>
+          <p className="text-muted-foreground">Monitor all validators in your portfolio</p>
         </div>
 
         <Card className="mb-6">
           <CardContent className="flex items-center gap-4 pt-6">
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Stake State</label>
+              <label className="mb-1 block text-sm font-medium text-foreground">Stake State</label>
               <Select value={stateFilter} onValueChange={handleStateFilterChange}>
                 <SelectTrigger className="w-[220px]">
                   <SelectValue placeholder="All states" />
@@ -167,7 +167,7 @@ function ValidatorsContent() {
                 </SelectContent>
               </Select>
             </div>
-            <div className="ml-auto text-sm text-slate-500">{total} validators total</div>
+            <div className="ml-auto text-sm text-muted-foreground">{total} validators total</div>
           </CardContent>
         </Card>
 
@@ -188,8 +188,8 @@ function ValidatorsContent() {
         ) : validators.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center">
-              <h3 className="mb-1 text-lg font-medium text-slate-900">No validators found</h3>
-              <p className="text-slate-500">
+              <h3 className="mb-1 text-lg font-medium text-foreground">No validators found</h3>
+              <p className="text-muted-foreground">
                 {stateFilter !== 'all' ? 'Try adjusting your filter.' : 'No validators in portfolio.'}
               </p>
             </CardContent>
@@ -217,30 +217,30 @@ function ValidatorsContent() {
                       className="cursor-pointer"
                     >
                       <TableCell>
-                        <code className="font-mono text-sm text-slate-900">
+                        <code className="font-mono text-sm text-foreground">
                           {shortenHex(validator.pubkey, 6)}
                         </code>
                       </TableCell>
-                      <TableCell className="text-sm text-slate-900">{validator.operatorName}</TableCell>
-                      <TableCell className="text-sm text-slate-500">{validator.custodianName}</TableCell>
+                      <TableCell className="text-sm text-foreground">{validator.operatorName}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{validator.custodianName}</TableCell>
                       <TableCell>
                         <Badge variant={STATUS_VARIANTS[validator.status] ?? 'secondary'}>
                           {validator.status}
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-sm text-slate-600">
+                      <TableCell className="text-sm text-muted-foreground">
                         {validator.stakeState.replace('_', ' ')}
                       </TableCell>
-                      <TableCell className="tabular-nums text-sm text-slate-900">
+                      <TableCell className="tabular-nums text-sm text-foreground">
                         {formatEther(validator.balance)} ETH
                       </TableCell>
                       <TableCell>
                         {validator.trailingApy30d !== undefined && validator.trailingApy30d > 0 ? (
-                          <span className="font-medium text-green-600">
+                          <span className="font-medium text-success">
                             {(validator.trailingApy30d * 100).toFixed(2)}%
                           </span>
                         ) : (
-                          <span className="text-slate-400">-</span>
+                          <span className="text-muted-foreground">-</span>
                         )}
                       </TableCell>
                     </TableRow>
@@ -249,7 +249,7 @@ function ValidatorsContent() {
               </Table>
             </div>
 
-            <div className="border-t border-slate-200 px-4 py-3">
+            <div className="border-t border-border px-4 py-3">
               <DataTablePagination
                 page={page}
                 totalPages={totalPages}
@@ -269,8 +269,8 @@ function ValidatorsLoading() {
   return (
     <div className="max-w-6xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-slate-900">Validators</h1>
-        <p className="text-slate-600">Monitor all validators in your portfolio</p>
+        <h1 className="text-2xl font-bold text-foreground">Validators</h1>
+        <p className="text-muted-foreground">Monitor all validators in your portfolio</p>
       </div>
       <Card>
         <CardContent className="space-y-4 pt-6">
