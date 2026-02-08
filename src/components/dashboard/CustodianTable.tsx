@@ -27,6 +27,7 @@ interface CustodianTableProps {
   data: CustodianData[] | null
   isLoading?: boolean
   onCustodianClick?: (custodianId: string) => void
+  timePeriodLabel?: string
 }
 
 const PARTNER_BRANDS: Record<
@@ -58,17 +59,17 @@ function getPartnerBrand(name: string) {
     .join('')
     .toUpperCase()
     .slice(0, 2)
-  const colors = ['bg-slate-600', 'bg-zinc-600', 'bg-neutral-600', 'bg-stone-600']
+  const colors = ['bg-muted-foreground', 'bg-muted-foreground', 'bg-muted-foreground', 'bg-muted-foreground']
   const colorIndex = name.length % colors.length
   return { bg: colors[colorIndex], text: 'text-white', initials }
 }
 
-export function CustodianTable({ data, isLoading, onCustodianClick }: CustodianTableProps) {
+export function CustodianTable({ data, isLoading, onCustodianClick, timePeriodLabel = '30d' }: CustodianTableProps) {
   const { currency, ethPrice } = useCurrency()
 
   if (isLoading) {
     return (
-      <Card className="h-full border-slate-200 bg-white">
+      <Card className="h-full border-border bg-card">
         <CardContent className="space-y-4 p-5">
           <Skeleton className="h-4 w-40" />
           {Array.from({ length: 3 }).map((_, idx) => (
@@ -87,9 +88,9 @@ export function CustodianTable({ data, isLoading, onCustodianClick }: CustodianT
 
   if (!data || data.length === 0) {
     return (
-      <Card className="h-full border-slate-200 bg-white">
+      <Card className="h-full border-border bg-card">
         <CardContent className="flex h-full items-center justify-center p-5">
-          <span className="text-sm text-slate-400">No custodian data</span>
+          <span className="text-sm text-muted-foreground">No custodian data</span>
         </CardContent>
       </Card>
     )
@@ -130,13 +131,13 @@ export function CustodianTable({ data, isLoading, onCustodianClick }: CustodianT
     },
     {
       accessorKey: 'custodianName',
-      header: () => <span className="text-xs uppercase tracking-wide text-slate-400">Partner</span>,
+      header: () => <span className="text-xs uppercase tracking-wide text-muted-foreground">Partner</span>,
       cell: ({ row }) => {
         const custodian = row.original
         return (
           <div className="min-w-0">
-            <div className="truncate text-sm font-semibold text-slate-900">{custodian.custodianName}</div>
-            <div className="text-xs text-slate-400">
+            <div className="truncate text-sm font-semibold text-foreground">{custodian.custodianName}</div>
+            <div className="text-xs text-muted-foreground">
               {custodian.validatorCount.toLocaleString()} validators
             </div>
           </div>
@@ -147,7 +148,7 @@ export function CustodianTable({ data, isLoading, onCustodianClick }: CustodianT
       id: 'value',
       accessorKey: 'value',
       header: () => (
-        <span className="block w-24 text-right text-xs uppercase tracking-wide text-slate-400">Stake</span>
+        <span className="block w-24 text-right text-xs uppercase tracking-wide text-muted-foreground">Stake</span>
       ),
       sortingFn: (rowA, rowB, columnId) => {
         const a = BigInt(rowA.getValue<string>(columnId))
@@ -158,7 +159,7 @@ export function CustodianTable({ data, isLoading, onCustodianClick }: CustodianT
       cell: ({ row }) => {
         const { value: formatted, suffix } = formatCurrency(row.original.value, currency, ethPrice)
         return (
-          <div className="w-24 text-right text-sm font-medium tabular-nums text-slate-900">
+          <div className="w-24 text-right text-sm font-medium tabular-nums text-foreground">
             {formatted}
             {suffix ? ` ${suffix}` : ''}
           </div>
@@ -169,10 +170,10 @@ export function CustodianTable({ data, isLoading, onCustodianClick }: CustodianT
       id: 'trailingApy30d',
       accessorKey: 'trailingApy30d',
       header: () => (
-        <span className="block w-20 text-right text-xs uppercase tracking-wide text-slate-400">30d APY</span>
+        <span className="block w-20 text-right text-xs uppercase tracking-wide text-muted-foreground">{timePeriodLabel} APY</span>
       ),
       cell: ({ row }) => (
-        <div className="w-20 text-right text-sm font-medium tabular-nums text-emerald-600">
+        <div className="w-20 text-right text-sm font-medium tabular-nums text-success">
           {(row.original.trailingApy30d * 100).toFixed(2)}%
         </div>
       ),
@@ -180,9 +181,9 @@ export function CustodianTable({ data, isLoading, onCustodianClick }: CustodianT
   ]
 
   return (
-    <Card data-testid="custodian-table" className="h-full border-slate-200 bg-white">
+    <Card data-testid="custodian-table" className="h-full border-border bg-card">
       <CardHeader className="pb-4">
-        <CardTitle className="text-sm font-medium uppercase tracking-wide text-slate-500">
+        <CardTitle className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
           Custodians
         </CardTitle>
       </CardHeader>

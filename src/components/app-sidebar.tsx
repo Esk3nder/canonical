@@ -9,7 +9,6 @@ import {
   SidebarContent,
   SidebarGroup,
   SidebarGroupContent,
-  SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
@@ -33,18 +32,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar className="top-[var(--header-height)] !h-[calc(100svh-var(--header-height))]">
-      <SidebarHeader className="px-3 py-4">
-        <div className="flex items-center gap-2">
-          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground text-sm font-bold">
-            C
-          </div>
-          <div className="flex flex-col leading-none group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-semibold">Canonical</span>
-            <span className="text-xs text-muted-foreground">Staking Portfolio</span>
-          </div>
-        </div>
-      </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="pt-2">
         <SidebarGroup>
           <SidebarGroupContent>
             <SidebarMenu>

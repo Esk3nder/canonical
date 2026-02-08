@@ -157,7 +157,7 @@ export default function CustodianDetailPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm text-muted-foreground uppercase">30d APY</p>
-            <p className="text-2xl font-bold text-green-600">
+            <p className="text-2xl font-bold text-success">
               {formatPercent(data.trailingApy30d)}
             </p>
           </CardContent>

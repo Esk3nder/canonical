@@ -75,9 +75,10 @@ interface KPIBandsProps {
     isLoading: boolean
     error?: string
   }
+  timePeriodLabel?: string
 }
 
-export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps) {
+export function KPIBands({ data, isLoading, error, rewardsPulse, timePeriodLabel = '30d' }: KPIBandsProps) {
   const { currency, ethPrice } = useCurrency()
   const [isExpanded, setIsExpanded] = useState(false)
   const [isApyExpanded, setIsApyExpanded] = useState(false)
@@ -143,23 +144,23 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
   return (
     <>
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <Card className="border-slate-200 shadow transition-all duration-200 hover:shadow-lg">
+        <Card className="border-border shadow transition-all duration-200 hover:shadow-lg">
           <button
             onClick={() => setIsExpanded(true)}
-            className="w-full rounded-xl p-6 text-left transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-[0.99]"
+            className="w-full rounded-xl p-6 text-left transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:scale-[0.99]"
           >
-            <p className="text-sm font-medium uppercase tracking-wide text-slate-500">Portfolio Value</p>
+            <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Portfolio Value</p>
 
             <p
               data-testid="portfolio-value"
-              className="mt-2 tabular-nums text-3xl font-bold text-slate-900 transition-all duration-200"
+              className="mt-2 tabular-nums text-3xl font-bold text-foreground transition-all duration-200"
             >
               {primaryValue.value}
               {primaryValue.suffix && ` ${primaryValue.suffix}`}
             </p>
 
             <div className="mt-1 flex items-center gap-2 transition-all duration-200">
-              <span className="tabular-nums text-lg text-slate-500">
+              <span className="tabular-nums text-lg text-muted-foreground">
                 {secondaryValue.value}
                 {secondaryValue.suffix && ` ${secondaryValue.suffix}`}
               </span>
@@ -167,7 +168,7 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
                 <span
                   data-testid="portfolio-change-24h"
                   className={`tabular-nums text-sm font-medium ${
-                    isPositiveChange ? 'text-green-600' : 'text-red-600'
+                    isPositiveChange ? 'text-success' : 'text-destructive'
                   }`}
                 >
                   {change24hFormatted} (24h)
@@ -177,29 +178,29 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
           </button>
         </Card>
 
-        <Card className="border-slate-200 shadow transition-all duration-200 hover:shadow-lg">
+        <Card className="border-border shadow transition-all duration-200 hover:shadow-lg">
           <button
             onClick={() => setIsApyExpanded(true)}
-            className="w-full rounded-xl p-6 text-left transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-[0.99]"
+            className="w-full rounded-xl p-6 text-left transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:scale-[0.99]"
           >
-            <p className="text-sm font-medium uppercase tracking-wide text-slate-500">Global Blended APY</p>
+            <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Global Blended APY</p>
             <div className="mt-3 flex items-baseline gap-3">
-              <p data-testid="trailing-apy" className="tabular-nums text-3xl font-bold text-green-600">
+              <p data-testid="trailing-apy" className="tabular-nums text-3xl font-bold text-success">
                 {formattedApy}%
               </p>
               {formattedBenchmark && (
-                <span className="tabular-nums text-sm text-slate-500">CESR: {formattedBenchmark}%</span>
+                <span className="tabular-nums text-sm text-muted-foreground">CESR: {formattedBenchmark}%</span>
               )}
             </div>
             {apyChange !== null && (
               <p
                 data-testid="apy-change"
                 className={`tabular-nums mt-1 text-sm font-medium ${
-                  isApyPositive ? 'text-green-600' : 'text-red-600'
+                  isApyPositive ? 'text-success' : 'text-destructive'
                 }`}
               >
                 {isApyPositive ? '+' : ''}
-                {apyChange.toFixed(1)}% vs last month
+                {apyChange.toFixed(1)}% vs prev {timePeriodLabel}
               </p>
             )}
           </button>
@@ -218,28 +219,28 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
             <AlertTitle>Error loading rewards</AlertTitle>
           </Alert>
         ) : rewardsPulse?.data ? (
-          <Card className="border-slate-200 shadow transition-all duration-200 hover:shadow-lg">
+          <Card className="border-border shadow transition-all duration-200 hover:shadow-lg">
             <button
               onClick={() => setIsRewardsExpanded(true)}
-              className="w-full rounded-xl p-6 text-left transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 active:scale-[0.99]"
+              className="w-full rounded-xl p-6 text-left transition-all duration-200 hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:scale-[0.99]"
             >
-              <p className="text-sm font-medium uppercase tracking-wide text-slate-500">
-                Rewards <span className="normal-case font-normal">(Last 30 Days)</span>
+              <p className="text-sm font-medium uppercase tracking-wide text-muted-foreground">
+                Rewards <span className="normal-case font-normal">(Last {timePeriodLabel === 'All' ? 'All Time' : timePeriodLabel})</span>
               </p>
 
-              <p className="mt-2 tabular-nums text-3xl font-bold text-slate-900">
+              <p className="mt-2 tabular-nums text-3xl font-bold text-foreground">
                 {formatEther(rewardsPulse.data.claimableNow)}
                 <span className="unit-symbol">ETH</span>
               </p>
               <div className="mt-1 flex items-center gap-2">
-                <span className="tabular-nums text-lg text-slate-500">
+                <span className="tabular-nums text-lg text-muted-foreground">
                   {formatUSD(rewardsPulse.data.claimableNow, ethPrice)}
                 </span>
                 <span
                   className={`tabular-nums text-sm font-medium ${
                     BigInt(rewardsPulse.data.claimable24hChange) >= 0n
-                      ? 'text-green-600'
-                      : 'text-red-600'
+                      ? 'text-success'
+                      : 'text-destructive'
                   }`}
                 >
                   {formatEthChange(rewardsPulse.data.claimable24hChange)} (24h)
@@ -265,6 +266,7 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
       <APYExpandedModal
         isOpen={isApyExpanded}
         onClose={() => setIsApyExpanded(false)}
+        timePeriodLabel={timePeriodLabel}
         data={{
           trailingApy30d: data.trailingApy30d,
           previousMonthApy: data.previousMonthApy,
@@ -279,6 +281,7 @@ export function KPIBands({ data, isLoading, error, rewardsPulse }: KPIBandsProps
           isOpen={isRewardsExpanded}
           onClose={() => setIsRewardsExpanded(false)}
           data={rewardsPulse.data}
+          timePeriodLabel={timePeriodLabel}
         />
       )}
     </>

@@ -2,11 +2,15 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useTimePeriod } from '@/contexts/TimePeriodContext'
+import { CurrencyToggle } from '@/components/CurrencyToggle'
+import { TimePeriodToggle } from '@/components/TimePeriodToggle'
 import {
   KPIBands,
   StakeLifecycle,
   CustodianTable,
   ExceptionSummary,
+  CustodianAprChart,
 } from '@/components/dashboard'
 import type { RewardsPulseData } from '@/components/dashboard'
 
@@ -49,6 +53,7 @@ interface ExceptionData {
 
 export default function PortfolioOverview() {
   const router = useRouter()
+  const { timePeriod, timePeriodLabel } = useTimePeriod()
 
   // Portfolio data state
   const [portfolioData, setPortfolioData] = useState<PortfolioData | null>(null)
@@ -80,7 +85,8 @@ export default function PortfolioOverview() {
     async function fetchPortfolio() {
       try {
         setPortfolioLoading(true)
-        const res = await fetch('/api/portfolio')
+        const daysParam = timePeriod === 'all' ? 'all' : String(timePeriod)
+        const res = await fetch(`/api/portfolio?days=${daysParam}`)
         if (!res.ok) throw new Error('Failed to fetch portfolio')
         const json = await res.json()
         setPortfolioData(json.data)
@@ -93,7 +99,7 @@ export default function PortfolioOverview() {
     }
 
     fetchPortfolio()
-  }, [])
+  }, [timePeriod])
 
   // Fetch exceptions
   useEffect(() => {
@@ -146,7 +152,8 @@ export default function PortfolioOverview() {
     async function fetchRewardsPulse() {
       try {
         setRewardsPulseLoading(true)
-        const res = await fetch('/api/rewards/pulse')
+        const daysParam = timePeriod === 'all' ? 'all' : String(timePeriod)
+        const res = await fetch(`/api/rewards/pulse?days=${daysParam}`)
         if (!res.ok) throw new Error('Failed to fetch rewards pulse')
         const json = await res.json()
         setRewardsPulseData(json.data)
@@ -159,7 +166,7 @@ export default function PortfolioOverview() {
     }
 
     fetchRewardsPulse()
-  }, [])
+  }, [timePeriod])
 
   // Navigation handlers
   const handleCustodianClick = (custodianId: string) => {
@@ -177,23 +184,26 @@ export default function PortfolioOverview() {
   return (
     <div>
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Portfolio Overview</h1>
-        <p className="text-gray-500">Institutional staking dashboard</p>
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-foreground">Portfolio Overview</h1>
       </div>
 
-      {/* Exceptions Banner - Elevated for visibility */}
-      <div className="mb-6">
-        <ExceptionSummary
-          data={exceptionsData}
-          isLoading={exceptionsLoading}
-          onViewAll={() => router.push('/exceptions')}
-          onExceptionClick={handleExceptionClick}
-        />
+      {/* Dashboard Controls + Exceptions - Single Row */}
+      <div className="mb-4 flex items-center gap-2">
+        <CurrencyToggle />
+        <TimePeriodToggle />
+        <div className="ml-auto flex-1">
+          <ExceptionSummary
+            data={exceptionsData}
+            isLoading={exceptionsLoading}
+            onViewAll={() => router.push('/exceptions')}
+            onExceptionClick={handleExceptionClick}
+          />
+        </div>
       </div>
 
       {/* KPI Bands */}
-      <div className="mb-6">
+      <div className="mb-4">
         <KPIBands
           data={
             portfolioData
@@ -217,11 +227,17 @@ export default function PortfolioOverview() {
             isLoading: rewardsPulseLoading,
             error: rewardsPulseError,
           }}
+          timePeriodLabel={timePeriodLabel}
         />
       </div>
 
+      {/* Custodian APR Trend */}
+      <div className="mb-4">
+        <CustodianAprChart />
+      </div>
+
       {/* Stake Lifecycle & Custodians - Side by Side */}
-      <div className="mb-6 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="mb-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
         <StakeLifecycle
           data={portfolioData?.stateBuckets ?? null}
           totalValue={portfolioData?.totalValue ?? '0'}
@@ -232,12 +248,13 @@ export default function PortfolioOverview() {
           data={portfolioData?.custodianBreakdown ?? null}
           isLoading={portfolioLoading}
           onCustodianClick={handleCustodianClick}
+          timePeriodLabel={timePeriodLabel}
         />
       </div>
 
       {/* Footer with timestamp */}
       {portfolioData && (
-        <div className="mt-8 text-center text-sm text-gray-400">
+        <div className="mt-4 text-center text-sm text-muted-foreground">
           Data as of {new Date(portfolioData.asOfTimestamp).toLocaleString()}
         </div>
       )}

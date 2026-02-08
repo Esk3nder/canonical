@@ -16,22 +16,31 @@ const badgeVariants = cva(
           'border-transparent bg-destructive text-destructive-foreground hover:bg-destructive/80',
         outline: 'text-foreground',
         success:
-          'border-transparent bg-success-50 text-success-700 hover:bg-success-50/80',
+          'border-transparent bg-turquoise-100 text-turquoise-700 hover:bg-turquoise-200',
         warning:
-          'border-transparent bg-warning-50 text-warning-700 hover:bg-warning-50/80',
-        danger: 'border-transparent bg-danger-50 text-danger-700 hover:bg-danger-50/80',
+          'border-transparent bg-apricot/20 text-terra-cotta hover:bg-apricot/30',
+        danger:
+          'border-transparent bg-warm-red/10 text-warm-red hover:bg-warm-red/20',
         active:
-          'border-transparent bg-green-100 text-green-800 hover:bg-green-100/80',
+          'border-transparent bg-turquoise-100 text-turquoise-800 hover:bg-turquoise-200',
         pending:
-          'border-transparent bg-yellow-100 text-yellow-800 hover:bg-yellow-100/80',
-        slashed: 'border-transparent bg-red-100 text-red-800 hover:bg-red-100/80',
-        exited: 'border-transparent bg-slate-100 text-slate-800 hover:bg-slate-100/80',
-        critical: 'border-transparent bg-red-600 text-white hover:bg-red-600/90',
-        high: 'border-transparent bg-orange-500 text-white hover:bg-orange-500/90',
-        medium: 'border-transparent bg-yellow-500 text-white hover:bg-yellow-500/90',
-        low: 'border-transparent bg-blue-500 text-white hover:bg-blue-500/90',
-        info: 'border-blue-200 bg-blue-100 text-blue-800 hover:bg-blue-100/80',
-        neutral: 'border-transparent bg-slate-400 text-white hover:bg-slate-400/90',
+          'border-transparent bg-apricot/20 text-terra-cotta hover:bg-apricot/30',
+        slashed:
+          'border-transparent bg-warm-red/10 text-warm-red hover:bg-warm-red/20',
+        exited:
+          'border-transparent bg-muted text-muted-foreground hover:bg-muted/80',
+        critical:
+          'border-transparent bg-warm-red text-white hover:bg-warm-red/90',
+        high:
+          'border-transparent bg-terra-cotta text-white hover:bg-terra-cotta/90',
+        medium:
+          'border-transparent bg-apricot text-offblack hover:bg-apricot/90',
+        low:
+          'border-transparent bg-plex-blue text-white hover:bg-plex-blue/90',
+        info:
+          'border-sky bg-sky/30 text-inky-blue hover:bg-sky/50',
+        neutral:
+          'border-transparent bg-inky-blue text-white hover:bg-inky-blue/90',
       },
     },
     defaultVariants: {

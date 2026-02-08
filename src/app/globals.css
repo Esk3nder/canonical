@@ -4,86 +4,161 @@
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    /* Canonical Design System — Light Mode */
+    /* See DESIGN_SYSTEM.md for full reference */
+
+    /* Core Surfaces — Neutral Off-White */
+    --background: 0 0% 98%;
+    --foreground: 180 52% 6%;
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 180 52% 6%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
-    --primary: 198 89% 48%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96%;
-    --secondary-foreground: 222 47% 11%;
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 198 89% 48%;
-    --chart-1: 221 83% 53%;
-    --chart-2: 142 71% 45%;
-    --chart-3: 271 81% 56%;
-    --chart-4: 24 95% 53%;
-    --chart-5: 189 94% 43%;
-    --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 11%;
-    --danger: 0 84% 60%;
-    --danger-foreground: 210 40% 98%;
-    --radius: 0.5rem;
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 198 89% 48%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 210 40% 96%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 214 32% 91%;
-    --sidebar-ring: 198 89% 48%;
+    --popover-foreground: 180 52% 6%;
+
+    /* Primary = True Turquoise */
+    --primary: 187 63% 34%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secondary */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 180 52% 6%;
+
+    /* Muted */
+    --muted: 0 0% 96%;
+    --muted-foreground: 189 34% 27%;
+
+    /* Accent = Sky */
+    --accent: 179 41% 80%;
+    --accent-foreground: 193 52% 15%;
+
+    /* Destructive = Warm Red */
+    --destructive: 354 41% 53%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Inputs */
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 187 63% 34%;
+
+    /* Chart Palette */
+    --chart-1: 187 63% 34%;
+    --chart-2: 188 73% 46%;
+    --chart-3: 354 41% 53%;
+    --chart-4: 29 100% 83%;
+    --chart-5: 71 38% 35%;
+
+    /* Semantic Status */
+    --success: 187 63% 34%;
+    --success-foreground: 0 0% 100%;
+    --warning: 29 100% 83%;
+    --warning-foreground: 180 52% 6%;
+    --danger: 354 41% 53%;
+    --danger-foreground: 0 0% 100%;
+
+    /* Turquoise Scale */
+    --turquoise-100: 184 78% 93%;
+    --turquoise-200: 184 57% 73%;
+    --turquoise-400: 185 59% 42%;
+    --turquoise-500: 188 73% 46%;
+    --turquoise-600: 187 63% 27%;
+    --turquoise-700: 186 67% 20%;
+    --turquoise-800: 187 69% 14%;
+
+    /* Search Flow Colors */
+    --search-query: 194 100% 50%;
+    --search-answer: 6 100% 67%;
+    --search-source: 42 94% 64%;
+    --search-result: 219 100% 61%;
+
+    /* Radius */
+    --radius: 0.3125rem;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 96%;
+    --sidebar-foreground: 180 52% 6%;
+    --sidebar-primary: 187 63% 34%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 93%;
+    --sidebar-accent-foreground: 193 52% 15%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 187 63% 34%;
   }
 
   .dark {
-    --background: 222 84% 5%;
-    --foreground: 210 40% 98%;
-    --card: 222 84% 5%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 84% 5%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 198 89% 48%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 33% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 217 33% 17%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 213 27% 84%;
-    --chart-1: 221 83% 53%;
-    --chart-2: 142 71% 45%;
-    --chart-3: 271 81% 56%;
-    --chart-4: 24 95% 53%;
-    --chart-5: 189 94% 43%;
-    --success: 142 71% 45%;
-    --success-foreground: 210 40% 98%;
-    --warning: 38 92% 50%;
-    --warning-foreground: 222 47% 11%;
-    --danger: 0 84% 60%;
-    --danger-foreground: 210 40% 98%;
-    --sidebar-background: 222 84% 5%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 198 89% 48%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 217 33% 17%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 17%;
-    --sidebar-ring: 198 89% 48%;
+    /* Canonical Design System — Dark Mode */
+
+    /* Core Surfaces */
+    --background: 0 0% 5%;
+    --foreground: 0 0% 100%;
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 100%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Primary = Bright Turquoise */
+    --primary: 189 73% 46%;
+    --primary-foreground: 0 0% 5%;
+
+    /* Secondary */
+    --secondary: 0 0% 14%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted */
+    --muted: 0 0% 14%;
+    --muted-foreground: 0 0% 50%;
+
+    /* Accent */
+    --accent: 0 0% 14%;
+    --accent-foreground: 0 0% 72%;
+
+    /* Destructive */
+    --destructive: 354 41% 53%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Borders & Inputs */
+    --border: 0 0% 23%;
+    --input: 0 0% 23%;
+    --ring: 189 73% 46%;
+
+    /* Chart Palette */
+    --chart-1: 189 73% 46%;
+    --chart-2: 187 63% 34%;
+    --chart-3: 6 100% 67%;
+    --chart-4: 29 100% 83%;
+    --chart-5: 42 94% 64%;
+
+    /* Semantic Status */
+    --success: 189 73% 46%;
+    --success-foreground: 0 0% 5%;
+    --warning: 29 100% 83%;
+    --warning-foreground: 0 0% 5%;
+    --danger: 354 41% 53%;
+    --danger-foreground: 0 0% 100%;
+
+    /* Turquoise Scale (inverted for dark) */
+    --turquoise-100: 189 30% 20%;
+    --turquoise-200: 189 40% 25%;
+    --turquoise-400: 189 55% 35%;
+    --turquoise-500: 189 73% 46%;
+    --turquoise-600: 189 78% 52%;
+    --turquoise-700: 189 82% 60%;
+    --turquoise-800: 189 85% 70%;
+
+    /* Search Flow Colors */
+    --search-query: 194 100% 50%;
+    --search-answer: 6 100% 67%;
+    --search-source: 42 94% 64%;
+    --search-result: 219 100% 61%;
+
+    /* Sidebar */
+    --sidebar-background: 0 0% 10%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 189 73% 46%;
+    --sidebar-primary-foreground: 0 0% 5%;
+    --sidebar-accent: 0 0% 14%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 0 0% 23%;
+    --sidebar-ring: 189 73% 46%;
   }
 
   * {
@@ -101,6 +176,6 @@
   }
 
   .unit-symbol {
-    @apply ml-0.5 text-[0.75em] text-slate-400;
+    @apply ml-0.5 text-[0.75em] text-muted-foreground;
   }
 }

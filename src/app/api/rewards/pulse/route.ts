@@ -2,16 +2,22 @@
  * Rewards Pulse API
  * GET /api/rewards/pulse - Returns real-time rewards summary for dashboard
  */
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db/client'
 import { stakeEvents, validators, operators, custodians } from '@/db/schema'
 import { eq, desc } from 'drizzle-orm'
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url)
+    const daysParam = searchParams.get('days')
+    const windowDays: number | null = daysParam === 'all' ? null : (daysParam ? Number(daysParam) : 30)
+
     const now = new Date()
     const twentyFourHoursAgo = new Date(now.getTime() - 24 * 60 * 60 * 1000)
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const periodStart = windowDays !== null
+      ? new Date(now.getTime() - windowDays * 24 * 60 * 60 * 1000)
+      : null
 
     // Get all reward events for calculations
     const rewardEvents = await db
@@ -46,9 +52,9 @@ export async function GET() {
       .filter((r) => !r.finalized)
       .reduce((sum, r) => sum + BigInt(r.amount), 0n)
 
-    // Calculate claimed this month (finalized rewards from this month)
-    const claimedThisMonth = claimableRewards
-      .filter((r) => r.timestamp >= startOfMonth)
+    // Calculate claimed in period (finalized rewards within selected time window)
+    const claimedInPeriod = claimableRewards
+      .filter((r) => periodStart === null || r.timestamp >= periodStart)
       .reduce((sum, r) => sum + BigInt(r.amount), 0n)
 
     // Group claimable by custodian
@@ -82,7 +88,7 @@ export async function GET() {
         claimable24hChange: newClaimableLast24h.toString(),
         custodianBreakdown,
         accrued: accrued.toString(),
-        claimedThisMonth: claimedThisMonth.toString(),
+        claimedThisMonth: claimedInPeriod.toString(),
         asOfTimestamp: now.toISOString(),
       },
     })

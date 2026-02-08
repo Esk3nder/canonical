@@ -17,14 +17,14 @@ export function CurrencyToggle() {
           setCurrency(value as Currency)
         }
       }}
-      className="rounded-lg bg-slate-100 p-1"
+      className="rounded-lg bg-muted p-1"
       aria-label="Display currency"
     >
       {options.map((option) => (
         <ToggleGroupItem
           key={option}
           value={option}
-          className="h-8 rounded-md px-3 text-sm font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-900 data-[state=on]:bg-slate-800 data-[state=on]:text-white"
+          className="h-7 rounded-md px-3 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground data-[state=on]:bg-foreground data-[state=on]:text-background"
           aria-label={`Show ${option}`}
         >
           {option}

@@ -202,33 +202,33 @@ export default function ExceptionsPage() {
     <div>
       <div className="max-w-6xl">
         <div className="mb-8">
-          <h1 className="text-2xl font-bold text-slate-900">Exception Queue</h1>
-          <p className="text-slate-600">Monitor and resolve portfolio anomalies</p>
+          <h1 className="text-2xl font-bold text-foreground">Exception Queue</h1>
+          <p className="text-muted-foreground">Monitor and resolve portfolio anomalies</p>
         </div>
 
         <div data-testid="exception-stats" className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
           <Card>
             <CardContent className="p-4">
-              <div className="text-sm text-slate-500">Total</div>
+              <div className="text-sm text-muted-foreground">Total</div>
               <div className="text-2xl font-bold">{stats.total}</div>
             </CardContent>
           </Card>
-          <Card className="border-red-200 bg-red-50">
+          <Card className="border-warm-red/30 bg-warm-red/10">
             <CardContent className="p-4">
-              <div className="text-sm text-red-700">New</div>
-              <div className="text-2xl font-bold text-red-800">{stats.new}</div>
+              <div className="text-sm text-warm-red">New</div>
+              <div className="text-2xl font-bold text-warm-red">{stats.new}</div>
             </CardContent>
           </Card>
-          <Card className="border-yellow-200 bg-yellow-50">
+          <Card className="border-apricot/30 bg-apricot/10">
             <CardContent className="p-4">
-              <div className="text-sm text-yellow-700">Investigating</div>
-              <div className="text-2xl font-bold text-yellow-800">{stats.investigating}</div>
+              <div className="text-sm text-terra-cotta">Investigating</div>
+              <div className="text-2xl font-bold text-terra-cotta">{stats.investigating}</div>
             </CardContent>
           </Card>
-          <Card className="border-green-200 bg-green-50">
+          <Card className="border-turquoise-200 bg-turquoise-100">
             <CardContent className="p-4">
-              <div className="text-sm text-green-700">Resolved</div>
-              <div className="text-2xl font-bold text-green-800">{stats.resolved}</div>
+              <div className="text-sm text-turquoise-800">Resolved</div>
+              <div className="text-2xl font-bold text-turquoise-800">{stats.resolved}</div>
             </CardContent>
           </Card>
         </div>
@@ -236,7 +236,7 @@ export default function ExceptionsPage() {
         <Card className="mb-6">
           <CardContent className="flex flex-wrap gap-4 pt-6">
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Status</label>
+              <label className="mb-1 block text-sm font-medium text-foreground">Status</label>
               <Select
                 value={statusFilter}
                 onValueChange={(value) => {
@@ -257,7 +257,7 @@ export default function ExceptionsPage() {
               </Select>
             </div>
             <div>
-              <label className="mb-1 block text-sm font-medium text-slate-700">Severity</label>
+              <label className="mb-1 block text-sm font-medium text-foreground">Severity</label>
               <Select
                 value={severityFilter}
                 onValueChange={(value) => {
@@ -296,8 +296,8 @@ export default function ExceptionsPage() {
         ) : exceptions.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center">
-              <h3 className="mb-1 text-lg font-medium text-slate-900">No exceptions found</h3>
-              <p className="text-slate-500">
+              <h3 className="mb-1 text-lg font-medium text-foreground">No exceptions found</h3>
+              <p className="text-muted-foreground">
                 {statusFilter !== 'all' || severityFilter !== 'all'
                   ? 'Try adjusting your filters.'
                   : 'All systems operating normally.'}
@@ -316,22 +316,22 @@ export default function ExceptionsPage() {
                           {exception.severity.toUpperCase()}
                         </Badge>
                         <Badge variant={getStatusVariant(exception.status)}>{exception.status}</Badge>
-                        <span className="text-xs text-slate-500">{TYPE_LABELS[exception.type]}</span>
+                        <span className="text-xs text-muted-foreground">{TYPE_LABELS[exception.type]}</span>
                       </div>
 
                       <h3
-                        className="cursor-pointer font-medium text-slate-900 hover:text-blue-600"
+                        className="cursor-pointer font-medium text-foreground hover:text-primary"
                         onClick={() => router.push(`/exceptions/${exception.id}`)}
                       >
                         {exception.title}
                       </h3>
 
-                      <p className="mt-1 line-clamp-2 text-sm text-slate-600">{exception.description}</p>
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{exception.description}</p>
 
-                      <div className="mt-2 flex items-center gap-4 text-xs text-slate-500">
+                      <div className="mt-2 flex items-center gap-4 text-xs text-muted-foreground">
                         <span>Detected: {formatDate(exception.detectedAt)}</span>
                         {exception.evidenceLinks.length > 0 && (
-                          <span data-testid="evidence-link" className="text-blue-600">
+                          <span data-testid="evidence-link" className="text-primary">
                             {exception.evidenceLinks.length} evidence link(s)
                           </span>
                         )}
@@ -345,7 +345,7 @@ export default function ExceptionsPage() {
                             <Button
                               size="sm"
                               variant="outline"
-                              className="border-yellow-300 bg-yellow-50 text-yellow-800 hover:bg-yellow-100"
+                              className="border-apricot/50 bg-apricot/10 text-terra-cotta hover:bg-apricot/20"
                               onClick={() => handleStatusUpdate(exception.id, 'investigating')}
                             >
                               Investigate
@@ -354,7 +354,7 @@ export default function ExceptionsPage() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="border-green-300 bg-green-50 text-green-800 hover:bg-green-100"
+                            className="border-turquoise-200 bg-turquoise-100 text-turquoise-800 hover:bg-turquoise-200"
                             onClick={() => handleStatusUpdate(exception.id, 'resolved')}
                           >
                             Resolve

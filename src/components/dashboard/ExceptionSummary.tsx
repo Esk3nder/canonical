@@ -52,18 +52,18 @@ interface ExceptionSummaryProps {
 }
 
 const SEVERITY_DOT_COLORS: Record<string, string> = {
-  critical: 'bg-red-500',
-  high: 'bg-orange-500',
-  medium: 'bg-yellow-500',
-  low: 'bg-blue-500',
+  critical: 'bg-warm-red',
+  high: 'bg-terra-cotta',
+  medium: 'bg-apricot',
+  low: 'bg-plex-blue',
 }
 
 const BANNER_COLORS: Record<string, string> = {
-  critical: 'bg-red-50 border-red-200',
-  high: 'bg-orange-50 border-orange-200',
-  medium: 'bg-yellow-50 border-yellow-200',
-  low: 'bg-blue-50 border-blue-200',
-  none: 'bg-green-50 border-green-200',
+  critical: 'bg-warm-red/10 border-warm-red/30',
+  high: 'bg-terra-cotta/10 border-terra-cotta/30',
+  medium: 'bg-apricot/10 border-apricot/30',
+  low: 'bg-sky/30 border-sky',
+  none: 'bg-turquoise-100 border-turquoise-200',
 }
 
 function getHighestSeverity(bySeverity: ExceptionSummaryData['bySeverity']): string {
@@ -99,8 +99,8 @@ export function ExceptionSummary({
 
   if (isLoading) {
     return (
-      <Card data-testid="summary-loading" className="px-4 py-3">
-        <div className="flex items-center gap-4">
+      <Card data-testid="summary-loading" className="px-3 py-1">
+        <div className="flex items-center gap-3">
           <Skeleton className="h-6 w-6 rounded-full" />
           <Skeleton className="h-4 w-48" />
         </div>
@@ -110,10 +110,10 @@ export function ExceptionSummary({
 
   if (!data || data.total === 0) {
     return (
-      <div className={cn('rounded-lg border px-4 py-3', BANNER_COLORS.none)}>
+      <div className={cn('rounded-lg border px-3 py-1', BANNER_COLORS.none)}>
         <div className="flex items-center gap-3">
-          <span className="text-lg text-green-600">✓</span>
-          <span className="text-sm text-green-800">No open exceptions</span>
+          <span className="text-lg text-success">✓</span>
+          <span className="text-sm text-turquoise-800">No open exceptions</span>
         </div>
       </div>
     )
@@ -130,13 +130,13 @@ export function ExceptionSummary({
       onOpenChange={setIsExpanded}
       className={cn('overflow-hidden rounded-lg border', BANNER_COLORS[highestSeverity])}
     >
-      <div className="flex items-center gap-4 px-4 py-3">
+      <div className="flex items-center gap-3 px-3 py-1">
         <CollapsibleTrigger asChild>
           <Button
             data-testid="expand-toggle"
             variant="ghost"
             size="icon"
-            className="h-7 w-7 text-slate-500 hover:text-slate-700"
+            className="h-7 w-7 text-muted-foreground hover:text-foreground"
             aria-expanded={isExpanded}
             aria-label={isExpanded ? 'Collapse exceptions' : 'Expand exceptions'}
           >
@@ -189,15 +189,15 @@ export function ExceptionSummary({
               onClick={() => onExceptionClick?.(topException.id)}
               className="group min-w-0 flex-1 text-left"
             >
-              <span className="block truncate text-sm text-slate-700 group-hover:text-slate-900">
+              <span className="block truncate text-sm text-foreground/80 group-hover:text-foreground">
                 {topException.title}
               </span>
             </button>
           ) : (
-            <span className="flex-1 text-sm text-slate-600">No recent exceptions available</span>
+            <span className="flex-1 text-sm text-muted-foreground">No recent exceptions available</span>
           )
         ) : (
-          <span className="flex-1 text-sm font-medium text-slate-700">Open Exceptions</span>
+          <span className="flex-1 text-sm font-medium text-foreground/80">Open Exceptions</span>
         )}
 
         {!isExpanded && topException?.isNew && (
@@ -219,13 +219,13 @@ export function ExceptionSummary({
       <CollapsibleContent>
         <div
           data-testid="exceptions-list"
-          className="divide-y divide-slate-100 border-t border-slate-200 bg-white"
+          className="divide-y divide-border border-t border-border bg-background"
         >
           {data.recent.map((exception, index) => (
             <div
               key={exception.id}
               onClick={() => onExceptionClick?.(exception.id)}
-              className="cursor-pointer px-4 py-3 hover:bg-slate-50"
+              className="cursor-pointer px-4 py-3 hover:bg-muted"
             >
               <div className="flex items-center gap-3">
                 <span
@@ -236,14 +236,14 @@ export function ExceptionSummary({
                 />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium text-slate-900">{exception.title}</p>
+                    <p className="truncate text-sm font-medium text-foreground">{exception.title}</p>
                     {exception.isNew && index === 0 && (
                       <Badge data-testid="exception-new-badge" variant="info">
                         New
                       </Badge>
                     )}
                   </div>
-                  <p className="mt-0.5 text-xs tabular-nums text-slate-500">
+                  <p className="mt-0.5 text-xs tabular-nums text-muted-foreground">
                     {formatDateTime(exception.detectedAt)}
                   </p>
                 </div>

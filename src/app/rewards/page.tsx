@@ -108,34 +108,34 @@ export default function RewardsPage() {
     <div>
       <div className="max-w-6xl">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-900">Rewards</h1>
-          <p className="text-slate-600">Track earned ETH from staking validators</p>
+          <h1 className="text-2xl font-bold text-foreground">Rewards</h1>
+          <p className="text-muted-foreground">Track earned ETH from staking validators</p>
         </div>
 
         {summary && (
           <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-4">
             <Card>
               <CardContent className="p-4">
-                <div className="text-sm text-slate-500">Last 7 Days</div>
-                <div className="text-xl font-bold text-green-600">+{formatGwei(summary.total7d)} ETH</div>
+                <div className="text-sm text-muted-foreground">Last 7 Days</div>
+                <div className="text-xl font-bold text-success">+{formatGwei(summary.total7d)} ETH</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="text-sm text-slate-500">Last 30 Days</div>
-                <div className="text-xl font-bold text-green-600">+{formatGwei(summary.total30d)} ETH</div>
+                <div className="text-sm text-muted-foreground">Last 30 Days</div>
+                <div className="text-xl font-bold text-success">+{formatGwei(summary.total30d)} ETH</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="text-sm text-slate-500">All Time</div>
-                <div className="text-xl font-bold text-green-600">+{formatGwei(summary.totalAllTime)} ETH</div>
+                <div className="text-sm text-muted-foreground">All Time</div>
+                <div className="text-xl font-bold text-success">+{formatGwei(summary.totalAllTime)} ETH</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="text-sm text-slate-500">Total Events</div>
-                <div className="text-xl font-bold text-slate-900">
+                <div className="text-sm text-muted-foreground">Total Events</div>
+                <div className="text-xl font-bold text-foreground">
                   {summary.eventCount.toLocaleString()}
                 </div>
               </CardContent>
@@ -160,13 +160,13 @@ export default function RewardsPage() {
         ) : rewards.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center">
-              <h3 className="mb-1 text-lg font-medium text-slate-900">No rewards yet</h3>
-              <p className="text-slate-500">Rewards will appear here as your validators earn ETH.</p>
+              <h3 className="mb-1 text-lg font-medium text-foreground">No rewards yet</h3>
+              <p className="text-muted-foreground">Rewards will appear here as your validators earn ETH.</p>
             </CardContent>
           </Card>
         ) : (
           <Card className="overflow-hidden">
-            <CardHeader className="border-b border-slate-200">
+            <CardHeader className="border-b border-border">
               <CardTitle>Reward History</CardTitle>
             </CardHeader>
             <div className="overflow-x-auto">
@@ -188,18 +188,18 @@ export default function RewardsPage() {
                       className="cursor-pointer"
                       onClick={() => router.push(`/validators/${reward.validatorId}`)}
                     >
-                      <TableCell className="text-sm text-slate-500">{formatDate(reward.timestamp)}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{formatDate(reward.timestamp)}</TableCell>
                       <TableCell>
-                        <code className="font-mono text-sm text-slate-900">
+                        <code className="font-mono text-sm text-foreground">
                           {shortenHex(reward.validatorPubkey, 6)}
                         </code>
                       </TableCell>
-                      <TableCell className="text-sm text-slate-600">{reward.custodianName}</TableCell>
-                      <TableCell className="text-sm text-slate-500">
+                      <TableCell className="text-sm text-muted-foreground">{reward.custodianName}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">
                         {reward.epoch ? reward.epoch.toLocaleString() : '-'}
                       </TableCell>
                       <TableCell className="text-right">
-                        <span className="font-medium text-green-600">+{formatGwei(reward.amount)} ETH</span>
+                        <span className="font-medium text-success">+{formatGwei(reward.amount)} ETH</span>
                       </TableCell>
                       <TableCell>
                         <Badge variant={reward.finalized ? 'active' : 'pending'}>
@@ -212,7 +212,7 @@ export default function RewardsPage() {
               </Table>
             </div>
 
-            <div className="border-t border-slate-200 px-4 py-3">
+            <div className="border-t border-border px-4 py-3">
               <DataTablePagination
                 page={page}
                 totalPages={totalPages}

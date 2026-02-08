@@ -78,34 +78,95 @@ async function seed() {
 
   // Create stake events
   const events = []
-  const eventTypes = ['deposit', 'activation', 'reward'] as const
   const now = new Date()
 
-  for (let i = 0; i < 100; i++) {
-    const validatorIdx = i % validators.length
-    const eventType = eventTypes[i % eventTypes.length]
-    const daysAgo = Math.floor(Math.random() * 30)
-    const timestamp = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000)
+  // Build operator-to-custodian lookup
+  const operatorToCustodian = new Map(
+    operatorData.map((op) => [op.id, op.custodianId])
+  )
 
-    let amount: string
-    if (eventType === 'deposit') {
-      amount = '32000000000' // 32 ETH
-    } else if (eventType === 'reward') {
-      amount = (30000000 + Math.floor(Math.random() * 30000000)).toString() // ~0.03-0.06 ETH per reward → realistic 3-4% APY
-    } else {
-      amount = '0'
-    }
-
+  // Generate deposit/activation events for all validators (at creation time)
+  let eventCounter = 0
+  for (const validator of validators) {
+    // Deposit event ~91 days ago
     events.push({
-      id: `event-${i.toString().padStart(4, '0')}`,
-      validatorId: validators[validatorIdx].id,
-      eventType,
-      amount,
-      epoch: 100000 + i,
-      slot: (100000 + i) * 32,
-      timestamp,
+      id: `event-${eventCounter.toString().padStart(5, '0')}`,
+      validatorId: validator.id,
+      eventType: 'deposit' as const,
+      amount: '32000000000',
+      epoch: 100000 + eventCounter,
+      slot: (100000 + eventCounter) * 32,
+      timestamp: new Date(now.getTime() - 91 * 24 * 60 * 60 * 1000),
       finalized: true,
     })
+    eventCounter++
+
+    // Activation event ~90 days ago
+    events.push({
+      id: `event-${eventCounter.toString().padStart(5, '0')}`,
+      validatorId: validator.id,
+      eventType: 'activation' as const,
+      amount: '0',
+      epoch: 100000 + eventCounter,
+      slot: (100000 + eventCounter) * 32,
+      timestamp: new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000),
+      finalized: true,
+    })
+    eventCounter++
+  }
+
+  // Generate reward events across 90 days with per-custodian variation
+  for (let daysAgo = 89; daysAgo >= 0; daysAgo--) {
+    const dayStart = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000)
+
+    for (const validator of validators) {
+      // Only generate rewards for active-state validators
+      if (validator.stakeState !== 'active') continue
+
+      // ~60% chance of a reward event per validator per day
+      if (Math.random() > 0.6) continue
+
+      const custodianId = operatorToCustodian.get(validator.operatorId)!
+      let baseReward: number
+
+      // Per-custodian reward profiles
+      if (custodianId === 'custodian-coinbase') {
+        // Coinbase Prime: slight upward trend, ~3.5-4.0% APR
+        baseReward = 35000000 + Math.floor(Math.random() * 10000000)
+        baseReward += Math.floor((90 - daysAgo) * 50000)
+      } else if (custodianId === 'custodian-anchorage') {
+        // Anchorage Digital: higher volatility via sine wave, ~3.8-4.2% APR
+        baseReward = 38000000 + Math.floor(Math.random() * 10000000)
+        baseReward += Math.floor(Math.sin(daysAgo / 7) * 5000000)
+      } else {
+        // BitGo: stable, slightly lower, ~3.2-3.6% APR
+        baseReward = 30000000 + Math.floor(Math.random() * 10000000)
+      }
+
+      // Dip for BitGo around days 40-50 ago
+      if (custodianId === 'custodian-bitgo' && daysAgo >= 40 && daysAgo <= 50) {
+        baseReward = Math.floor(baseReward * 0.6)
+      }
+
+      // Spike for Anchorage around days 20-30 ago
+      if (custodianId === 'custodian-anchorage' && daysAgo >= 20 && daysAgo <= 30) {
+        baseReward = Math.floor(baseReward * 1.3)
+      }
+
+      const timestamp = new Date(dayStart.getTime() + Math.floor(Math.random() * 24 * 60 * 60 * 1000))
+
+      events.push({
+        id: `event-${eventCounter.toString().padStart(5, '0')}`,
+        validatorId: validator.id,
+        eventType: 'reward' as const,
+        amount: baseReward.toString(),
+        epoch: 100000 + eventCounter,
+        slot: (100000 + eventCounter) * 32,
+        timestamp,
+        finalized: true,
+      })
+      eventCounter++
+    }
   }
 
   // Add additional reward events for rewards pulse demo
@@ -122,7 +183,7 @@ async function seed() {
     const { validatorIdx, amount, hoursAgo } = claimableRewards[i]
     const timestamp = new Date(now.getTime() - hoursAgo * 60 * 60 * 1000)
     events.push({
-      id: `event-claim-${i.toString().padStart(4, '0')}`,
+      id: `event-claim-${i.toString().padStart(5, '0')}`,
       validatorId: validators[validatorIdx].id,
       eventType: 'reward' as const,
       amount,
@@ -145,7 +206,7 @@ async function seed() {
     const { validatorIdx, amount, hoursAgo } = accruedRewards[i]
     const timestamp = new Date(now.getTime() - hoursAgo * 60 * 60 * 1000)
     events.push({
-      id: `event-accrued-${i.toString().padStart(4, '0')}`,
+      id: `event-accrued-${i.toString().padStart(5, '0')}`,
       validatorId: validators[validatorIdx].id,
       eventType: 'reward' as const,
       amount,
@@ -170,7 +231,7 @@ async function seed() {
     // Only add if within current month
     if (timestamp >= startOfMonth) {
       events.push({
-        id: `event-claimed-${i.toString().padStart(4, '0')}`,
+        id: `event-claimed-${i.toString().padStart(5, '0')}`,
         validatorId: validators[validatorIdx].id,
         eventType: 'reward' as const,
         amount,

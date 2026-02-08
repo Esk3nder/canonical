@@ -364,7 +364,7 @@ export default function ReportsPage() {
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-auto p-0 text-green-600 hover:text-green-800"
+                            className="h-auto p-0 text-success hover:text-success/80"
                             onClick={() => handleDownload(report)}
                           >
                             Download

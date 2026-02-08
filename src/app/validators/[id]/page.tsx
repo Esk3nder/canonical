@@ -205,19 +205,19 @@ export default function ValidatorDetailPage() {
         <Card>
           <CardContent className="pt-4">
             <p className="text-xs text-muted-foreground uppercase">30d APY</p>
-            <p className="text-xl font-bold text-green-600">{formatPercent(data.trailingApy30d)}</p>
+            <p className="text-xl font-bold text-success">{formatPercent(data.trailingApy30d)}</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
             <p className="text-xs text-muted-foreground uppercase">Total Rewards</p>
-            <p className="text-xl font-bold text-purple-600">{formatEther(data.rewardsTotal)} ETH</p>
+            <p className="text-xl font-bold text-primary">{formatEther(data.rewardsTotal)} ETH</p>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-4">
             <p className="text-xs text-muted-foreground uppercase">Penalties</p>
-            <p className="text-xl font-bold text-red-600">{formatEther(data.penalties)} ETH</p>
+            <p className="text-xl font-bold text-destructive">{formatEther(data.penalties)} ETH</p>
           </CardContent>
         </Card>
       </div>

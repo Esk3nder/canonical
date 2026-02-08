@@ -249,7 +249,7 @@ export default function ReportDetailPage() {
                   <Card>
                     <CardContent className="pt-4">
                       <div className="text-sm text-muted-foreground">Blended Staking APY</div>
-                      <div className="text-2xl font-bold text-green-600">
+                      <div className="text-2xl font-bold text-success">
                         {formatPercent(report.summary.trailingApy30d)}
                       </div>
                     </CardContent>
@@ -267,33 +267,33 @@ export default function ReportDetailPage() {
                 {/* State Buckets */}
                 <h3 className="text-md font-semibold mb-3">State Buckets</h3>
                 <div className="grid grid-cols-5 gap-3">
-                  <div className="bg-slate-50 rounded-lg p-3">
-                    <div className="text-xs text-slate-700 uppercase">Deposited</div>
-                    <div className="text-lg font-semibold text-slate-800">
+                  <div className="bg-muted rounded-lg p-3">
+                    <div className="text-xs text-foreground uppercase">Deposited</div>
+                    <div className="text-lg font-semibold text-foreground">
                       {formatEther(report.summary.stateBuckets.deposited)} ETH
                     </div>
                   </div>
-                  <div className="bg-amber-50 rounded-lg p-3">
-                    <div className="text-xs text-amber-700 uppercase">Entry Queue</div>
-                    <div className="text-lg font-semibold text-amber-800">
+                  <div className="bg-apricot/10 rounded-lg p-3">
+                    <div className="text-xs text-terra-cotta uppercase">Entry Queue</div>
+                    <div className="text-lg font-semibold text-foreground">
                       {formatEther(report.summary.stateBuckets.entryQueue)} ETH
                     </div>
                   </div>
-                  <div className="bg-emerald-50 rounded-lg p-3">
-                    <div className="text-xs text-emerald-700 uppercase">Active</div>
-                    <div className="text-lg font-semibold text-emerald-800">
+                  <div className="bg-turquoise-100 rounded-lg p-3">
+                    <div className="text-xs text-primary uppercase">Active</div>
+                    <div className="text-lg font-semibold text-foreground">
                       {formatEther(report.summary.stateBuckets.active)} ETH
                     </div>
                   </div>
-                  <div className="bg-orange-50 rounded-lg p-3">
-                    <div className="text-xs text-orange-700 uppercase">Exiting</div>
-                    <div className="text-lg font-semibold text-orange-800">
+                  <div className="bg-terra-cotta/10 rounded-lg p-3">
+                    <div className="text-xs text-terra-cotta uppercase">Exiting</div>
+                    <div className="text-lg font-semibold text-foreground">
                       {formatEther(report.summary.stateBuckets.exiting)} ETH
                     </div>
                   </div>
-                  <div className="bg-blue-50 rounded-lg p-3">
-                    <div className="text-xs text-blue-700 uppercase">Withdrawable</div>
-                    <div className="text-lg font-semibold text-blue-800">
+                  <div className="bg-sky/20 rounded-lg p-3">
+                    <div className="text-xs text-plex-blue uppercase">Withdrawable</div>
+                    <div className="text-lg font-semibold text-foreground">
                       {formatEther(report.summary.stateBuckets.withdrawable)} ETH
                     </div>
                   </div>
@@ -324,7 +324,7 @@ export default function ReportDetailPage() {
                       <TableCell className="font-medium">{c.custodianName}</TableCell>
                       <TableCell className="text-right">{formatEther(c.value)}</TableCell>
                       <TableCell className="text-right">{formatPercent(c.percentage)}</TableCell>
-                      <TableCell className="text-right text-green-600">
+                      <TableCell className="text-right text-success">
                         {formatPercent(c.trailingApy30d)}
                       </TableCell>
                       <TableCell className="text-right">{c.validatorCount}</TableCell>
@@ -368,7 +368,7 @@ export default function ReportDetailPage() {
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right">{formatEther(v.balance)}</TableCell>
-                      <TableCell className="text-right text-green-600">
+                      <TableCell className="text-right text-success">
                         {formatPercent(v.trailingApy30d)}
                       </TableCell>
                     </TableRow>

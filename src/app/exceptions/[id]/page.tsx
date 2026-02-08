@@ -262,7 +262,7 @@ export default function ExceptionDetailPage() {
             <div className="mb-6">
               <h3 className="text-sm font-medium mb-2">Resolution</h3>
               <Alert>
-                <AlertDescription className="text-green-800">
+                <AlertDescription className="text-turquoise-800">
                   {exception.resolution}
                 </AlertDescription>
               </Alert>
